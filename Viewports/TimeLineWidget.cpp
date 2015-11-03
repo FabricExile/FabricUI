@@ -259,6 +259,11 @@ int TimeLineWidget::getRangeEnd()
   return static_cast<int>( m_endSpinBox->value() );
 }
 
+double TimeLineWidget::getFrameRate()
+{
+  return static_cast<double>(  m_frameRateComboBox->itemData(index).toDouble() );
+}
+
 void TimeLineWidget::sliderChanged(int frame)
 {
   setTime( frame );
@@ -430,6 +435,8 @@ void TimeLineWidget::frameRateChanged(int index)
 
   if(fps > 0.0)
     m_timer->setInterval((int)(1000.0 / fps));
+
+  emit frameRateChanged(fps);
 }
 
 void TimeLineWidget::loopModeChanged(int index)

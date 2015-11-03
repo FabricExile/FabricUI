@@ -43,6 +43,9 @@ namespace FabricUI
         /// return the current Time
         int getRangeEnd();
 
+        /// return the current Time
+        double getFrameRate();
+
         /// setup the time range
         void setTimeRange(int start , int end);
 
@@ -62,6 +65,8 @@ namespace FabricUI
         /// this signal is emited when ever the time on the widget changed
         /// client would connect this slight to any slots that need to know about the time
         void frameChanged(int frame);
+
+        void frameRateChanged(double frame);
 
       public slots:
 
