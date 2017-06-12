@@ -3,8 +3,6 @@
 #ifndef __UI_GraphView_SidePanel__
 #define __UI_GraphView_SidePanel__
 
-#include <FabricCore.h>
-
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
 #include <QPen>
