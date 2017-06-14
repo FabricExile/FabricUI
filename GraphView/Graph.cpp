@@ -312,7 +312,7 @@ bool Graph::removeNode(Node * node, bool quiet)
 
   prepareGeometryChange();
   scene()->removeItem(node);
-  delete node;
+  node->deleteLater();
 
   controller()->endInteraction();
 
