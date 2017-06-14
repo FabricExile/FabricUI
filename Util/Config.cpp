@@ -13,10 +13,11 @@ using namespace FTL;
 #include <QColor>
 #include <QFont>
 
-namespace FabricCore // HACK ?
-{
-  char const * GetFabricUserDir();
-}
+#ifdef NO_FABRIC_CORE // HACK
+namespace FabricCore { inline char const * GetFabricUserDir() { return ""; } }
+#else
+#include <FabricCore.h>
+#endif
 
 namespace FabricUI {
 namespace Util {
