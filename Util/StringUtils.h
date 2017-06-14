@@ -6,7 +6,6 @@
 #define __UI_FABRICUI_STRING_UTILS_H__
 
 #include <FTL/Config.h>
-#include <FabricCore.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
