@@ -39,6 +39,7 @@ Connection::Connection(
   , m_graph( graph )
   , m_src( src )
   , m_dst( dst )
+  , m_cosmeticPen( graph->cosmeticConnections() )
   , m_hovered( false )
   , m_dragging( false )
   , m_aboutToBeDeleted( false )
@@ -135,7 +136,7 @@ Connection::Connection(
   }
   setColor(color);
   setAcceptHoverEvents(true);
-  setPen(m_defaultPen);
+  updatePen();
 
   setZValue(-1);
 
@@ -263,7 +264,7 @@ void Connection::setColor(QColor color)
 
   m_color = color;
   m_defaultPen.setColor(color);
-  setPen(m_defaultPen);
+  updatePen();
 }
 
 QPointF Connection::srcPoint() const
@@ -291,7 +292,7 @@ void Connection::invalidate()
 void Connection::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
   m_hovered = true;
-  setPen(m_hoverPen);
+  updatePen();
 
   if (graph()->config().highlightConnectionTargets)
   {
@@ -320,7 +321,7 @@ void Connection::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 void Connection::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 {
   m_hovered = false;
-  setPen(m_defaultPen);
+  updatePen();
 
   if (graph()->config().highlightConnectionTargets)
   {
@@ -344,6 +345,19 @@ void Connection::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 
   if (graph()->config().highlightConnectionTargets)
     graph()->update();
+}
+
+void Connection::setCosmetic( bool cosmetic )
+{
+  m_cosmeticPen = cosmetic;
+  this->updatePen();
+}
+
+void Connection::updatePen()
+{
+  QPen pen = m_hovered ? m_hoverPen : m_defaultPen;
+  pen.setCosmetic( m_cosmeticPen );
+  this->setPen( pen );
 }
 
 void Connection::mousePressEvent(QGraphicsSceneMouseEvent * event)

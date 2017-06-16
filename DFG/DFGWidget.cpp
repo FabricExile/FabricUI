@@ -360,6 +360,7 @@ static void CountNodeTypes(
   unsigned &setNodeCount,
   unsigned &instNodeCount,
   unsigned &userNodeCount,
+  unsigned &backdropNodeCount,
   unsigned &blockNodeCount
   )
 {
@@ -368,12 +369,13 @@ static void CountNodeTypes(
   setNodeCount = 0;
   instNodeCount = 0;
   userNodeCount = 0;
+  backdropNodeCount = 0;
   blockNodeCount = 0;
   for(unsigned int i=0;i<nodes.size();i++)
   {
     if (nodes[i]->isBackDropNode())
     {
-      userNodeCount++;
+      backdropNodeCount++;
       continue;
     }
 
@@ -415,6 +417,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   unsigned setNodeCount;
   unsigned instNodeCount;
   unsigned userNodeCount;
+  unsigned backdropNodeCount;
   unsigned blockNodeCount;
   CountNodeTypes(
     controller->getExec(),
@@ -424,6 +427,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
     setNodeCount,
     instNodeCount,
     userNodeCount,
+    backdropNodeCount,
     blockNodeCount
     );
 
@@ -497,6 +501,7 @@ QMenu *DFGWidget::nodeContextMenuCallback(
     unsigned setNodeCount;
     unsigned instNodeCount;
     unsigned userNodeCount;
+    unsigned backdropNodeCount;
     unsigned blockNodeCount;
     CountNodeTypes(
       exec,
@@ -506,6 +511,7 @@ QMenu *DFGWidget::nodeContextMenuCallback(
       setNodeCount,
       instNodeCount,
       userNodeCount,
+      backdropNodeCount,
       blockNodeCount
       );
     bool onlyInstNodes        = (instNodeCount == nodes.size());
@@ -632,15 +638,15 @@ QMenu *DFGWidget::nodeContextMenuCallback(
 
     result->addSeparator();
 
-    result->addAction(new AutoConnectionsAction  (dfgWidget, result, dfgWidget->isEditable() && nodes.size() > 1));
-    result->addAction(new RemoveConnectionsAction(dfgWidget, result, dfgWidget->isEditable()));
+    result->addAction(new AutoConnectionsAction  (dfgWidget, result, dfgWidget->isEditable() && nodes.size() - backdropNodeCount > 1));
+    result->addAction(new RemoveConnectionsAction(dfgWidget, result, dfgWidget->isEditable() && nodes.size() != backdropNodeCount));
     result->addAction(new SplitFromPresetAction  (dfgWidget, uiNode, result, onlyInstNodes && instNodeCount == 1 && exec.getSubExec(uiNode->name().c_str()).editWouldSplitFromPreset()));
 
     result->addSeparator();
 
     result->addAction(new UpdatePresetAction          (dfgWidget, uiNode, result, onlyInstNodes && instNodeCount == 1 && dfgWidget->isEditable() && instExecCanUpdatePreset));
     result->addAction(new CreatePresetAction          (dfgWidget, uiNode, result, onlyInstNodes && instNodeCount == 1 && dfgWidget->isEditable() && instExecCanCreatePreset));
-    result->addAction(new RevealPresetInExplorerAction(dfgWidget, uiNode, result, nodes.size() == 1 && instExec.isPreset()));
+    result->addAction(new RevealPresetInExplorerAction(dfgWidget, uiNode, result, nodes.size() == 1 && instExec.isValid() && instExec.isPreset()));
     result->addAction(new ExportGraphAction           (dfgWidget, uiNode, result, onlyInstNodes && instNodeCount == 1));
     result->addSeparator();
 

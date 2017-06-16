@@ -173,6 +173,8 @@ namespace FabricUI
       virtual bool autoConnections();
       virtual bool removeConnections();
       virtual void resetMouseGrabber();
+      void setConnectionsCosmetic( bool cosmetic );
+      inline bool cosmeticConnections() const { return m_cosmeticConnections; }
 
       void updateOverlays(float width, float height);
       void setupBackgroundOverlay(QPointF pos, QString filePath);
@@ -238,7 +240,7 @@ namespace FabricUI
       double m_nodeZValue;
       double m_backdropZValue;
       double m_connectionZValue;
-
+      bool m_cosmeticConnections;
     };
 
   };

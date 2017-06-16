@@ -16,6 +16,7 @@
 #include <FabricUI/GraphView/Controller.h>
 #include <FabricUI/GraphView/SidePanel.h>
 #include <FabricUI/GraphView/SelectionRect.h>
+#include <FabricUI/GraphView/Connection.h>
 
 #include <math.h>
 
@@ -88,6 +89,8 @@ void MainPanel::setCanvasZoom(float state, bool quiet)
 
   m_mouseWheelZoomState = state;
 
+  float previousState = m_itemGroup->scale();
+
   QGraphicsView * graphicsView = graph()->scene()->views()[0];
   if ( state > s_minZoomForOne
     && state < s_maxZoomForOne )
@@ -99,6 +102,19 @@ void MainPanel::setCanvasZoom(float state, bool quiet)
   {
     graphicsView->setRenderHint(QPainter::SmoothPixmapTransform, true);
     m_itemGroup->setScale(state);
+  }
+
+  const float cosmeticThreshold = 1.0f;
+  if( state != previousState &&
+    // update the connections only if the boolean argument "cosmetic" changed
+    ( ( state < cosmeticThreshold ) != ( previousState < cosmeticThreshold ) )
+  )
+  {
+    // If the scale is < 1, make the connection's pen sizes invariant
+    // to zoom ( QPen::setCosmetic( true ) ). Otherwhise, their width
+    // will scale with zoom.
+    bool cosmetic = ( state < cosmeticThreshold );
+    m_graph->setConnectionsCosmetic( cosmetic );
   }
 
   update();

@@ -600,6 +600,7 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
 
   Connection * connection = new Connection(this, src, dst);
   m_connections.push_back(connection);
+  connection->setCosmetic( m_cosmeticConnections );
 
   if(connection->src()->targetType() == TargetType_Pin)
   {
@@ -891,6 +892,20 @@ MouseGrabber * Graph::getMouseGrabber()
 void Graph::resetMouseGrabber()
 {
   m_mouseGrabber = NULL;
+}
+
+void Graph::setConnectionsCosmetic( bool cosmetic )
+{
+  m_cosmeticConnections = cosmetic;
+  const std::vector<Connection*> connections = this->connections();
+  for( size_t i = 0; i < connections.size(); i++ )
+    connections[i]->setCosmetic( m_cosmeticConnections );
+  if( getMouseGrabber() )
+  {
+    Connection* connection = getMouseGrabber()->connection();
+    if( connection )
+      connection->setCosmetic( m_cosmeticConnections );
+  }
 }
 
 void Graph::updateOverlays(float width, float height)

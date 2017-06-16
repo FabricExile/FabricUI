@@ -41,6 +41,7 @@ namespace FabricUI
       Graph * graph();
       const Graph * graph() const;
       virtual QColor color() const;
+      inline Connection * connection() const { return m_connection; }
 
       virtual std::string path() const { return "***ASSERT***"; }
 

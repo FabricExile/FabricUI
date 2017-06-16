@@ -75,10 +75,12 @@ DFGConfig::DFGConfig()
   REGISTER_DATA_TYPE_COLOR( "Index", QColor( 0, 153, 100 ) );
   REGISTER_DATA_TYPE_COLOR( "Size", QColor( 0, 153, 100 ) );
   REGISTER_DATA_TYPE_COLOR( "Count", QColor( 0, 153, 100 ) );
-  REGISTER_DATA_TYPE_COLOR( "String", QColor( 76, 16, 0 ) );
+  REGISTER_DATA_TYPE_COLOR( "String", QColor( 166, 36, 0 ) );
   REGISTER_DATA_TYPE_COLOR( "Execute", QColor( "#60D4E7" ) );
 
   // todo: to be removed
+  // these colors should be defined as metadata above the KL code
+  // that defines these types (in their extension)
   REGISTER_DATA_TYPE_COLOR( "Regex", QColor( 134, 55, 41 ) );
   REGISTER_DATA_TYPE_COLOR( "Vec2", QColor( 255, 242, 0 ) );
   REGISTER_DATA_TYPE_COLOR( "Vec3", QColor( 255, 242, 0 ) );
@@ -100,7 +102,7 @@ DFGConfig::DFGConfig()
   REGISTER_DATA_TYPE_COLOR( "Curves", QColor( 51, 1, 106 ) );
   REGISTER_DATA_TYPE_COLOR( "Curve", QColor( 51, 1, 106 ) );
   REGISTER_DATA_TYPE_COLOR( "Points", QColor( 51, 1, 106 ) );
-  REGISTER_DATA_TYPE_COLOR( "PolygonMesh", QColor( 51, 1, 106 ) );
+  REGISTER_DATA_TYPE_COLOR( "PolygonMesh", QColor( 110, 58, 166 ) );
   REGISTER_DATA_TYPE_COLOR( "ImporterObject", QColor( 206, 165, 151 ) );
   REGISTER_DATA_TYPE_COLOR( "ImporterContext", QColor( 206, 165, 151 ) );
 }
