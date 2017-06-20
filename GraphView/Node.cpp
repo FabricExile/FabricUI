@@ -398,7 +398,7 @@ bool Node::removePin( Pin * pin )
 
   scene()->removeItem(pin);
   
-  delete pin;
+  pin->deleteLater();
 
   // [pzion 20160216] Workaround for possible bug in QGraphicsScene
   // Without this, we get pretty consistent crashes walking the BSP
