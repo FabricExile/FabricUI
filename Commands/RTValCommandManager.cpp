@@ -110,6 +110,22 @@ void RTValCommandManager::preDoCommand(
         PathValueResolverRegistry::getRegistry()->getValue(pathValue);
         scriptCmd->setRTValArg(key, pathValue);
       }
+
+      // If the argument wasn't resolve and its,
+      // path is not empty, throws an exception.
+      else 
+      {
+        bool isPathEmpty = scriptCmd->getRTValArgPath(key).isEmpty();
+        bool isArgSet = scriptCmd->getRTValArgType(key) != "RTVal";
+        bool isOptional = scriptCmd->hasArgFlag(key, CommandArgFlags::OPTIONAL_ARG);
+
+        if(!isPathEmpty || (isOptional && isPathEmpty && !isArgSet) )
+          FabricException::Throw(
+            "RTValCommandManager::preDoCommand",
+            "PathValue argument '" + key + "' of command '" + scriptCmd->getName() + 
+            "', cannot resolve path " + scriptCmd->getRTValArgPath(key) + "'"
+            );
+      }
     }
   }
 
@@ -134,6 +150,22 @@ void RTValCommandManager::postDoCommand(
       if(PathValueResolverRegistry::getRegistry()->knownPath(pathValue))
         PathValueResolverRegistry::getRegistry()->setValue(
           pathValue);
+
+      // If the argument wasn't resolve and its,
+      // path is not empty, throws an exception.
+      else 
+      {
+        bool isPathEmpty = scriptCmd->getRTValArgPath(key).isEmpty();
+        bool isArgSet = scriptCmd->getRTValArgType(key) != "RTVal";
+        bool isOptional = scriptCmd->hasArgFlag(key, CommandArgFlags::OPTIONAL_ARG);
+
+        if(!isPathEmpty || (isOptional && isPathEmpty && !isArgSet) )
+          FabricException::Throw(
+            "RTValCommandManager::postDoCommand",
+            "PathValue argument '" + key + "' of command '" + scriptCmd->getName() + 
+            "', cannot resolve path " + scriptCmd->getRTValArgPath(key) + "'"
+            );
+      }
     }
   }
 
