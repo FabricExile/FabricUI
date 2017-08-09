@@ -490,8 +490,8 @@ QString CommandManager::getStackContent(
 
     BaseCommand *top = stackedCmd.topLevelCmd.data();
     BaseScriptableCommand *scriptableTop = qobject_cast<BaseScriptableCommand *>(top);
-
-    QString desc = withArgs && scriptableTop != 0
+    
+    QString desc = withArgs && scriptableTop != 0 && (scriptableTop->getArgKeys().size() > 0)
       ? top->getName() + "\n" + scriptableTop->getArgsDescription() 
       : top->getName();
 
