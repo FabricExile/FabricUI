@@ -7,7 +7,6 @@
 
 #include <FabricCore.h>
 #include "ViewportWidget.h"
-#include "ManipulationTool.h"
 
 namespace FabricUI {
 namespace Viewports {
@@ -26,18 +25,7 @@ class GLViewportWidget : public ViewportWidget
       );
 
   	virtual ~GLViewportWidget();
-    
-    /// Implementation of ViewportWidget.
-    virtual bool isManipulationActive();
-    
-    /// Implementation of ViewportWidget.
-    virtual void setManipulationActive(
-      bool state
-      );
-    
-    /// Gets a pointor to the manip-tool.
-    ManipulationTool* getManipTool();
-    
+  
     /// Gets tge camera.
     FabricCore::RTVal getCamera();
 
@@ -62,12 +50,6 @@ class GLViewportWidget : public ViewportWidget
     /// Resets the camera to its 
     /// default parameters.
     void resetCamera();
-
-  signals:
-    /// \internal, depreciated.
-    void portManipulationRequested(
-      QString portName
-      );
 
   protected:
     /// Implementation of QGLWidget
@@ -106,7 +88,6 @@ class GLViewportWidget : public ViewportWidget
     FabricCore::RTVal m_camera;
     FabricCore::RTVal m_drawing;
     FabricCore::RTVal m_viewport;
-    ManipulationTool *m_manipTool;
     FabricCore::RTVal m_drawContext;
     FabricCore::RTVal m_cameraManipulator;
 };

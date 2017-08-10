@@ -35,6 +35,8 @@ namespace FabricUI
 
       virtual FabricUI::ValueEditor::ItemMetadata *getMetadata() /*override*/;
 
+      bool shouldBeReadOnly() const;
+
     protected:
 
       virtual void setValue(

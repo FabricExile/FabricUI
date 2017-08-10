@@ -2,7 +2,6 @@
  *  Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
  */
 
-#include <iostream>
 #include <QMouseEvent>
 #include <QApplication>
 #include "QtToKLEvent.h"
@@ -24,7 +23,6 @@ GLViewportWidget::GLViewportWidget(
   : ViewportWidget(format, parent)
   , m_bgColor(bgColor)
 {	
-  m_manipTool = new ManipulationTool();
   setAutoBufferSwap(false);
 
   m_gridVisible = true; // default value
@@ -47,12 +45,6 @@ GLViewportWidget::GLViewportWidget(
 
 GLViewportWidget::~GLViewportWidget()
 {
-  delete(m_manipTool);
-}
-
-ManipulationTool* GLViewportWidget::getManipTool() 
-{ 
-  return m_manipTool; 
 }
 
 RTVal GLViewportWidget::getCamera() 
@@ -154,25 +146,6 @@ void GLViewportWidget::setBackgroundColor(
     
     FABRIC_CATCH_END("GLViewportWidget::setBackgroundColor");
   }
-}
-
-bool GLViewportWidget::isManipulationActive() 
-{
-  return m_manipTool->isActive();
-}
-
-void GLViewportWidget::setManipulationActive(
-  bool state)
-{
-  if(state == m_manipTool->isActive())
-    return;
-
-  if(state) setFocus();
-  else clearFocus();
-  m_manipTool->setActive(state);
-  
-  setMouseTracking(state);
-  redraw();
 }
 
 void GLViewportWidget::clear()

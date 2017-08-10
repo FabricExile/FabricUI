@@ -147,7 +147,7 @@ void DFGPathValueResolver::getValue(
 
   QString type = RTValUtil::getType(value);
   
-  if(value.isValid() && type != "None")
+  if(value.isValid())
     pathValue.setMember("value", value);
   
   else
@@ -157,7 +157,7 @@ void DFGPathValueResolver::getValue(
 
     FabricException::Throw(
       "DFGPathValueResolver::getValue",
-      "Invalid PathValue : " + path + ", type " + type.toUtf8()
+      "Invalid data at path : " + path + ", data type : " + type.toUtf8()
       );
   }
 
@@ -344,13 +344,15 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
       subExecPath = nodePath.mid(0, index);
 
     // test for Block
-    QString blockName, nodeName, subExecPath_;
+    QString blockName, nodeName, execBlockPath;
 
+    // Ports of a block exec have the structure
+    // ...nodeName.blockName.portName
     if(nodePath.count(".") >= 2)
     {
       index = subExecPath.lastIndexOf(".");
       if(index != -1)
-        subExecPath_ = subExecPath.mid(0, index);
+        execBlockPath = subExecPath.mid(0, index);
 
       index = nodePath.lastIndexOf(".");
       blockName = nodePath.mid(index+1);
@@ -366,14 +368,17 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
       blockName = nodePath.mid(index+1);
       nodeName = nodePath.mid(0, index);
     }
-    
+      
     // Block Inst
-    if(m_binding.getExec().getSubExec(
-      subExecPath_.toUtf8().constData()).isInstBlock(
+    exec = m_binding.getExec().getSubExec(
+      execBlockPath.toUtf8().constData()
+      );
+
+    // FE-8759
+    if(!exec.isExecBlock(nodeName.toUtf8().constData()) && exec.isInstBlock(
         nodeName.toUtf8().constData(), 
         blockName.toUtf8().constData()))
     {
-      subExecPath = subExecPath_;
       dfgPortPaths.blockName = blockName;
       dfgPortPaths.nodeName = nodeName;
     }
@@ -383,11 +388,10 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
     {
       index = nodePath.lastIndexOf(".");
       dfgPortPaths.nodeName = nodePath.mid(index+1);
+      exec = m_binding.getExec().getSubExec(
+        subExecPath.toUtf8().constData()
+        );
     }
-
-    exec = m_binding.getExec().getSubExec(
-      subExecPath.toUtf8().constData()
-      );
   }
 
   // Arg

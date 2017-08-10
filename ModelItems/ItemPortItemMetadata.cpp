@@ -17,10 +17,10 @@ ItemPortItemMetadata::ItemPortItemMetadata( ItemPortModelItem *nodePortModelItem
 
 void ItemPortItemMetadata::computeDFGPath()
 {
-  std::stringstream bdid; bdid << m_nodePortModelItem->getBinding().getBindingID();
-  m_bindingId = bdid.str();
+  QString bdid = QString::number(m_nodePortModelItem->getBinding().getBindingID());
+  m_bindingId = bdid.toUtf8().constData();
 
-  std::stringstream pp;
-  pp << m_nodePortModelItem->getExec().getExecPath().getCStr() << "." << m_nodePortModelItem->getPortPath();
-  m_portPath = pp.str();
+  m_portPath = m_nodePortModelItem->getExec().getExecPath().getCStr();
+  m_portPath += ".";
+  m_portPath += m_nodePortModelItem->getPortPath().c_str();
 }

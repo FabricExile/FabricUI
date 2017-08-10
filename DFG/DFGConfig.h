@@ -7,6 +7,7 @@
 #include <string>
 #include <QFont>
 #include <QColor>
+#include <QString>
 #include <QTextCharFormat>
 #include <FabricUI/KLEditor/EditorConfig.h>
 #include <FabricUI/GraphView/GraphConfig.h>
@@ -36,6 +37,29 @@ namespace FabricUI
       QFont searchHelpFont;
 
       std::map<std::string, QColor> colorForDataType;
+
+      struct PredefinedPort
+      {
+        QString name;
+        QString typeSpec;
+        QString portName;
+        QString extDep;
+        QString metaData;
+
+        PredefinedPort(
+          QString name,
+          QString typeSpec,
+          QString portName = QString(),
+          QString extDep = QString(),
+          QString metaData = QString()
+        ) : name( name )
+          , typeSpec( typeSpec )
+          , portName( portName )
+          , extDep( extDep )
+          , metaData( metaData )
+        {}
+      };
+      std::vector<PredefinedPort> predefinedPorts;
 
       QColor varNodeDefaultColor;
       QColor varLabelDefaultColor;

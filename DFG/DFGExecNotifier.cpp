@@ -46,6 +46,7 @@ DFGExecNotifier::HandlerMap const &DFGExecNotifier::GetHandlerMap()
     handlerMap[FTL_STR("execTitleChanged")] = &DFGExecNotifier::handler_execTitleChanged;
     handlerMap[FTL_STR("execWillDetachPreset")] = &DFGExecNotifier::handler_execWillDetachPreset;
     handlerMap[FTL_STR("extDepsChanged")] = &DFGExecNotifier::handler_extDepsChanged;
+    handlerMap[FTL_STR("extDepAdded")] = &DFGExecNotifier::handler_extDepAdded;
     handlerMap[FTL_STR("funcCodeChanged")] = &DFGExecNotifier::handler_funcCodeChanged;
     handlerMap[FTL_STR("instBlockExecEditWouldSplitFromPresetMayHaveChanged")] = &DFGExecNotifier::handler_instBlockExecEditWouldSplitFromPresetMayHaveChanged;
     handlerMap[FTL_STR("instBlockInserted")] = &DFGExecNotifier::handler_instBlockInserted;
@@ -743,6 +744,11 @@ void DFGExecNotifier::handler_extDepsChanged( FTL::JSONObject const *jsonObject 
   FTL::CStrRef extDeps = jsonObject->getString( FTL_STR("extDeps") );
 
   emit extDepsChanged( extDeps );
+}
+
+void DFGExecNotifier::handler_extDepAdded( FTL::JSONObject const *jsonObject )
+{
+  // TODO
 }
 
 void DFGExecNotifier::handler_nlsPortInserted( FTL::JSONObject const *jsonObject )

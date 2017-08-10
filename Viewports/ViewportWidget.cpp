@@ -13,11 +13,10 @@ using namespace Application;
 
 void ViewportWidget::init() 
 {  
+  m_manipTool = new ManipulationTool();
   m_eventFilter = new ViewportEventFilter(this);
   installEventFilter(m_eventFilter);
 
-  setFocusPolicy(Qt::StrongFocus);
- 
   m_fps = 0.0;
   for(int i=0;i<16;i++) 
     m_fpsStack[i] = 0.0;
@@ -44,16 +43,28 @@ ViewportWidget::ViewportWidget(
 ViewportWidget::~ViewportWidget() 
 {
   delete(m_eventFilter);
+  delete(m_manipTool);
 }
 
 bool ViewportWidget::isManipulationActive() 
-{ 
-  return false; 
+{
+  return m_manipTool->isActive();
 }
 
 void ViewportWidget::setManipulationActive(
-  bool state) 
+  bool state)
 {
+  if(state == m_manipTool->isActive())
+    return;
+ 
+  m_manipTool->setActive(state);
+  setMouseTracking(state);
+  redraw();
+}
+
+ManipulationTool* ViewportWidget::getManipTool() 
+{ 
+  return m_manipTool; 
 }
 
 double ViewportWidget::fps() 
@@ -63,6 +74,18 @@ double ViewportWidget::fps()
 
 void ViewportWidget::clear() 
 {
+}
+
+void ViewportWidget::enterEvent(
+  QEvent * event) 
+{
+  setFocus();
+}
+
+void ViewportWidget::leaveEvent(
+  QEvent * event) 
+{
+  clearFocus();
 }
 
 bool ViewportWidget::onEvent(

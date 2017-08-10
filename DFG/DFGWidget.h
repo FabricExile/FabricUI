@@ -320,7 +320,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::TabSearchAction" 
-          , "Tab search" 
+          , "Tab Search" 
           , Qt::Key_Tab 
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -422,7 +422,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_portType( portType )
       {
-        setText( "Create port" );
+        setText( "Create Port" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -495,19 +495,19 @@ namespace DFG {
         , m_deleteIO ( deleteIO )
       {
         if      (  deleteIn &&  deleteOut &&  deleteIO )
-          setText( "Delete all ports" );
+          setText( "Delete all Ports" );
         else if ( !deleteIn &&  deleteOut &&  deleteIO )
-          setText( "Delete all output and IO ports" );
+          setText( "Delete all Output and IO Ports" );
         else if (  deleteIn && !deleteOut &&  deleteIO )
-          setText( "Delete all input and IO ports" );
+          setText( "Delete all Input and IO Ports" );
         else if ( !deleteIn && !deleteOut &&  deleteIO )
-          setText( "Delete all IO ports" );
+          setText( "Delete all IO Ports" );
         else if (  deleteIn &&  deleteOut && !deleteIO )
-          setText( "Delete all input and output ports" );
+          setText( "Delete all Input and Output Ports" );
         else if ( !deleteIn &&  deleteOut && !deleteIO )
-          setText( "Delete all output ports" );
+          setText( "Delete all Output Ports" );
         else if (  deleteIn && !deleteOut && !deleteIO )
-          setText( "Delete all input ports" );
+          setText( "Delete all Input Ports" );
         else
           setText( "Delete nothing" );
         connect( this, SIGNAL(triggered()),
@@ -621,7 +621,9 @@ namespace DFG {
           case 3:   m_portname = "timelineFramerate"; break;
           default:                                    break;
         };
-        setText( "Create " + m_portname + " port" );
+        QString capitalizedPortName = m_portname;
+        capitalizedPortName[0] = capitalizedPortName[0].toUpper();
+        setText( "Create " + capitalizedPortName + " Port" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -647,6 +649,21 @@ namespace DFG {
       QString m_portname;
     };
 
+    class AbstractAction : public QAction
+    {
+      Q_OBJECT
+
+    public:
+      AbstractAction( QObject* parent ) : QAction( parent )
+      {
+        connect( this, SIGNAL(triggered()),
+                 this, SLOT(onTriggered()) );
+      }
+
+    protected slots:
+      virtual void onTriggered() = 0;
+    };
+
     class CreateAllTimelinePortsAction : public QAction
     {
       Q_OBJECT
@@ -662,7 +679,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_createOnlyMissingPorts( createOnlyMissingPorts )
       {
-        setText( "Create all timeline ports" );
+        setText( "Create all Timeline Ports" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -820,7 +837,7 @@ namespace DFG {
         : QAction( parent )
         , m_dfgWidget( dfgWidget )
       {
-        setText( "Move input ports to end" );
+        setText( "Move Input Ports to End" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -851,7 +868,7 @@ namespace DFG {
         : QAction( parent )
         , m_dfgWidget( dfgWidget )
       {
-        setText( "Move output ports to end" );
+        setText( "Move Output Ports to End" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -882,7 +899,7 @@ namespace DFG {
         : QAction( parent )
         , m_dfgWidget( dfgWidget )
       {
-        setText( "Implode selected nodes" );
+        setText( "Implode Selected Nodes" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -915,7 +932,7 @@ namespace DFG {
         : QAction( parent )
         , m_dfgWidget( dfgWidget )
       {
-        setText( "Explode selected nodes" );
+        setText( "Explode Selected Nodes" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1024,7 +1041,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_node( node )
       {
-        setText( "Reveal in explorer" );
+        setText( "Reveal in Explorer" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1125,7 +1142,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_node( node )
       {
-        setText( "Split From Preset" );
+        setText( "Split from Preset" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1229,7 +1246,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_node( node )
       {
-        setText( "Export graph" );
+        setText( "Export Graph" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1263,7 +1280,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_node( node )
       {
-        setText( "Explode node" );
+        setText( "Explode Node" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1362,7 +1379,7 @@ namespace DFG {
         : QAction( parent )
         , m_sidePanel( sidePanel )
       {
-        setText( "Scroll up" );
+        setText( "Scroll Up" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1394,7 +1411,7 @@ namespace DFG {
         : QAction( parent )
         , m_sidePanel( sidePanel )
       {
-        setText( "Scroll down" );
+        setText( "Scroll Down" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1426,7 +1443,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::AutoConnectionsAction" 
-          , "Auto connect selected nodes" 
+          , "Auto Connect Selected Nodes" 
           , Qt::Key_C 
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1460,7 +1477,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::RemoveConnectionsAction" 
-          , "Remove connections to selected node(s)" 
+          , "Remove Connections to Selected Node(s)" 
           , Qt::Key_D 
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1494,7 +1511,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::exposeAllPorts( /*inputs*/ )"
-          , "Expose all unconnected input Ports"
+          , "Expose all Unconnected Input Ports"
           , QKeySequence()
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1527,7 +1544,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::exposeAllPorts( /*outputs*/ )"
-          , "Expose all unconnected output Ports"
+          , "Expose all Unconnected Output Ports"
           , QKeySequence()
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1662,7 +1679,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::CollapseLevel1Action" 
-          , "Collapse level 1" 
+          , "Collapse Level 1" 
           , Qt::Key_1
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1696,7 +1713,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::CollapseLevel2Action" 
-          , "Collapse level 2" 
+          , "Collapse Level 2" 
           , Qt::Key_2
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1730,7 +1747,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::CollapseLevel3Action" 
-          , "Collapse level 3" 
+          , "Collapse Level 3" 
           , Qt::Key_3
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1764,7 +1781,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::ResetZoomAction" 
-          , "Reset zoom" 
+          , "Reset Zoom" 
           , QKeySequence(Qt::CTRL + Qt::Key_0)
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1866,7 +1883,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::RelaxNodesAction" 
-          , "Relax nodes" 
+          , "Relax Nodes" 
           , QKeySequence(Qt::CTRL + Qt::Key_R)
           , Qt::WidgetWithChildrenShortcut
           , enable)
@@ -1901,7 +1918,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_node( node )
       {
-        setText( "Reload extension(s)" );
+        setText( "Reload Extension(s)" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1936,7 +1953,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_node( node )
       {
-        setText( useSetText ? "Set comment" : "Edit comment" );
+        setText( useSetText ? "Set Comment" : "Edit Comment" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -1970,7 +1987,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_node( node )
       {
-        setText( "Remove comment" );
+        setText( "Remove Comment" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -2048,7 +2065,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_pos( pos )
       {
-        setText( "New block" );
+        setText( "New Block" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -2082,7 +2099,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_pos( pos )
       {
-        setText( "New cache node" );
+        setText( "New Cache Node" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -2116,7 +2133,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_pos( pos )
       {
-        setText( "New empty graph" );
+        setText( "New Empty Graph" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -2150,7 +2167,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_pos( pos )
       {
-        setText( "New empty function" );
+        setText( "New Empty Function" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -2184,7 +2201,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_pos( pos )
       {
-        setText( "New backdrop" );
+        setText( "New Backdrop" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -2218,7 +2235,7 @@ namespace DFG {
         , m_dfgWidget( dfgWidget )
         , m_node( node )
       {
-        setText( "Edit node" );
+        setText( "Edit Node" );
         connect( this, SIGNAL(triggered()),
                  this, SLOT(onTriggered()) );
         setEnabled( enable );
@@ -2253,7 +2270,7 @@ namespace DFG {
         , m_instBlock( instBlock )
       {
         setText(
-            "Edit block '"
+            "Edit Block '"
           + m_instBlock->name_QS()
           + "'" );
         connect( this, SIGNAL(triggered()),
@@ -2678,7 +2695,7 @@ namespace DFG {
         : QAction(parent)
         , m_dfgWidget(dfgWidget)
       {
-        setText("Disable graph compilations");
+        setText("Disable Graph Compilations");
         setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_Return);
         setShortcutContext(Qt::WidgetWithChildrenShortcut);
         connect(this, SIGNAL(triggered()), this, SLOT(onTriggered()));

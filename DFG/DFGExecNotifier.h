@@ -476,6 +476,7 @@ private:
   void handler_execTitleChanged( FTL::JSONObject const *jsonObject );
   void handler_execWillDetachPreset( FTL::JSONObject const *jsonObject );
   void handler_extDepsChanged( FTL::JSONObject const *jsonObject );
+  void handler_extDepAdded( FTL::JSONObject const *jsonObject );
   void handler_funcCodeChanged( FTL::JSONObject const *jsonObject );
   void handler_instBlockExecEditWouldSplitFromPresetMayHaveChanged( FTL::JSONObject const *jsonObject );
   void handler_instBlockInserted( FTL::JSONObject const *jsonObject );
