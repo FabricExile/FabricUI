@@ -37,7 +37,7 @@ class KLCommand : public BaseCommand
       }
 
       Boolean MyCommand.doIt!( io String error ) {
-        ... Do you logic
+        ... Do your logic
         return true;
       }
 
