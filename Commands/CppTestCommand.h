@@ -129,11 +129,11 @@ class CppToPythonTestCommand
       args["arg_1"] = "string_Cpp";
 
       CommandManager::getCommandManager()->createCommand(
-        "testScriptableCommand", 
+        "testScriptableCmd", 
         args);
 
       CommandManager::getCommandManager()->createCommand(
-        "testMetaCommand");
+        "testMetaCmd");
     }
 
     /// Register the KL commands in KL.
