@@ -16,21 +16,17 @@ namespace Commands {
 class CommandArgFlags
 {
   /**
-    CommandArgFlags lists the command arguments flags.
+    CommandArgFlags lists the command arguments flags (see BaseScriptableCommand::declareArg)
   */
   public:
-    /// No flag argument.
     static int NO_FLAG_ARG;
-    /// Optional argument.
     static int OPTIONAL_ARG;
-    /// No-loggale argument.
     static int DONT_LOG_ARG;
-    /// Input argument.
     static int IN_ARG;
-    /// Output argument.
     static int OUT_ARG;
-    /// IO argument.
     static int IO_ARG;
+    //static int CREATE_IF_NULL;// Reserved, not implemented yet in C++
+    //static int CLONE_FOR_UNDO;// Reserved, not implemented yet in C++
 };
 
 class BaseCommand;

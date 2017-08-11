@@ -41,13 +41,21 @@ class BaseScriptableCommand : public BaseCommand
     
     virtual ~BaseScriptableCommand();
 
-    /// Declares an argument, at construction time.
-    /// Flags can be a combination of these: 
-    /// - CommandArgFlags::NO_FLAG_ARG 
-    /// - CommandArgFlags::OPTIONAL_ARG 
-    /// - CommandArgFlags::IN_ARG 
-    /// - CommandArgFlags::OUT_ARG 
-    /// - CommandArgFlags::IO_ARG
+    /**
+      Declares an argument, at construction time.
+      Flags can be a combination of these: 
+
+      - CommandArgFlag_IN, CommandArgFlag_OUT or CommandArgFlag_IO : one of these should be set to
+        specify if an argument is an input, and output, or an input + output, respectively.
+
+      - CommandArgFlag_OPTIONAL : if set, then that argument doesn't have to be defined, in which
+        case getArgValue() will return a null RTVal( value.isNull() == true )
+
+      - CommandArgFlag_DONT_LOG: if set, then the command will not be logged nor part
+        of the undo / redo stack.This can be useful when only the last operation should be logged
+        ( in which all but the last command have this flag )
+    */
+
     virtual void declareArg(
       QString const&key, 
       int flag, 
@@ -59,13 +67,7 @@ class BaseScriptableCommand : public BaseCommand
       QString const&key 
       );
 
-    /// Checks if the arg `key` has the input flag(s).
-    /// Flags can be a combination of these: 
-    /// - CommandArgFlags::NO_FLAG_ARG 
-    /// - CommandArgFlags::OPTIONAL_ARG 
-    /// - CommandArgFlags::IN_ARG 
-    /// - CommandArgFlags::OUT_ARG 
-    /// - CommandArgFlags::IO_ARG
+    /// Checks if the arg `key` has the input flag(s) (see BaseScriptableCommand::declareArg)
     virtual bool hasArgFlag(
       QString const&key,
       int flag
