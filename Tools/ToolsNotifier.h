@@ -202,6 +202,12 @@ class ToolsNotifier : public QObject
       FTL::CStrRef portName
       );
 
+    void onInstBlockPortDefaultValuesChanged(
+      FTL::CStrRef nodeName,
+      FTL::CStrRef blockName,
+      FTL::CStrRef portName
+      );
+
     void onExecNodePortResolvedTypeChanged(
       FTL::CStrRef nodeName,
       FTL::CStrRef portName,

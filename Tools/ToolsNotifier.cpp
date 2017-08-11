@@ -303,16 +303,6 @@ void ToolsNotifierRegistry::changedNotifiedToolPath(
       std::cout << "notifyTool " << notifyTool << std::endl;
       if(notifyTool)
         notifier->changedNotifiedToolPath(oldToolPath, newToolPath, isNode);
-      // std::cout << "notifyTool " << notifyTool << std::endl;
-
-      // //std::cout << "notifier->getToolTargetPath() " << notifier->getToolTargetPath().toUtf8().constData() << std::endl;
-      // if(notifyTool)
-      // {
-      //   m_registeredNotifiers.removeAll(notifier);
-      //   delete notifier;
-      //   notifier = 0;
-      //   break;
-      // }
     }
   }
 
@@ -527,6 +517,13 @@ void ToolsNotifier::setupConnections(
     );
   connect(
     m_notifier.data(),
+    SIGNAL(instBlockPortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+    this,
+    SLOT(onInstBlockPortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+    );
+
+  connect(
+    m_notifier.data(),
     SIGNAL(nodePortResolvedTypeChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
     this,
     SLOT(onExecNodePortResolvedTypeChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
@@ -542,6 +539,22 @@ void ToolsNotifier::onExecNodePortDefaultValuesChanged(
   QString toolPath = nodeName != ""
     ? QString(nodeName.c_str()) + "." + QString(portName.c_str())
     : portName.c_str();
+
+  m_registry->toolValueChanged(m_execPath + toolPath);
+ 
+  FABRIC_CATCH_END("ToolsNotifier::onExecNodePortDefaultValuesChanged");
+}
+
+void ToolsNotifier::onInstBlockPortDefaultValuesChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef blockName,
+  FTL::CStrRef portName)
+{
+  FABRIC_CATCH_BEGIN();
+ 
+  QString toolPath = nodeName != ""
+    ? nodeName.c_str() + QString(".") + blockName.c_str() + QString(".") + portName.c_str()
+    : blockName.c_str() + QString(".") + portName.c_str();
 
   m_registry->toolValueChanged(m_execPath + toolPath);
  
