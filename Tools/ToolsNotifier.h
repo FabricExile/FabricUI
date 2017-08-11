@@ -108,19 +108,24 @@ class ToolsNotifierRegistry : public QObject
     void initConnections();
 
     void createPathValueTool(
-      QString const&targetPath
+      QString const&toolPath
       );
-
-    void createPathValueTool(
-      FabricCore::RTVal pathValue
-      );
-
+ 
     void deletePathValueTool(
-      QString const&targetPath
+      QString const&toolPath,
+      bool isNode = false
       );
 
+    /// Update the value of the tool 
+    /// associated to the `pathValue`.
     void toolValueChanged(
-      QString const&targetPath
+      QString const&toolPath
+      );
+
+    void changedNotifiedToolPath(
+      QString const &oldToolPath,
+      QString const &newToolPath,
+      bool isNode = false
       );
 
   private slots:
@@ -129,21 +134,11 @@ class ToolsNotifierRegistry : public QObject
       );
 
   private:
-    /// Update the value of the tool 
-    /// associated to the `pathValue`.
-    void toolValueChanged(
-      FabricCore::RTVal pathValue
-      );
-
-    void deletePathValueTool(
-      FabricCore::RTVal pathValue
-      );
-
     /// Gets the KL tools manager.
     FabricCore::RTVal getKLToolManager();
 
     FabricCore::RTVal pathToPathValue(
-      QString const&targetPath
+      QString const&toolPath
       );
 
     void setupConnections(
@@ -168,7 +163,16 @@ class ToolsNotifier : public QObject
 
     ~ToolsNotifier();
 
-    QString getToolTargetPath();
+    bool notifyToolAtPath(
+      QString const &toolPath,
+      bool isNode = false
+      );
+
+    void changedNotifiedToolPath(
+      QString const &oldToolPath,
+      QString const &newToolPath,
+      bool isNode
+      );
 
   protected slots:
     void onExecNodePortRenamed(
@@ -212,7 +216,7 @@ class ToolsNotifier : public QObject
     QString m_execPath;
     DFG::DFGPathValueResolver::DFGPortPaths m_dfgPortPaths;
 
-    QString m_toolTargetPath;
+    QString m_toolPath;
     ToolsNotifierRegistry *m_registry;
     QSharedPointer<DFG::DFGNotifier> m_notifier;
 };
