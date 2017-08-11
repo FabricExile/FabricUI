@@ -174,6 +174,7 @@ bool ReqExtLineEdit::eventFilter(QObject * watched, QEvent * event)
     if (m_allowEdits)
     {
       setEnabled(true);
+      setFocus();
     }
     selectAll();
     return true;
