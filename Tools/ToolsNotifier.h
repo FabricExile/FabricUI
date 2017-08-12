@@ -8,9 +8,8 @@
 #include <QList>
 #include <QString>
 #include <QObject>
-#include <FabricUI/DFG/DFGWidget.h>
 #include <FabricUI/DFG/DFGNotifier.h>
-#include <FabricUI/ValueEditor/VEEditorOwner.h>
+#include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/Commands/DFGPathValueResolver.h>
  
 namespace FabricUI {
@@ -113,7 +112,7 @@ class ToolsNotifierRegistry : public QObject
 
   public:
     ToolsNotifierRegistry( 
-      DFG::DFGWidget *dfgWidget 
+      DFG::DFGController *dfgContoller 
       );
 
     ~ToolsNotifierRegistry();
@@ -183,7 +182,7 @@ class ToolsNotifierRegistry : public QObject
       FabricUI::DFG::DFGController *dfgController
       );
 
-    DFG::DFGWidget *m_dfgWidget;
+    DFG::DFGController *m_dfgContoller;
     QSharedPointer<DFG::DFGNotifier> m_notifier;
     QList<ToolsNotifier *> m_registeredNotifiers;
     ToolsNotifierRegistry_NotifProxy *m_notifProxy;
@@ -265,6 +264,13 @@ class ToolsNotifier : public QObject
 
     void onExecNodePortResolvedTypeChanged(
       FTL::CStrRef nodeName,
+      FTL::CStrRef portName,
+      FTL::CStrRef newResolvedTypeName
+      );
+    
+    void onInstBlockPortResolvedTypeChanged(
+      FTL::CStrRef nodeName,
+      FTL::CStrRef blockName,
       FTL::CStrRef portName,
       FTL::CStrRef newResolvedTypeName
       );

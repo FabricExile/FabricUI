@@ -6,8 +6,6 @@
 #include <iostream>
 #include "ToolsNotifier.h"
 #include <FabricUI/Util/RTValUtil.h>
-#include <FabricUI/GraphView/Node.h>
-#include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGExecNotifier.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Commands/PathValueResolverRegistry.h>
@@ -22,8 +20,8 @@ using namespace FabricCore;
 using namespace Application;
 
 ToolsNotifierRegistry::ToolsNotifierRegistry( 
-  DFGWidget *dfgWidget)
-  : m_dfgWidget(dfgWidget)
+  DFGController *dfgContoller)
+  : m_dfgContoller(dfgContoller)
   , m_notifProxy( NULL )
 {
 }
@@ -36,19 +34,19 @@ void ToolsNotifierRegistry::initConnections()
 {
   std::cout << "\nToolsNotifierRegistry::initConnections" << std::endl;
   connect(
-    m_dfgWidget->getDFGController(),
+    m_dfgContoller,
     SIGNAL(bindingChanged(FabricCore::DFGBinding const &)),
     this,
     SLOT(onControllerBindingChanged(FabricCore::DFGBinding const &))
     );
  
-  setupConnections(m_dfgWidget->getDFGController());
+  setupConnections(m_dfgContoller);
 }
  
 void ToolsNotifierRegistry::onControllerBindingChanged(
   FabricCore::DFGBinding const &newBinding)
 {
-  setupConnections(m_dfgWidget->getDFGController());
+  setupConnections(m_dfgContoller);
 }
  
 void ToolsNotifierRegistry::setupConnections(
@@ -62,7 +60,7 @@ void ToolsNotifierRegistry::setupConnections(
   }
 
   m_notifier.clear();
-  m_notifier = m_dfgWidget->getDFGController()->getBindingNotifier();
+  m_notifier = m_dfgContoller->getBindingNotifier();
 
   ToolsNotifierRegistry_BindingNotifProxy *notifProxy =
     new ToolsNotifierRegistry_BindingNotifProxy( this, this );
@@ -371,7 +369,7 @@ void ToolsNotifierRegistry::toolValueChanged(
     &pathValue);
 
   emit toolUpdated();
-  
+
   FABRIC_CATCH_END("ToolsNotifierRegistry::toolValueChanged");
 }
 
@@ -546,6 +544,13 @@ void ToolsNotifier::setupConnections(
     this,
     SLOT(onExecNodePortResolvedTypeChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
     );
+
+  connect(
+    m_notifier.data(),
+    SIGNAL(instBlockPortResolvedTypeChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+    this,
+    SLOT(onInstBlockPortResolvedTypeChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+    );
 }
 
 void ToolsNotifier::onExecNodePortDefaultValuesChanged(
@@ -575,8 +580,21 @@ void ToolsNotifier::onExecNodePortResolvedTypeChanged(
   FTL::CStrRef newResolveTypeName)
 {
   FABRIC_CATCH_BEGIN();
-  onExecNodePortRemoved(nodeName, 0, portName);
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.portName == portName.data())
+    onExecNodePortRemoved(nodeName, 0, portName);
   FABRIC_CATCH_END("ToolsNotifier::onExecNodePortResolvedTypeChanged");
+}
+
+void ToolsNotifier::onInstBlockPortResolvedTypeChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef blockName, 
+  FTL::CStrRef portName,
+  FTL::CStrRef newResolveTypeName)
+{
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data() && m_dfgPortPaths.portName == portName.data())
+    onInstBlockPortRemoved(nodeName, blockName, 0, portName);
+  FABRIC_CATCH_END("ToolsNotifier::onInstBlockPortResolvedTypeChanged");
 }
  
 void ToolsNotifier::onExecNodePortRenamed(
