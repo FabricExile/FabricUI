@@ -32,11 +32,6 @@ ToolsNotifierRegistry::~ToolsNotifierRegistry()
 {
 }
 
-DFG::DFGWidget *ToolsNotifierRegistry::getDFGWidget()
-{
-  return m_dfgWidget;
-}
-
 void ToolsNotifierRegistry::initConnections()
 {
   std::cout << "\nToolsNotifierRegistry::initConnections" << std::endl;
@@ -181,12 +176,10 @@ RTVal ToolsNotifierRegistry::getKLToolManager()
 }
 
 void ToolsNotifierRegistry::createPathValueTool(
-  QString const&toolPath)
+  RTVal pathValue)
 {
   FABRIC_CATCH_BEGIN();
   
-  RTVal pathValue = pathToPathValue(toolPath);
-
   bool isRegistered = getKLToolManager().callMethod(
     "Boolean",
     "isTypeRegistered",
@@ -461,7 +454,12 @@ ToolsNotifier::~ToolsNotifier()
 {
   m_notifier.clear();
 }
- 
+
+DFGToolsNotifierPortPaths ToolsNotifier::getDFGToolsNotifierPortPaths() const 
+{ 
+  return m_dfgPortPaths; 
+};
+
 void ToolsNotifier::setupConnections(
   FabricCore::DFGExec exec)
 {
@@ -589,7 +587,6 @@ void ToolsNotifier::onExecNodePortRenamed(
   if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.portName == oldPortName.data())
   {
     std::cout << "\nToolsNotifier::onExecNodePortRenamed 1" << std::endl;
-    //m_dfgPortPaths.blockName = "";
     m_dfgPortPaths.oldNodeName = nodeName.data();
     m_dfgPortPaths.oldPortName = oldPortName.data();
     m_dfgPortPaths.portName = newPortName.data();
@@ -686,7 +683,6 @@ void ToolsNotifier::onExecNodeRenamed(
   if(m_dfgPortPaths.nodeName == oldNodeName.data())
   {
     std::cout << "\nToolsNotifier::onExecNodeRenamed 1 " << std::endl;
-    //m_dfgPortPaths.blockName = "";
     m_dfgPortPaths.oldPortName = m_dfgPortPaths.portName;
     m_dfgPortPaths.oldNodeName = oldNodeName.data();
     m_dfgPortPaths.nodeName = newNodeName.data();

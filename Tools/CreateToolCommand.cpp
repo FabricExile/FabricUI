@@ -51,7 +51,8 @@ bool CreateToolCommand::doIt()
 
   // Update the tool'value from its target.
   m_registry->createPathValueTool(
-    getRTValArgPath("target"));
+    getRTValArg("target")
+    );
  
   return true;
 

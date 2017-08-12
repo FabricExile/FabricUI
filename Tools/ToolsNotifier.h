@@ -118,8 +118,6 @@ class ToolsNotifierRegistry : public QObject
 
     ~ToolsNotifierRegistry();
 
-    DFG::DFGWidget *getDFGWidget();
-
   public slots:
     void onBindingArgValueChanged( 
       unsigned index, 
@@ -146,7 +144,7 @@ class ToolsNotifierRegistry : public QObject
     void initConnections();
 
     void createPathValueTool(
-      QString const&toolPath
+      FabricCore::RTVal pathValue
       );
  
     void deletePathValueTool(
@@ -199,9 +197,8 @@ class ToolsNotifier : public QObject
       );
 
     ~ToolsNotifier();
-
    
-    DFGToolsNotifierPortPaths getDFGToolsNotifierPortPaths() const { return m_dfgPortPaths; };
+    DFGToolsNotifierPortPaths getDFGToolsNotifierPortPaths() const;
   
   protected slots:
     void onExecNodePortRenamed(
@@ -274,9 +271,8 @@ class ToolsNotifier : public QObject
       FabricCore::DFGExec exec
       );
 
-    QString m_execPath;
-    DFGToolsNotifierPortPaths m_dfgPortPaths;
     ToolsNotifierRegistry *m_registry;
+    DFGToolsNotifierPortPaths m_dfgPortPaths;
     QSharedPointer<DFG::DFGNotifier> m_notifier;
 };
 
