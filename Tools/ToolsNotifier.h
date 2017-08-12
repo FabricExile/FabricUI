@@ -69,6 +69,44 @@ class ToolsNotifierRegistry_BindingNotifProxy :
 
 class ToolsNotifier;
 
+struct DFGToolsNotifierPortPaths : public DFG::DFGPathValueResolver::DFGPortPaths
+{
+  public:
+    QString oldPortName; 
+    QString oldBlockName;
+    QString oldNodeName;
+
+    DFGToolsNotifierPortPaths::DFGToolsNotifierPortPaths()
+      : DFG::DFGPathValueResolver::DFGPortPaths()
+    {
+    }
+ 
+    QString getOldRelativePortPath() {
+      if(isExecBlockPort())
+        return oldNodeName + "." + oldBlockName + "." + oldPortName;
+      else if(isExecArg())
+        return oldPortName;
+      else if(!oldNodeName.isEmpty())
+        return oldNodeName + "." + oldPortName;
+      else
+        return "";
+    }
+
+    QString getOldAbsolutePortPath() {
+     return execPath.isEmpty()
+      ? getOldRelativePortPath()
+      : execPath + "." + getOldRelativePortPath();
+    }
+
+    QString getOldAbsoluteNodePath() {
+     if(!oldNodeName.isEmpty())
+        return execPath.isEmpty()
+          ? oldNodeName
+          : execPath + "." + oldNodeName;
+      return "";;
+    }
+};
+ 
 class ToolsNotifierRegistry : public QObject
 {
   Q_OBJECT
@@ -112,20 +150,19 @@ class ToolsNotifierRegistry : public QObject
       );
  
     void deletePathValueTool(
-      QString const&toolPath,
-      bool isNode = false
+      DFGToolsNotifierPortPaths dfgPortPath,
+      bool fromNode = false
+      );
+
+    void changedNotifiedToolPath(
+      DFGToolsNotifierPortPaths dfgPortPath,
+      bool fromNode = false
       );
 
     /// Update the value of the tool 
     /// associated to the `pathValue`.
     void toolValueChanged(
-      QString const&toolPath
-      );
-
-    void changedNotifiedToolPath(
-      QString const &oldToolPath,
-      QString const &newToolPath,
-      bool isNode = false
+      DFGToolsNotifierPortPaths dfgPortPath
       );
 
   private slots:
@@ -163,17 +200,9 @@ class ToolsNotifier : public QObject
 
     ~ToolsNotifier();
 
-    bool notifyToolAtPath(
-      QString const &toolPath,
-      bool isNode = false
-      );
-
-    void changedNotifiedToolPath(
-      QString const &oldToolPath,
-      QString const &newToolPath,
-      bool isNode
-      );
-
+   
+    DFGToolsNotifierPortPaths getDFGToolsNotifierPortPaths() const { return m_dfgPortPaths; };
+  
   protected slots:
     void onExecNodePortRenamed(
       FTL::CStrRef nodeName,
@@ -188,13 +217,39 @@ class ToolsNotifier : public QObject
       FTL::CStrRef portName
       );
 
+    void onInstBlockPortRemoved(
+      FTL::CStrRef nodeName,
+      FTL::CStrRef blockName,
+      unsigned portIndex,
+      FTL::CStrRef portName
+      );
+
     void onExecNodeRemoved(
       FTL::CStrRef nodeName
+      );
+
+    void onInstBlockRemoved(
+      FTL::CStrRef nodeName,
+      FTL::CStrRef blockName
       );
 
     void onExecNodeRenamed(
       FTL::CStrRef oldNodeName,
       FTL::CStrRef newNodeName
+      );
+
+    void onInstBlockRenamed(
+      FTL::CStrRef nodeName,
+      FTL::CStrRef oldBlockName,
+      FTL::CStrRef newBlockName
+      );
+
+    void onInstBlockPortRenamed(
+      FTL::CStrRef nodeName,
+      FTL::CStrRef blockName,
+      unsigned portIndex,
+      FTL::CStrRef oldPortName,
+      FTL::CStrRef newPortName
       );
 
     void onExecNodePortDefaultValuesChanged(
@@ -220,9 +275,7 @@ class ToolsNotifier : public QObject
       );
 
     QString m_execPath;
-    DFG::DFGPathValueResolver::DFGPortPaths m_dfgPortPaths;
-
-    QString m_toolPath;
+    DFGToolsNotifierPortPaths m_dfgPortPaths;
     ToolsNotifierRegistry *m_registry;
     QSharedPointer<DFG::DFGNotifier> m_notifier;
 };

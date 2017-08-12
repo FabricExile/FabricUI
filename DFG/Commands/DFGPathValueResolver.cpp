@@ -417,6 +417,9 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
 
   FABRIC_CATCH_END("DFGPathValueResolver::getDFGPortPaths");
 
+  FabricCore::String execPath = exec.getExecPath();
+  dfgPortPaths.execPath = QString(std::string(execPath.getCStr(), execPath.getSize()).c_str());
+
   return exec;
 }
 

@@ -51,28 +51,47 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
       );
 
     struct DFGPortPaths {
-      QString portName; 
-      QString blockName;
-      QString nodeName;
+      public:
+        QString portName; 
+        QString blockName;
+        QString nodeName;
+        QString execPath;
 
-      bool isExecBlockPort() {
-        return !blockName.isEmpty();
-      }
+        DFGPortPaths::DFGPortPaths()
+        {
+        }
 
-      bool isExecArg() {
-        return !isExecBlockPort() && nodeName.isEmpty();
-      }
+        bool isExecBlockPort() {
+          return !blockName.isEmpty();
+        }
 
-      QString getRelativePortPath() {
-        if(isExecBlockPort())
-          return nodeName + "." + blockName + "." + portName;
-        else if(isExecArg())
-          return portName;
-        else if(!nodeName.isEmpty())
-          return nodeName + "." + portName;
-        else
+        bool isExecArg() {
+          return !isExecBlockPort() && nodeName.isEmpty();
+        }
+
+        QString getRelativePortPath() {
+          if(isExecBlockPort())
+            return nodeName + "." + blockName + "." + portName;
+          else if(isExecArg())
+            return portName;
+          else if(!nodeName.isEmpty())
+            return nodeName + "." + portName;
           return "";
-      }
+        }
+
+        QString getAbsolutePortPath() {
+           return execPath.isEmpty()
+            ? getRelativePortPath()
+            : execPath + "." + getRelativePortPath();
+        }
+
+        QString getAbsoluteNodePath() {
+          if(!nodeName.isEmpty())
+            return execPath.isEmpty()
+              ? nodeName
+              : execPath + "." + nodeName;
+          return "";
+        }
     };
 
     /// Gets the executable and DFGPortPaths

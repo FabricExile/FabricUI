@@ -104,16 +104,28 @@ void ToolsNotifierRegistry::onBindingArgTypeChanged(
   FTL::CStrRef name, 
   FTL::CStrRef newType)
 {
+  FABRIC_CATCH_BEGIN();
   std::cout << "\nToolsNotifierRegistry::onBindingArgTypeChanged" << std::endl;
-  deletePathValueTool(name.data());
+
+  DFGToolsNotifierPortPaths dfgPortPath;
+  dfgPortPath.portName = name.data();
+  deletePathValueTool(dfgPortPath);
+
+  FABRIC_CATCH_END("ToolsNotifierRegistry::onBindingArgTypeChanged");
 }
 
 void ToolsNotifierRegistry::onBindingArgRemoved( 
   unsigned index, 
   FTL::CStrRef name)
 {
+  FABRIC_CATCH_BEGIN();
   std::cout << "\nToolsNotifierRegistry::onBindingArgRemoved" << std::endl;
-  deletePathValueTool(name.data());
+
+  DFGToolsNotifierPortPaths dfgPortPath;
+  dfgPortPath.portName = name.data();
+  deletePathValueTool(dfgPortPath);
+
+  FABRIC_CATCH_END("ToolsNotifierRegistry::onBindingArgRemoved");
 }
 
 void ToolsNotifierRegistry::onBindingArgRenamed(
@@ -125,10 +137,10 @@ void ToolsNotifierRegistry::onBindingArgRenamed(
   FABRIC_CATCH_BEGIN();
   std::cout << "\nToolsNotifierRegistry::onBindingArgRenamed" << std::endl;
 
-  changedNotifiedToolPath(
-    oldArgName.data(), 
-    newArgName.data()
-    );
+  DFGToolsNotifierPortPaths dfgPortPath;
+  dfgPortPath.portName = newArgName.data();
+  dfgPortPath.oldPortName = oldArgName.data();
+  changedNotifiedToolPath(dfgPortPath);
 
   FABRIC_CATCH_END("ToolsNotifierRegistry::onBindingArgRenamed");
 }
@@ -137,8 +149,12 @@ void ToolsNotifierRegistry::onBindingArgValueChanged(
   unsigned index,
   FTL::CStrRef name)
 {
+  FABRIC_CATCH_BEGIN();
   std::cout << "\nToolsNotifierRegistry::onBindingArgValueChanged" << std::endl;
-  toolValueChanged(name.data());
+  DFGToolsNotifierPortPaths dfgPortPath;
+  dfgPortPath.portName = name.data();
+  toolValueChanged(dfgPortPath);
+  FABRIC_CATCH_END("ToolsNotifierRegistry::onBindingArgValueChanged");
 }
 
 RTVal ToolsNotifierRegistry::getKLToolManager()
@@ -192,7 +208,7 @@ void ToolsNotifierRegistry::createPathValueTool(
     m_registeredNotifiers.append(notifier);
 
     // Update the tool'value from its pathValue.
-    toolValueChanged(toolPath);
+    toolValueChanged(notifier->getDFGToolsNotifierPortPaths());
   }
 
   FABRIC_CATCH_END("ToolsNotifierRegistry::createPathValueTool");
@@ -232,77 +248,116 @@ RTVal ToolsNotifierRegistry::pathToPathValue(
 }
 
 void ToolsNotifierRegistry::deletePathValueTool(
-  QString const&toolPath,
-  bool isNode)
+  DFGToolsNotifierPortPaths dfgPortPath,
+  bool fromNode)
 {
   FABRIC_CATCH_BEGIN();
  
   std::cout 
     << "\nToolsNotifierRegistry::deletePathValueTool " 
-    << toolPath.toUtf8().constData() 
-    << " isNode "
-    << isNode
+    << " getAbsolutePortPath "
+    << dfgPortPath.getAbsolutePortPath().toUtf8().constData() 
+    << " fromNode "
+    << fromNode
     << std::endl;
 
-  FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
-  RTVal args[2] = { 
-    RTVal::ConstructString(appStates->getClient(), toolPath.toUtf8().constData()),
-    RTVal::ConstructBoolean(appStates->getClient(), isNode)
-  };
+  if(dfgPortPath.isExecArg())
+  {
+    FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
+    RTVal pathVal = RTVal::ConstructString(appStates->getClient(), dfgPortPath.getAbsolutePortPath().toUtf8().constData());
+    getKLToolManager().callMethod("Boolean", "deleteTool", 1, &pathVal);
+  }
 
-  if(getKLToolManager().callMethod("Boolean", "deleteTool", 2, args))
+  else
   {
     foreach(ToolsNotifier *notifier, m_registeredNotifiers)
     {
-      bool notifyTool = notifier->notifyToolAtPath(toolPath, isNode);
-      std::cout << "notifyTool " << notifyTool << std::endl;
+      DFGToolsNotifierPortPaths notDFGPortPath = notifier->getDFGToolsNotifierPortPaths();
+      bool deleteTool = false;
+ 
+      if(!fromNode)
+        deleteTool = notDFGPortPath.getAbsolutePortPath() == dfgPortPath.getAbsolutePortPath();
+      else
+        deleteTool = notDFGPortPath.getAbsoluteNodePath() == dfgPortPath.getAbsoluteNodePath();
 
-      //std::cout << "notifier->getToolTargetPath() " << notifier->getToolTargetPath().toUtf8().constData() << std::endl;
-      if(notifyTool)
+       std::cout 
+        << "notDFGPortPath.getAbsolutePortPath "
+        << notDFGPortPath.getAbsolutePortPath().toUtf8().constData()
+        << "notDFGPortPath.getAbsoluteNodePath "
+        << notDFGPortPath.getAbsoluteNodePath().toUtf8().constData()
+        << " deleteTool "
+        << deleteTool
+        << std::endl;
+
+      if(deleteTool)
       {
         m_registeredNotifiers.removeAll(notifier);
         delete notifier;
         notifier = 0;
-        break;
+
+        FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
+        RTVal pathVal = RTVal::ConstructString(appStates->getClient(), notDFGPortPath.getAbsolutePortPath().toUtf8().constData());
+        getKLToolManager().callMethod("Boolean", "deleteTool", 1, &pathVal);
       }
     }
   }
-
+ 
   FABRIC_CATCH_END("ToolsNotifierRegistry::deletePathValueTool");
 }
 
 void ToolsNotifierRegistry::changedNotifiedToolPath(
-  QString const&oldToolPath,
-  QString const&newToolPath,
-  bool isNode)
+  DFGToolsNotifierPortPaths dfgPortPath,
+  bool fromNode)
 {
   FABRIC_CATCH_BEGIN();
  
   std::cout 
-    << "\nToolsNotifierRegistry::changedNotifiedToolPath "
-    << " oldToolPath " 
-    << oldToolPath.toUtf8().constData() 
-    << " newToolPath " 
-    << newToolPath.toUtf8().constData() 
-    << " isNode "
-    << isNode
+    << "ToolsNotifierRegistry::changedNotifiedToolPath " 
+    << " getAbsolutePortPath "
+    << dfgPortPath.getAbsolutePortPath().toUtf8().constData() 
+    << " getOldAbsolutePortPath "
+    << dfgPortPath.getOldAbsolutePortPath().toUtf8().constData() 
     << std::endl;
 
-  FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
-  RTVal args[3] = { 
-    RTVal::ConstructString(appStates->getClient(), oldToolPath.toUtf8().constData()),
-    RTVal::ConstructString(appStates->getClient(), newToolPath.toUtf8().constData()),
-    RTVal::ConstructBoolean(appStates->getClient(), isNode)
-  };
+  if(dfgPortPath.isExecArg())
+  {
+    FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
+    RTVal args[2] = { 
+      RTVal::ConstructString(appStates->getClient(), dfgPortPath.getOldAbsolutePortPath().toUtf8().constData()),
+      RTVal::ConstructString(appStates->getClient(), dfgPortPath.getAbsolutePortPath().toUtf8().constData())
+    };
+    getKLToolManager().callMethod("Boolean", "renameTool", 2, args);
+  }
 
-  if(getKLToolManager().callMethod("Boolean", "renameTool", 3, args))
+  else
   {
     foreach(ToolsNotifier *notifier, m_registeredNotifiers)
     {
-      bool notifyTool = notifier->notifyToolAtPath(oldToolPath, isNode);
-      std::cout << "notifyTool " << notifyTool << std::endl;
-      if(notifyTool)
-        notifier->changedNotifiedToolPath(oldToolPath, newToolPath, isNode);
+      DFGToolsNotifierPortPaths notDFGPortPath = notifier->getDFGToolsNotifierPortPaths();
+      bool renameTool = false;
+      if(!fromNode)
+        renameTool = notDFGPortPath.getOldAbsolutePortPath() == dfgPortPath.getOldAbsolutePortPath();
+      else
+        renameTool = notDFGPortPath.getOldAbsoluteNodePath() == dfgPortPath.getOldAbsoluteNodePath();
+
+       std::cout 
+        << "notDFGPortPath.getAbsolutePortPath "
+        << notDFGPortPath.getAbsolutePortPath().toUtf8().constData() 
+        << " notDFGPortPath.getAbsoluteNodePath "
+        << notDFGPortPath.getAbsoluteNodePath().toUtf8().constData() 
+        << " renameTool "
+        << renameTool
+        << std::endl;
+
+      if(renameTool)
+      {
+        FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
+        RTVal args[2] = { 
+          RTVal::ConstructString(appStates->getClient(), notDFGPortPath.getOldAbsolutePortPath().toUtf8().constData()),
+          RTVal::ConstructString(appStates->getClient(), notDFGPortPath.getAbsolutePortPath().toUtf8().constData())
+        };
+        getKLToolManager().callMethod("Boolean", "renameTool", 2, args);      
+      }
     }
   }
 
@@ -310,11 +365,11 @@ void ToolsNotifierRegistry::changedNotifiedToolPath(
 }
 
 void ToolsNotifierRegistry::toolValueChanged(
-  QString const&toolPath)
+  DFGToolsNotifierPortPaths dfgPortPath)
 {
   FABRIC_CATCH_BEGIN();
  
-  RTVal pathValue = pathToPathValue(toolPath);
+  RTVal pathValue = pathToPathValue(dfgPortPath.getAbsolutePortPath());
 
   getKLToolManager().callMethod(
     "",
@@ -387,18 +442,14 @@ ToolsNotifier::ToolsNotifier(
 
   if(resolver)
   {
-    m_toolPath = RTValUtil::toRTVal(pathValue).maybeGetMember(
-      "path").getStringCString();
-
     DFGExec exec = resolver->getDFGPortPaths(
       pathValue, 
       m_dfgPortPaths
       );
 
-    FabricCore::String path = exec.getExecPath();
-  
-    m_execPath = QString(std::string(path.getCStr(), path.getSize()).c_str());
-    m_execPath = !m_execPath.isEmpty() ? m_execPath + "." : m_execPath;
+    m_dfgPortPaths.oldPortName = m_dfgPortPaths.portName;
+    m_dfgPortPaths.oldBlockName = m_dfgPortPaths.blockName;
+    m_dfgPortPaths.oldNodeName = m_dfgPortPaths.nodeName;
 
     setupConnections(exec);
   }
@@ -410,73 +461,7 @@ ToolsNotifier::~ToolsNotifier()
 {
   m_notifier.clear();
 }
-
-bool ToolsNotifier::notifyToolAtPath(
-  QString const &toolPath,
-  bool isNode)
-{
-  std::cout 
-    << "ToolsNotifier::notifyToolAtPath 1 "
-    << " toolPath "
-    << toolPath.toUtf8().constData() 
-    << " isNode "
-    << isNode
-    << std::endl;
-
-  bool res = false;
-
-  if(isNode)
-  {
-    int index = m_toolPath.lastIndexOf(".");
-    QString nodePath = m_toolPath.mid(0, index);
-    res =  nodePath == toolPath;
-  }
-  else
-    res = m_toolPath == toolPath;
-
-  std::cout 
-    << "ToolsNotifier::notifyToolAtPath 2 "
-    << " res "
-    << res
-    << std::endl;
-
-  return res;
-}
-
-void ToolsNotifier::changedNotifiedToolPath(
-  QString const &oldToolPath,
-  QString const &newToolPath,
-  bool isNode)
-{
-  std::cout 
-    << "ToolsNotifier::changedNotifiedToolPath 1 "
-    << " oldToolPath "
-    << oldToolPath.toUtf8().constData() 
-    << " newToolPath "
-    << newToolPath.toUtf8().constData() 
-    << " isNode "
-    << isNode
-    << std::endl;
-
-  if(isNode)
-  {
-    int index = m_toolPath.lastIndexOf(".");
-    QString nodePath = m_toolPath.mid(0, index);
-    QString toolName = m_toolPath.mid(index+1);
-
-    if(nodePath == oldToolPath)
-      m_toolPath = newToolPath + "." + toolName;
-  }
-  
-  if(m_toolPath == oldToolPath)
-    m_toolPath = newToolPath;
-
-  std::cout 
-    << "ToolsNotifier::changedNotifiedToolPath 2 "
-    << m_toolPath.toUtf8().constData() 
-    << std::endl;
-}
-
+ 
 void ToolsNotifier::setupConnections(
   FabricCore::DFGExec exec)
 {
@@ -491,30 +476,63 @@ void ToolsNotifier::setupConnections(
     this,
     SLOT(onExecNodeRenamed(FTL::CStrRef, FTL::CStrRef))
     );
+
   connect(
     m_notifier.data(),
     SIGNAL(nodeRemoved(FTL::CStrRef)),
     this,
     SLOT(onExecNodeRemoved(FTL::CStrRef))
     );
+
+  connect(
+    m_notifier.data(),
+    SIGNAL(instBlockRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+    this,
+    SLOT(onInstBlockRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+    );
+
   connect(
     m_notifier.data(),
     SIGNAL(nodePortRenamed(FTL::CStrRef, unsigned, FTL::CStrRef, FTL::CStrRef)),
     this,
     SLOT(onExecNodePortRenamed(FTL::CStrRef, unsigned, FTL::CStrRef, FTL::CStrRef))
     );
+
+  connect(
+    m_notifier.data(),
+    SIGNAL(instBlockPortRenamed(FTL::CStrRef, FTL::CStrRef, unsigned, FTL::CStrRef, FTL::CStrRef)),
+    this,
+    SLOT(onInstBlockPortRenamed(FTL::CStrRef, FTL::CStrRef, unsigned, FTL::CStrRef, FTL::CStrRef))
+    );
+
+  connect(
+    m_notifier.data(),
+    SIGNAL(instBlockPortRemoved(FTL::CStrRef, FTL::CStrRef, unsigned, FTL::CStrRef)),
+    this,
+    SLOT(onInstBlockPortRemoved(FTL::CStrRef, FTL::CStrRef, unsigned, FTL::CStrRef))
+    );
+
   connect(
     m_notifier.data(),
     SIGNAL(nodePortRemoved(FTL::CStrRef, unsigned, FTL::CStrRef)),
     this,
     SLOT(onExecNodePortRemoved(FTL::CStrRef, unsigned, FTL::CStrRef))
     );
+
+  connect(
+    m_notifier.data(),
+    SIGNAL(instBlockRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+    this,
+    SLOT(onInstBlockRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+    );
+
   connect(
     m_notifier.data(),
     SIGNAL(nodePortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef)),
     this,
     SLOT(onExecNodePortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef))
     );
+
   connect(
     m_notifier.data(),
     SIGNAL(instBlockPortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
@@ -535,13 +553,8 @@ void ToolsNotifier::onExecNodePortDefaultValuesChanged(
   FTL::CStrRef portName)
 {
   FABRIC_CATCH_BEGIN();
- 
-  QString toolPath = nodeName != ""
-    ? QString(nodeName.c_str()) + "." + QString(portName.c_str())
-    : portName.c_str();
-
-  m_registry->toolValueChanged(m_execPath + toolPath);
- 
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.portName == portName.data())
+    m_registry->toolValueChanged(m_dfgPortPaths);
   FABRIC_CATCH_END("ToolsNotifier::onExecNodePortDefaultValuesChanged");
 }
 
@@ -551,13 +564,8 @@ void ToolsNotifier::onInstBlockPortDefaultValuesChanged(
   FTL::CStrRef portName)
 {
   FABRIC_CATCH_BEGIN();
- 
-  QString toolPath = nodeName != ""
-    ? nodeName.c_str() + QString(".") + blockName.c_str() + QString(".") + portName.c_str()
-    : blockName.c_str() + QString(".") + portName.c_str();
-
-  m_registry->toolValueChanged(m_execPath + toolPath);
- 
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data() && m_dfgPortPaths.portName == portName.data())
+    m_registry->toolValueChanged(m_dfgPortPaths);
   FABRIC_CATCH_END("ToolsNotifier::onExecNodePortDefaultValuesChanged");
 }
  
@@ -566,8 +574,9 @@ void ToolsNotifier::onExecNodePortResolvedTypeChanged(
   FTL::CStrRef portName,
   FTL::CStrRef newResolveTypeName)
 {
-  // To-do
-  //std::cout << "ToolsNotifier::onExecNodePortResolvedTypeChanged" << std::endl;
+  FABRIC_CATCH_BEGIN();
+  onExecNodePortRemoved(nodeName, 0, portName);
+  FABRIC_CATCH_END("ToolsNotifier::onExecNodePortResolvedTypeChanged");
 }
  
 void ToolsNotifier::onExecNodePortRenamed(
@@ -576,19 +585,39 @@ void ToolsNotifier::onExecNodePortRenamed(
   FTL::CStrRef oldPortName,
   FTL::CStrRef newPortName)
 {
-  std::cout << "ToolsNotifier::onExecNodePortRenamed 1" << std::endl;
- 
-  QString oldToolPath = nodeName != ""
-    ? m_execPath + QString(nodeName.c_str()) + "." + QString(oldPortName.c_str())
-    : m_execPath + oldPortName.c_str();
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.portName == oldPortName.data())
+  {
+    std::cout << "\nToolsNotifier::onExecNodePortRenamed 1" << std::endl;
+    //m_dfgPortPaths.blockName = "";
+    m_dfgPortPaths.oldNodeName = nodeName.data();
+    m_dfgPortPaths.oldPortName = oldPortName.data();
+    m_dfgPortPaths.portName = newPortName.data();
+    m_registry->changedNotifiedToolPath(m_dfgPortPaths);
+    std::cout << "ToolsNotifier::onExecNodePortRenamed 2" << std::endl;
+  }
+  FABRIC_CATCH_END("ToolsNotifier::onExecNodePortRenamed");
+}
 
-  QString newToolPath = nodeName != ""
-    ? m_execPath + QString(nodeName.c_str()) + "." + QString(newPortName.c_str())
-    : m_execPath + newPortName.c_str();
-
-  m_registry->changedNotifiedToolPath(oldToolPath, newToolPath);
-
-  std::cout << "ToolsNotifier::onExecNodePortRenamed 2" << std::endl;
+void ToolsNotifier::onInstBlockPortRenamed(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef blockName,
+  unsigned portIndex,
+  FTL::CStrRef oldPortName,
+  FTL::CStrRef newPortName)
+{
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data() && m_dfgPortPaths.portName == oldPortName.data())
+  {
+    std::cout << "\nToolsNotifier::onInstBlockPortRenamed 1" << std::endl;
+    m_dfgPortPaths.oldNodeName = nodeName.data();
+    m_dfgPortPaths.oldBlockName = blockName.data();
+    m_dfgPortPaths.oldPortName = oldPortName.data();
+    m_dfgPortPaths.portName = newPortName.data();
+    m_registry->changedNotifiedToolPath(m_dfgPortPaths);
+    std::cout << "ToolsNotifier::onInstBlockPortRenamed 2" << std::endl;
+  }
+  FABRIC_CATCH_END("ToolsNotifier::onInstBlockPortRenamed");
 }
  
 void ToolsNotifier::onExecNodePortRemoved(
@@ -596,38 +625,92 @@ void ToolsNotifier::onExecNodePortRemoved(
   unsigned portIndex,
   FTL::CStrRef portName)
 {
-  std::cout << "ToolsNotifier::onExecNodePortRemoved 1" << std::endl;
- 
-  QString toolPath = nodeName != ""
-    ? QString(nodeName.c_str()) + "." + QString(portName.c_str())
-    : portName.c_str();
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.portName == portName.data())
+  {
+    std::cout << "\nToolsNotifier::onExecNodePortRemoved 1" << std::endl;
+    m_registry->deletePathValueTool(m_dfgPortPaths);
+    std::cout << "ToolsNotifier::onExecNodePortRemoved 2" << std::endl;
+  }
+  FABRIC_CATCH_END("ToolsNotifier::onExecNodePortRemoved");
+}
 
-  m_registry->deletePathValueTool(m_execPath + toolPath);
-  std::cout << "ToolsNotifier::onExecNodePortRemoved 2" << std::endl;
+void ToolsNotifier::onInstBlockPortRemoved(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef blockName,
+  unsigned portIndex,
+  FTL::CStrRef portName)
+{
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data() && m_dfgPortPaths.portName == portName.data())
+  {
+    std::cout << "\nToolsNotifier::onInstBlockPortRemoved 1" << std::endl;
+    m_registry->deletePathValueTool(m_dfgPortPaths);
+    std::cout << "ToolsNotifier::onInstBlockPortRemoved 2" << std::endl;
+  }
+  FABRIC_CATCH_END("ToolsNotifier::onInstBlockPortRemoved");
 }
 
 void ToolsNotifier::onExecNodeRemoved(
   FTL::CStrRef nodeName)
 {
-  // To-do
-  // Remove all the tools that are attached to any port of the node.
-  std::cout << "ToolsNotifier::onExecNodeRemoved 1 " << std::endl;
-  
-  m_registry->deletePathValueTool(m_execPath + nodeName.c_str(), true);
- 
-  std::cout << "ToolsNotifier::onExecNodeRemoved 2 " << std::endl;
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == nodeName.data())
+  {
+    std::cout << "\nToolsNotifier::onExecNodeRemoved 1 " << std::endl;
+    m_registry->deletePathValueTool(m_dfgPortPaths, true);
+    std::cout << "ToolsNotifier::onExecNodeRemoved 2 " << std::endl;
+  }
+  FABRIC_CATCH_END("ToolsNotifier::onExecNodeRemoved");
+}
+
+void ToolsNotifier::onInstBlockRemoved(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef blockName)
+{
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data())
+  {
+    std::cout << "\nToolsNotifier::onInstBlockRemoved 1 " << std::endl;
+    m_registry->deletePathValueTool(m_dfgPortPaths, true);
+    std::cout << "ToolsNotifier::onInstBlockRemoved 2 " << std::endl;
+  }
+  FABRIC_CATCH_END("ToolsNotifier::onInstBlockRemoved");
 }
 
 void ToolsNotifier::onExecNodeRenamed(
   FTL::CStrRef oldNodeName,
   FTL::CStrRef newNodeName)
 {
-  std::cout << "ToolsNotifier::onExecNodeRenamed 1 " << std::endl;
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == oldNodeName.data())
+  {
+    std::cout << "\nToolsNotifier::onExecNodeRenamed 1 " << std::endl;
+    //m_dfgPortPaths.blockName = "";
+    m_dfgPortPaths.oldPortName = m_dfgPortPaths.portName;
+    m_dfgPortPaths.oldNodeName = oldNodeName.data();
+    m_dfgPortPaths.nodeName = newNodeName.data();
+    m_registry->changedNotifiedToolPath(m_dfgPortPaths, true);
+    std::cout << "ToolsNotifier::onExecNodeRenamed 2 " << std::endl;
+  }
+  FABRIC_CATCH_END("ToolsNotifier::onExecNodeRenamed");
+}
 
-  m_registry->changedNotifiedToolPath(
-    m_execPath + oldNodeName.c_str(), 
-    m_execPath + newNodeName.c_str(), 
-    true);
-
-  std::cout << "ToolsNotifier::onExecNodeRenamed 2 " << std::endl;
+void ToolsNotifier::onInstBlockRenamed(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef oldBlockName,
+  FTL::CStrRef newBlockName)
+{
+  FABRIC_CATCH_BEGIN();
+  if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == oldBlockName.data())
+  {
+    std::cout << "\nToolsNotifier::onInstBlockRenamed 1 " << std::endl;
+    m_dfgPortPaths.oldNodeName = nodeName.data();
+    m_dfgPortPaths.oldBlockName = m_dfgPortPaths.blockName;
+    m_dfgPortPaths.blockName = newBlockName.data();
+    m_dfgPortPaths.oldPortName = m_dfgPortPaths.portName;
+    m_registry->changedNotifiedToolPath(m_dfgPortPaths, true);
+    std::cout << "ToolsNotifier::onInstBlockRenamed 2 " << std::endl;
+  }
+  FABRIC_CATCH_END("ToolsNotifier::onInstBlockRenamed");
 }
