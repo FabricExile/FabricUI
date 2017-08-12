@@ -79,13 +79,13 @@ void ViewportWidget::clear()
 void ViewportWidget::enterEvent(
   QEvent * event) 
 {
-  setFocus();
+  grabKeyboard();
 }
 
 void ViewportWidget::leaveEvent(
   QEvent * event) 
 {
-  clearFocus();
+  releaseKeyboard();
 }
 
 bool ViewportWidget::onEvent(
