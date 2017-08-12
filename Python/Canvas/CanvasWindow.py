@@ -561,8 +561,9 @@ class CanvasWindow(QtGui.QMainWindow):
 
         OptionsEditor.KLOptionsTargetEditor.create( "Rendering Options", "Rendering Options", "", self )
 
-        # When a klWidget is activated/deactivated from the value-editor.
+        # When a tool is activated/deactivated from the value-editor.
         self.valueEditor.refreshViewport.connect(self.viewport.redraw)
+        self.toolsNotifierRegistry.toolUpdated.connect(self.viewport.redraw)
 
     def _initValueEditor(self):
         """Initializes the value editor."""

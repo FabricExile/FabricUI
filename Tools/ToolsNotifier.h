@@ -118,6 +118,28 @@ class ToolsNotifierRegistry : public QObject
 
     ~ToolsNotifierRegistry();
 
+    void initConnections();
+
+    void createPathValueTool(
+      FabricCore::RTVal pathValue
+      );
+ 
+    void deletePathValueTool(
+      DFGToolsNotifierPortPaths dfgPortPath,
+      bool fromNode = false
+      );
+
+    void changedNotifiedToolPath(
+      DFGToolsNotifierPortPaths dfgPortPath,
+      bool fromNode = false
+      );
+
+    /// Update the value of the tool 
+    /// associated to the `pathValue`.
+    void toolValueChanged(
+      DFGToolsNotifierPortPaths dfgPortPath
+      );
+
   public slots:
     void onBindingArgValueChanged( 
       unsigned index, 
@@ -141,27 +163,8 @@ class ToolsNotifierRegistry : public QObject
       FTL::CStrRef newType
       );
 
-    void initConnections();
-
-    void createPathValueTool(
-      FabricCore::RTVal pathValue
-      );
- 
-    void deletePathValueTool(
-      DFGToolsNotifierPortPaths dfgPortPath,
-      bool fromNode = false
-      );
-
-    void changedNotifiedToolPath(
-      DFGToolsNotifierPortPaths dfgPortPath,
-      bool fromNode = false
-      );
-
-    /// Update the value of the tool 
-    /// associated to the `pathValue`.
-    void toolValueChanged(
-      DFGToolsNotifierPortPaths dfgPortPath
-      );
+  signals:
+    void toolUpdated();
 
   private slots:
     void onControllerBindingChanged(

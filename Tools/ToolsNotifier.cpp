@@ -370,6 +370,8 @@ void ToolsNotifierRegistry::toolValueChanged(
     1,
     &pathValue);
 
+  emit toolUpdated();
+  
   FABRIC_CATCH_END("ToolsNotifierRegistry::toolValueChanged");
 }
 
