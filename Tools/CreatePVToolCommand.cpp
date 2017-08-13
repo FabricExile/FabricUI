@@ -6,6 +6,7 @@
 #include "CreatePVToolCommand.h"
 #include <FabricUI/Commands/CommandHelpers.h>
 #include <FabricUI/Application/FabricException.h>
+#include <FabricUI/Application/FabricApplicationStates.h>
 
 using namespace FabricUI;
 using namespace Tools;
@@ -20,6 +21,18 @@ CreatePVToolCommand::CreatePVToolCommand()
 
   declareRTValArg("target", "RTVal",
     CommandArgFlags::IO_ARG);
+
+  RTVal createIfExistVal = RTVal::ConstructBoolean(
+    FabricApplicationStates::GetAppStates()->getContext(), 
+    false
+    );
+
+  declareRTValArg(
+    "createIfExist", 
+    "Boolean",
+    CommandArgFlags::IN_ARG | CommandArgFlags::OPTIONAL_ARG,
+    createIfExistVal
+    );
 
   FABRIC_CATCH_END("CreatePVToolCommand::CreatePVToolCommand");
 }
@@ -44,9 +57,26 @@ bool CreatePVToolCommand::doIt()
 
   // Update the tool'value from its target.
   RTVal pathValue = getRTValArg("target");
+  bool createIfExist = getRTValArgValue("createIfExist").getBoolean();
 
-  PathValueTool::createTool(pathValue);
-  
+  RTVal pathValueTool = PathValueTool::getTool(pathValue);
+  bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
+
+  if(!createIfExist && pathValueToolIsValid)
+    FabricException::Throw(
+      "CreatePVToolCommand::doIt",
+      "A PathValueTool of type '" + getRTValArgType("target") + "' already targets the path '" + getRTValArgPath("target") + "'"
+      );
+
+  pathValueTool = PathValueTool::createTool(pathValue);
+  pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
+
+  if(!pathValueToolIsValid)
+    FabricException::Throw(
+      "CreatePVToolCommand::doIt",
+      "The PathValue tool of type '" + getRTValArgType("target") + "' targeting the path '" + getRTValArgPath("target") + "' is invalid"
+);
+
   return true;
   
   FABRIC_CATCH_END("CreatePVToolCommand::doIt");
@@ -60,6 +90,7 @@ QString CreatePVToolCommand::getHelp()
 
   QMap<QString, QString> argsHelp;
   argsHelp["target"] = "Path of the DFG port that the tool targets";
+  argsHelp["createIfExist"] = "Force the creation a new tool targeting 'target'";
 
   return CommandHelpers::createHelpFromRTValArgs(
     this,
