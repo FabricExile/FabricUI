@@ -3,7 +3,7 @@
 //
 
 #include "PathValueTool.h"
-#include "CreateToolCommand.h"
+#include "CreatePVToolCommand.h"
 #include <FabricUI/Commands/CommandHelpers.h>
 #include <FabricUI/Application/FabricException.h>
 
@@ -13,7 +13,7 @@ using namespace Commands;
 using namespace FabricCore;
 using namespace Application;
 
-CreateToolCommand::CreateToolCommand() 
+CreatePVToolCommand::CreatePVToolCommand() 
   : BaseRTValScriptableCommand()
 {
   FABRIC_CATCH_BEGIN();
@@ -21,24 +21,24 @@ CreateToolCommand::CreateToolCommand()
   declareRTValArg("target", "RTVal",
     CommandArgFlags::IO_ARG);
 
-  FABRIC_CATCH_END("CreateToolCommand::CreateToolCommand");
+  FABRIC_CATCH_END("CreatePVToolCommand::CreatePVToolCommand");
 }
 
-CreateToolCommand::~CreateToolCommand() 
+CreatePVToolCommand::~CreatePVToolCommand() 
 {
 }
 
-bool CreateToolCommand::canUndo()
+bool CreatePVToolCommand::canUndo()
 {
   return false;
 }
 
-bool CreateToolCommand::canLog()
+bool CreatePVToolCommand::canLog()
 {
   return true;
 }
 
-bool CreateToolCommand::doIt()
+bool CreatePVToolCommand::doIt()
 {
   FABRIC_CATCH_BEGIN();
 
@@ -49,12 +49,12 @@ bool CreateToolCommand::doIt()
   
   return true;
   
-  FABRIC_CATCH_END("CreateToolCommand::doIt");
+  FABRIC_CATCH_END("CreatePVToolCommand::doIt");
 
   return false;
 }
 
-QString CreateToolCommand::getHelp()
+QString CreatePVToolCommand::getHelp()
 {
   FABRIC_CATCH_BEGIN();
 
@@ -66,7 +66,7 @@ QString CreateToolCommand::getHelp()
     "Create a new PathValue tool",
     argsHelp);
 
-  FABRIC_CATCH_END("CreateToolCommand::getHelp");
+  FABRIC_CATCH_END("CreatePVToolCommand::getHelp");
 
   return "";
 }
