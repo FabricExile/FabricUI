@@ -16,6 +16,56 @@ using namespace Commands;
 using namespace FabricCore;
 using namespace Application;
 
+inline RTVal pathToPathValue(
+  QString const&toolPath)
+{
+  RTVal pathValue;
+
+  FABRIC_CATCH_BEGIN();
+
+  FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
+ 
+  RTVal toolPathVal = RTVal::ConstructString(
+    appStates->getClient(), 
+    toolPath.toUtf8().constData()
+    );
+
+  pathValue = RTVal::Construct(
+    appStates->getClient(), 
+    "PathValue", 
+    1, 
+    &toolPathVal);
+
+  PathValueResolverRegistry::getRegistry()->getValue(pathValue);
+   
+  FABRIC_CATCH_END("PathValueTool::pathToPathValue");
+
+  return pathValue;
+}
+
+inline RTVal getKLToolManager()
+{
+  RTVal toolRegistry;
+
+  FABRIC_CATCH_BEGIN();
+
+  toolRegistry = RTVal::Create(
+    FabricApplicationStates::GetAppStates()->getContext(),
+    "Tool::AppToolsManager",
+    0,
+    0);
+
+  toolRegistry = toolRegistry.callMethod(
+    "Tool::ToolsManager",
+    "getToolsManager",
+    0,
+    0);
+
+  FABRIC_CATCH_END("PathValueTool::getKLToolManager");
+
+  return toolRegistry;
+}
+
 bool PathValueTool::canCreateTool(
   QString const&toolPath)
 {
@@ -71,6 +121,32 @@ RTVal PathValueTool::createTool(
     &pathValue);
  	
   FABRIC_CATCH_END("PathValueTool::createTool");
+
+  return pathValueTool;
+}
+
+RTVal PathValueTool::getTool(
+  QString const& toolPath)
+{
+  return getTool(
+    pathToPathValue(toolPath)
+    );
+}
+
+RTVal PathValueTool::getTool(
+  RTVal pathValue)
+{
+  RTVal pathValueTool;
+
+  FABRIC_CATCH_BEGIN();
+ 
+  pathValueTool = getKLToolManager().callMethod(
+    "Tool::BaseTool",
+    "getPathValueTool",
+    1,
+    &pathValue);
+  
+  FABRIC_CATCH_END("PathValueTool::getTool");
 
   return pathValueTool;
 }
@@ -133,56 +209,4 @@ void PathValueTool::toolValueChanged(
     &pathValue);
 
   FABRIC_CATCH_END("PathValueTool::toolValueChanged");
-}
-
-RTVal PathValueTool::pathToPathValue(
-  QString const&toolPath,
-  bool resolveValue)
-{
-  RTVal pathValue;
-
-  FABRIC_CATCH_BEGIN();
-
-  FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
- 
-  RTVal toolPathVal = RTVal::ConstructString(
-    appStates->getClient(), 
-    toolPath.toUtf8().constData()
-    );
-
-  pathValue = RTVal::Construct(
-    appStates->getClient(), 
-    "PathValue", 
-    1, 
-    &toolPathVal);
-
-  if(resolveValue)
-    PathValueResolverRegistry::getRegistry()->getValue(pathValue);
-   
-  FABRIC_CATCH_END("PathValueTool::pathToPathValue");
-
-  return pathValue;
-}
-
-RTVal PathValueTool::getKLToolManager()
-{
-	RTVal toolRegistry;
-
-  FABRIC_CATCH_BEGIN();
-
-  toolRegistry = RTVal::Create(
-    FabricApplicationStates::GetAppStates()->getContext(),
-    "Tool::AppToolsManager",
-    0,
-    0);
-
-  toolRegistry = toolRegistry.callMethod(
-    "Tool::ToolsManager",
-    "getToolsManager",
-    0,
-    0);
-
-  FABRIC_CATCH_END("PathValueTool::getKLToolManager");
-
-  return toolRegistry;
 }

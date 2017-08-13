@@ -30,13 +30,14 @@ class PathValueTool
 			QString const& toolPath
 			);
 
-		static FabricCore::RTVal pathToPathValue(
-			QString const& toolPath,
-  		bool resolveValue = true	
+		static FabricCore::RTVal getTool(
+			FabricCore::RTVal pathValue
 			);
 
-		static FabricCore::RTVal getKLToolManager();
-
+		static FabricCore::RTVal getTool(
+			QString const& toolPath
+			);
+ 
 		static void deleteTool(
 			QString const& toolPath
 			);
