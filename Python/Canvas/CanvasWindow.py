@@ -528,7 +528,7 @@ class CanvasWindow(QtGui.QMainWindow):
         """Initializes the Tools.
         """
         self.toolsNotifierRegistry = FabricUI.Tools.ToolsNotifierRegistry(self.dfgWidget.getDFGController())
-        FabricUI.Tools.ToolsCommandRegistration.RegisterCommands(self.toolsNotifierRegistry)
+        FabricUI.DFG.DFGToolsCommandRegistration.RegisterCommands(self.toolsNotifierRegistry)
 
     def _initTreeView(self):
         """Initializes the preset TreeView.
