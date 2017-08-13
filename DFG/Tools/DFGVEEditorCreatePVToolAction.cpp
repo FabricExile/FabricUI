@@ -63,12 +63,18 @@ QAction* DFGVEEditorCreatePVToolAction::create(
 
       QString itemPath = bindingId + "." + portPath;
       
+      RTVal pathValueTool = PathValueTool::getTool(itemPath);
+      bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
+
       std::cout 
         << "DFGVEEditorCreatePVToolAction::create 4 "
         << " portPath " 
-        << itemPath.toUtf8().constData();
-
-      if(PathValueTool::canCreateTool(itemPath))
+        << itemPath.toUtf8().constData()
+        << " pathValueToolIsValid " 
+        << pathValueToolIsValid
+        << std::endl;
+      
+      if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
       {
         std::cout << "DFGVEEditorCreatePVToolAction::create 5 " << std::endl;
 
