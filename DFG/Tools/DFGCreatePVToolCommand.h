@@ -30,7 +30,7 @@ class DFGCreatePVToolCommand : public Tools::CreatePVToolCommand
     virtual bool doIt();
  
   private:
-    Tools::ToolsNotifierRegistry* m_registry;
+    Tools::DFGPVToolsNotifierRegistry* m_registry;
 };
 
 } // namespace DFG

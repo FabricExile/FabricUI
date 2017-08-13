@@ -2,8 +2,8 @@
 <typesystem package="FabricUI">
   <namespace-type name="FabricUI" generate="no">
     <namespace-type name="Tools" generate="yes">
-      <object-type name="ToolsNotifier" copyable="false"/>
-			<object-type name="ToolsNotifierRegistry" copyable="false"/>
+      <object-type name="DFGPVToolsNotifier" copyable="false"/>
+			<object-type name="DFGPVToolsNotifierRegistry" copyable="false"/>
 	</namespace-type>
   </namespace-type>
 </typesystem> 

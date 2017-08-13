@@ -2,8 +2,8 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#ifndef __UI_TOOLS_NOTIFIER__
-#define __UI_TOOLS_NOTIFIER__
+#ifndef __UI_DFG_PV_TOOLS_NOTIFIER__
+#define __UI_DFG_PV_TOOLS_NOTIFIER__
 
 #include <QList>
 #include <QString>
@@ -15,30 +15,30 @@
 namespace FabricUI {
 namespace Tools {
 
-class ToolsNotifierRegistry;
+class DFGPVToolsNotifierRegistry;
 
-class ToolsNotifierRegistry_NotifProxy : public QObject
+class DFGPVToolsNotifierRegistry_NotifProxy : public QObject
 {
   public:
-    ToolsNotifierRegistry_NotifProxy(
-      ToolsNotifierRegistry *dst,
+    DFGPVToolsNotifierRegistry_NotifProxy(
+      DFGPVToolsNotifierRegistry *dst,
       QObject *parent
       );
 
-    virtual ~ToolsNotifierRegistry_NotifProxy();
+    virtual ~DFGPVToolsNotifierRegistry_NotifProxy();
 
   protected:
-    ToolsNotifierRegistry *m_dst;
+    DFGPVToolsNotifierRegistry *m_dst;
 };
 
-class ToolsNotifierRegistry_BindingNotifProxy :
-  public ToolsNotifierRegistry_NotifProxy
+class DFGPVToolsNotifierRegistry_BindingNotifProxy :
+  public DFGPVToolsNotifierRegistry_NotifProxy
 {
   Q_OBJECT
 
   public:
-    ToolsNotifierRegistry_BindingNotifProxy(
-      ToolsNotifierRegistry *dst,
+    DFGPVToolsNotifierRegistry_BindingNotifProxy(
+      DFGPVToolsNotifierRegistry *dst,
       QObject *parent
       );
 
@@ -66,16 +66,16 @@ class ToolsNotifierRegistry_BindingNotifProxy :
       );
 };
 
-class ToolsNotifier;
+class DFGPVToolsNotifier;
 
-struct DFGToolsNotifierPortPaths : public DFG::DFGPathValueResolver::DFGPortPaths
+struct DFGPVToolsNotifierPortPaths : public DFG::DFGPathValueResolver::DFGPortPaths
 {
   public:
     QString oldPortName; 
     QString oldBlockName;
     QString oldNodeName;
 
-    DFGToolsNotifierPortPaths::DFGToolsNotifierPortPaths()
+    DFGPVToolsNotifierPortPaths::DFGPVToolsNotifierPortPaths()
       : DFG::DFGPathValueResolver::DFGPortPaths()
     {
     }
@@ -106,16 +106,16 @@ struct DFGToolsNotifierPortPaths : public DFG::DFGPathValueResolver::DFGPortPath
     }
 };
  
-class ToolsNotifierRegistry : public QObject
+class DFGPVToolsNotifierRegistry : public QObject
 {
   Q_OBJECT
 
   public:
-    ToolsNotifierRegistry( 
+    DFGPVToolsNotifierRegistry( 
       DFG::DFGController *dfgContoller 
       );
 
-    ~ToolsNotifierRegistry();
+    ~DFGPVToolsNotifierRegistry();
 
     void initConnections();
 
@@ -124,19 +124,19 @@ class ToolsNotifierRegistry : public QObject
       );
  
     void deletePathValueTool(
-      DFGToolsNotifierPortPaths dfgPortPath,
+      DFGPVToolsNotifierPortPaths dfgPortPath,
       bool fromNode = false
       );
 
     void changedNotifiedToolPath(
-      DFGToolsNotifierPortPaths dfgPortPath,
+      DFGPVToolsNotifierPortPaths dfgPortPath,
       bool fromNode = false
       );
 
     /// Update the value of the tool 
     /// associated to the `pathValue`.
     void toolValueChanged(
-      DFGToolsNotifierPortPaths dfgPortPath
+      DFGPVToolsNotifierPortPaths dfgPortPath
       );
 
   public slots:
@@ -184,23 +184,23 @@ class ToolsNotifierRegistry : public QObject
 
     DFG::DFGController *m_dfgContoller;
     QSharedPointer<DFG::DFGNotifier> m_notifier;
-    QList<ToolsNotifier *> m_registeredNotifiers;
-    ToolsNotifierRegistry_NotifProxy *m_notifProxy;
+    QList<DFGPVToolsNotifier *> m_registeredNotifiers;
+    DFGPVToolsNotifierRegistry_NotifProxy *m_notifProxy;
 };
 
-class ToolsNotifier : public QObject
+class DFGPVToolsNotifier : public QObject
 {
   Q_OBJECT
 
   public:
-    ToolsNotifier( 
-      ToolsNotifierRegistry *registry,
+    DFGPVToolsNotifier( 
+      DFGPVToolsNotifierRegistry *registry,
       FabricCore::RTVal pathValue
       );
 
-    ~ToolsNotifier();
+    ~DFGPVToolsNotifier();
    
-    DFGToolsNotifierPortPaths getDFGToolsNotifierPortPaths() const;
+    DFGPVToolsNotifierPortPaths getDFGPVToolsNotifierPortPaths() const;
   
   protected slots:
     void onExecNodePortRenamed(
@@ -280,12 +280,12 @@ class ToolsNotifier : public QObject
       FabricCore::DFGExec exec
       );
 
-    ToolsNotifierRegistry *m_registry;
-    DFGToolsNotifierPortPaths m_dfgPortPaths;
+    DFGPVToolsNotifierRegistry *m_registry;
+    DFGPVToolsNotifierPortPaths m_dfgPortPaths;
     QSharedPointer<DFG::DFGNotifier> m_notifier;
 };
 
 } // namespace Tools
 } // namespace FabricUI
 
-#endif // __UI_TOOLS_NOTIFIER__
+#endif // __UI_DFG_PV_TOOLS_NOTIFIER__

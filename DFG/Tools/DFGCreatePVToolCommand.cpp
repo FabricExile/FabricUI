@@ -25,7 +25,7 @@ void DFGCreatePVToolCommand::registrationCallback(
   void *userData)
 {
   if(userData != 0)
-    m_registry = static_cast<ToolsNotifierRegistry*>(userData);
+    m_registry = static_cast<DFGPVToolsNotifierRegistry*>(userData);
 }
  
 bool DFGCreatePVToolCommand::doIt()

@@ -20,7 +20,7 @@ class DFGToolsCommandRegistration
 
   public:
    	static void RegisterCommands(
-   		Tools::ToolsNotifierRegistry *registry)
+   		Tools::DFGPVToolsNotifierRegistry *registry)
     {
       Commands::CommandFactory<DFGCreatePVToolCommand>::Register(
         "createDFGPVTool",
