@@ -5,8 +5,8 @@
 #ifndef __UI_DFG_CREATE_TOOLS_COMMAND__
 #define __UI_DFG_CREATE_TOOLS_COMMAND__
 
-#include <FabricUI/Tools/ToolsNotifier.h>
 #include <FabricUI/Tools/CreatePVToolCommand.h>
+#include <FabricUI/Tools/DFGPVToolsNotifierRegistry.h>
 
 namespace FabricUI {
 namespace DFG {
