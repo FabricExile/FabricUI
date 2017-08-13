@@ -3,8 +3,8 @@
 //
 
 #include <iostream>
-#include "PathValueTool.h"
 #include "DFGPVToolsNotifier.h"
+#include <FabricUI/Tools/PathValueTool.h>
 #include <FabricUI/DFG/DFGExecNotifier.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Commands/PathValueResolverRegistry.h>

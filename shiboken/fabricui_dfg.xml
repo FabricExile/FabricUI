@@ -60,6 +60,7 @@
       <object-type name="PresetTreeWidget" />
       <object-type name="DFGCommandRegistration" />
       <object-type name="DFGToolsCommandRegistration" />
+      <object-type name="DFGPVToolsNotifierRegistry" />
       </namespace-type>
   </namespace-type>
 </typesystem>

@@ -13,7 +13,7 @@
 #include <FabricUI/DFG/Commands/DFGPathValueResolver.h>
  
 namespace FabricUI {
-namespace Tools {
+namespace DFG {
 
 class DFGPVToolsNotifierRegistry;
 
@@ -285,7 +285,7 @@ class DFGPVToolsNotifier : public QObject
     QSharedPointer<DFG::DFGNotifier> m_notifier;
 };
 
-} // namespace Tools
+} // namespace DFG
 } // namespace FabricUI
 
 #endif // __UI_DFG_PV_TOOLS_NOTIFIER__

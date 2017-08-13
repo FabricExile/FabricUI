@@ -2,11 +2,11 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#ifndef __UI_DFG_CREATE_TOOLS_COMMAND__
-#define __UI_DFG_CREATE_TOOLS_COMMAND__
+#ifndef __UI_DFG_CREATE_PV_TOOL_COMMAND__
+#define __UI_DFG_CREATE_PV_TOOL_COMMAND__
 
+#include "DFGPVToolsNotifier.h"
 #include <FabricUI/Tools/CreatePVToolCommand.h>
-#include <FabricUI/Tools/DFGPVToolsNotifierRegistry.h>
 
 namespace FabricUI {
 namespace DFG {
@@ -30,10 +30,10 @@ class DFGCreatePVToolCommand : public Tools::CreatePVToolCommand
     virtual bool doIt();
  
   private:
-    Tools::DFGPVToolsNotifierRegistry* m_registry;
+    DFGPVToolsNotifierRegistry* m_registry;
 };
 
 } // namespace DFG
 } // namespace FabricUI
 
-#endif // __UI_DFG_CREATE_TOOLS_COMMAND__
+#endif // __UI_DFG_CREATE_PV_TOOL_COMMAND__

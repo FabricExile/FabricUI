@@ -5,9 +5,9 @@
 #ifndef __UI_DFG_TOOLS_COMMAND_REGISTRATION__
 #define __UI_DFG_TOOLS_COMMAND_REGISTRATION__
 
+#include "DFGPVToolsNotifier.h"
 #include "DFGCreatePVToolCommand.h"
 #include <FabricUI/Commands/CommandRegistry.h>
-#include <FabricUI/Tools/DFGPVToolsNotifierRegistry.h>
  
 namespace FabricUI {
 namespace DFG {
@@ -20,7 +20,7 @@ class DFGToolsCommandRegistration
 
   public:
    	static void RegisterCommands(
-   		Tools::DFGPVToolsNotifierRegistry *registry)
+   		DFG::DFGPVToolsNotifierRegistry *registry)
     {
       Commands::CommandFactory<DFGCreatePVToolCommand>::Register(
         "createDFGPVTool",
