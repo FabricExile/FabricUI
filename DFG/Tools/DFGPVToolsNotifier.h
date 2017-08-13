@@ -151,13 +151,6 @@ class DFGPVToolsNotifierRegistry : public QObject
       );
 
   private:
-    /// Gets the KL tools manager.
-    FabricCore::RTVal getKLToolManager();
-
-    FabricCore::RTVal pathToPathValue(
-      QString const&toolPath
-      );
-
     void setupConnections(
       FabricUI::DFG::DFGController *dfgController
       );
