@@ -3,4 +3,6 @@
 //
 
 #include <FabricUI/DFG/Commands/DFGCommandRegistration.h>
+#include <FabricUI/DFG/Tools/DFGToolsCommandRegistration.h>
+
 

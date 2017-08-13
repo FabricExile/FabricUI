@@ -59,6 +59,7 @@
       <object-type name="DFGWidget" />
       <object-type name="PresetTreeWidget" />
       <object-type name="DFGCommandRegistration" />
-    </namespace-type>
+      <object-type name="DFGToolsCommandRegistration" />
+      </namespace-type>
   </namespace-type>
 </typesystem>

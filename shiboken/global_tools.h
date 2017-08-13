@@ -3,4 +3,3 @@
 //
 
 #include <FabricUI/Tools/ToolsNotifier.h>
-#include <FabricUI/Tools/ToolsCommandRegistration.h>
