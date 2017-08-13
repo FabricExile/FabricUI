@@ -20,6 +20,7 @@
 #include <FabricUI/ValueEditor/ItemMetadata.h>
 #include <FabricUI/ValueEditor/VETreeWidget.h>
 #include <FabricUI/ValueEditor/VETreeWidgetItem.h>
+#include <FabricUI/DFG/DFGVEEditorContextualMenu.h>
 
 using namespace FabricUI;
 using namespace DFG;
@@ -30,6 +31,7 @@ DFGVEEditorOwner::DFGVEEditorOwner( DFGWidget * dfgWidget )
   , m_setGraph( NULL )
   , m_notifProxy( NULL )
 {
+  m_valueEditor->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 DFGVEEditorOwner::~DFGVEEditorOwner()
@@ -63,6 +65,13 @@ void DFGVEEditorOwner::initConnections()
 
   connect( getDfgWidget(), SIGNAL( onGraphSet( FabricUI::GraphView::Graph* ) ),
                     this, SLOT( onGraphSet( FabricUI::GraphView::Graph* ) ) );
+
+  connect(
+    m_valueEditor, 
+    SIGNAL(customContextMenuRequested(const QPoint &)), 
+    this, 
+    SLOT(onCustomContextMenu(const QPoint &))
+    );
 
   onGraphSet( getDfgWidget()->getUIGraph() );
 }
@@ -1085,6 +1094,20 @@ void DFGVEEditorOwner::onGraphSet( FabricUI::GraphView::Graph * graph )
     onSidePanelInspectRequested();
 
     m_setGraph = graph;
+  }
+}
+
+void DFGVEEditorOwner::onCustomContextMenu(const QPoint &point)
+{
+  QTreeWidgetItem *qTreeItem = m_valueEditor->itemAt(point);
+  if(qTreeItem)
+  {
+    ValueEditor::VETreeWidgetItem *veTreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(qTreeItem);
+    if(veTreeItem)
+      DFGVEEditorContextualMenu::create(
+        m_valueEditor, 
+        point,
+        veTreeItem);
   }
 }
 
