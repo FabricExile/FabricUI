@@ -442,15 +442,18 @@ void DFGPathValueResolver::castPathToHRFormat(
   FABRIC_CATCH_END("DFGPathValueResolver::castPathToHRFormat");
 }
 
-bool DFGPathValueResolver::DFGPortPaths::isExecBlockPort() {
+bool DFGPathValueResolver::DFGPortPaths::isExecBlockPort() 
+{
   return !blockName.isEmpty();
 }
 
-bool DFGPathValueResolver::DFGPortPaths::isExecArg() {
+bool DFGPathValueResolver::DFGPortPaths::isExecArg() 
+{
   return !isExecBlockPort() && nodeName.isEmpty();
 }
 
-QString DFGPathValueResolver::DFGPortPaths::getRelativePortPath() {
+QString DFGPathValueResolver::DFGPortPaths::getRelativePortPath() 
+{
   if(isExecBlockPort())
     return nodeName + "." + blockName + "." + portName;
   else if(isExecArg())
@@ -460,13 +463,15 @@ QString DFGPathValueResolver::DFGPortPaths::getRelativePortPath() {
   return "";
 }
 
-QString DFGPathValueResolver::DFGPortPaths::getAbsolutePortPath() {
+QString DFGPathValueResolver::DFGPortPaths::getAbsolutePortPath() 
+{
    return execPath.isEmpty()
     ? getRelativePortPath()
     : execPath + "." + getRelativePortPath();
 }
 
-QString DFGPathValueResolver::DFGPortPaths::getAbsoluteNodePath() {
+QString DFGPathValueResolver::DFGPortPaths::getAbsoluteNodePath() 
+{
   if(!nodeName.isEmpty())
     return execPath.isEmpty()
       ? nodeName
