@@ -10,7 +10,6 @@
 #include <FabricUI/ValueEditor/BaseModelItem.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/ModelItems/DFGModelItemMetadata.h>
-#include <iostream>
 
 using namespace FabricCore;
 using namespace FabricUI;
@@ -35,19 +34,15 @@ QAction* DFGVEEditorCreatePVToolAction::create(
 { 
   FABRIC_CATCH_BEGIN();
 
-  std::cout << "DFGVEEditorCreatePVToolAction::create 1 " << std::endl;
-
 	BaseModelItem *modelItem = 0;
   BaseViewItem *viewItem = veTreeItem->getViewItem();
   
   if(viewItem)
   {
-    std::cout << "DFGVEEditorCreatePVToolAction::create 2 " << std::endl;
     modelItem = viewItem->getModelItem();
-  
+
     if(modelItem)
     {
-      std::cout << "DFGVEEditorCreatePVToolAction::create 3 " << std::endl;
       ItemMetadata* metadata = modelItem->getMetadata();
 
       QString bindingId = metadata->getString(
@@ -62,30 +57,15 @@ QAction* DFGVEEditorCreatePVToolAction::create(
         portPath = portPath.mid(1);
 
       QString itemPath = bindingId + "." + portPath;
-      
       RTVal pathValueTool = PathValueTool::getTool(itemPath);
       bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
-      std::cout 
-        << "DFGVEEditorCreatePVToolAction::create 4 "
-        << " portPath " 
-        << itemPath.toUtf8().constData()
-        << " pathValueToolIsValid " 
-        << pathValueToolIsValid
-        << std::endl;
-      
       if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
-      {
-        std::cout << "DFGVEEditorCreatePVToolAction::create 5 " << std::endl;
-
         return new DFGVEEditorCreatePVToolAction(
           parent,
           itemPath);
-      }
     }
   }      
-
-  std::cout << "DFGVEEditorCreatePVToolAction::create 6 " << std::endl;
 
   FABRIC_CATCH_END("DFGVEEditorCreatePVToolAction::create");
 

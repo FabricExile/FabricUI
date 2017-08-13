@@ -6,7 +6,6 @@
 #include <assert.h>
 #include "DFGVEEditorContextualMenu.h"
 #include <FabricUI/DFG/Tools/DFGVEEditorCreatePVToolAction.h>
-#include <iostream>
 
 using namespace FabricUI;
 using namespace DFG;
@@ -36,7 +35,6 @@ void DFGVEEditorContextualMenu::create(
 	VETreeWidgetItem *veTreeItem)
 {
 	assert( veTreeItem );
-  std::cout << "DFGVEEditorContextualMenu::create 1 " << std::endl;
 
   DFGVEEditorContextualMenu *menu = new DFGVEEditorContextualMenu( 
     parent,
@@ -46,14 +44,10 @@ void DFGVEEditorContextualMenu::create(
   menu->exec(
     parent->mapToGlobal(point)
     );
-
-  std::cout << "DFGVEEditorContextualMenu::create 2 " << std::endl;
 }
 
 void DFGVEEditorContextualMenu::onConstructMenu()
 {
-  std::cout << "DFGVEEditorContextualMenu::onConstructMenu 1 " << std::endl;
-
 	QAction* toolAction = DFGVEEditorCreatePVToolAction::create(
 		this,
 		m_veTreeItem
@@ -61,6 +55,4 @@ void DFGVEEditorContextualMenu::onConstructMenu()
 
 	if(toolAction)
 	 	addAction(toolAction);
-  
-  std::cout << "DFGVEEditorContextualMenu::onConstructMenu 2 " << std::endl;
 }

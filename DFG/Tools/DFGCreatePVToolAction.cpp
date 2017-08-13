@@ -6,7 +6,6 @@
 #include "DFGCreatePVToolAction.h"
 #include <FabricUI/Commands/CommandManager.h>
 #include <FabricUI/Application/FabricException.h>
-#include <iostream>
 
 using namespace FabricUI;
 using namespace DFG;
@@ -41,8 +40,6 @@ void DFGCreatePVToolAction::onTriggered(
  
 void DFGCreatePVToolAction::createTool()
 { 
-  std::cout << "DFGCreatePVToolAction::createTool 1 " << std::endl;
-
 	try
 	{
    	CommandManager* manager = CommandManager::getCommandManager();
@@ -60,6 +57,4 @@ void DFGCreatePVToolAction::createTool()
 			FabricException::LOG
 			);
 	}
-
-  std::cout << "DFGCreatePVToolAction::createTool 2 " << std::endl;
 }
