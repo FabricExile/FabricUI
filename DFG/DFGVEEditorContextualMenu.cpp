@@ -43,8 +43,9 @@ void DFGVEEditorContextualMenu::create(
     veTreeItem
     );
 
-  //menu->onConstructMenu();
-  menu->exec(point);
+  menu->exec(
+    parent->mapToGlobal(point)
+    );
 
   std::cout << "DFGVEEditorContextualMenu::create 2 " << std::endl;
 }
