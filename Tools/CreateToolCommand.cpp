@@ -2,6 +2,7 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
+#include "PathValueTool.h"
 #include "CreateToolCommand.h"
 #include <FabricUI/Commands/CommandHelpers.h>
 #include <FabricUI/Application/FabricException.h>
@@ -27,14 +28,6 @@ CreateToolCommand::~CreateToolCommand()
 {
 }
 
-void CreateToolCommand::registrationCallback(
-  QString const&name, 
-  void *userData)
-{
-  if(userData != 0)
-    m_registry = static_cast<ToolsNotifierRegistry*>(userData);
-}
-
 bool CreateToolCommand::canUndo()
 {
   return false;
@@ -50,12 +43,12 @@ bool CreateToolCommand::doIt()
   FABRIC_CATCH_BEGIN();
 
   // Update the tool'value from its target.
-  m_registry->createPathValueTool(
-    getRTValArg("target")
-    );
- 
-  return true;
+  RTVal pathValue = getRTValArg("target");
 
+  PathValueTool::createTool(pathValue);
+  
+  return true;
+  
   FABRIC_CATCH_END("CreateToolCommand::doIt");
 
   return false;

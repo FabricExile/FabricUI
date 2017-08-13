@@ -2,10 +2,9 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#include <string>
 #include <iostream>
 #include "ToolsNotifier.h"
-#include <FabricUI/Util/RTValUtil.h>
+#include "PathValueTool.h"
 #include <FabricUI/DFG/DFGExecNotifier.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Commands/PathValueResolverRegistry.h>
@@ -28,6 +27,16 @@ ToolsNotifierRegistry::ToolsNotifierRegistry(
 
 ToolsNotifierRegistry::~ToolsNotifierRegistry()
 {
+  std::cout 
+    << "\nToolsNotifierRegistry::~ToolsNotifierRegistry " 
+    << std::endl;
+
+  foreach(ToolsNotifier *notifier, m_registeredNotifiers)
+  {
+    m_registeredNotifiers.removeAll(notifier);
+    delete notifier;
+    notifier = 0;
+  }
 }
 
 void ToolsNotifierRegistry::initConnections()
@@ -150,92 +159,21 @@ void ToolsNotifierRegistry::onBindingArgValueChanged(
   FABRIC_CATCH_END("ToolsNotifierRegistry::onBindingArgValueChanged");
 }
 
-RTVal ToolsNotifierRegistry::getKLToolManager()
-{
-  RTVal toolRegistry;
-
-  FABRIC_CATCH_BEGIN();
-
-  toolRegistry = RTVal::Create(
-    FabricApplicationStates::GetAppStates()->getContext(),
-    "Tool::AppToolsManager",
-    0,
-    0);
-
-  toolRegistry = toolRegistry.callMethod(
-    "Tool::ToolsManager",
-    "getToolsManager",
-    0,
-    0);
-
-  FABRIC_CATCH_END("ToolsNotifierRegistry::getKLToolManager");
-
-  return toolRegistry;
-}
-
-void ToolsNotifierRegistry::createPathValueTool(
+void ToolsNotifierRegistry::registerPathValueTool(
   RTVal pathValue)
 {
   FABRIC_CATCH_BEGIN();
-  
-  bool isRegistered = getKLToolManager().callMethod(
-    "Boolean",
-    "isTypeRegistered",
-    1,
-    &pathValue).getBoolean();
-
-  if(isRegistered)
-  {
-    getKLToolManager().callMethod(
-      "Tool::BaseTool",
-      "createPathValueTool",
-      1,
-      &pathValue);
-
-    ToolsNotifier *notifier = new ToolsNotifier(
-      this,
-      pathValue);
-
-    m_registeredNotifiers.append(notifier);
-
-    // Update the tool'value from its pathValue.
-    toolValueChanged(notifier->getDFGToolsNotifierPortPaths());
-  }
-
-  FABRIC_CATCH_END("ToolsNotifierRegistry::createPathValueTool");
-}
-
-RTVal ToolsNotifierRegistry::pathToPathValue(
-  QString const&toolPath)
-{
-  RTVal pathValue;
-
-  FABRIC_CATCH_BEGIN();
-
-  FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
  
-  RTVal toolPathVal = RTVal::ConstructString(
-    appStates->getClient(), 
-    toolPath.toUtf8().constData()
-    );
+  ToolsNotifier *notifier = new ToolsNotifier(
+    this,
+    pathValue);
 
-  pathValue = RTVal::Construct(
-    appStates->getClient(), 
-    "PathValue", 
-    1, 
-    &toolPathVal);
+  m_registeredNotifiers.append(notifier);
 
-  DFGPathValueResolver *resolver = qobject_cast<DFGPathValueResolver *>(
-    PathValueResolverRegistry::getRegistry()->getResolver(pathValue)
-    );
-
-  // Gets the port value via the resolver.
-  if(resolver)
-    resolver->getValue(pathValue);
+  // Update the tool'value from its pathValue.
+  toolValueChanged(notifier->getDFGToolsNotifierPortPaths());
   
-  FABRIC_CATCH_END("ToolsNotifierRegistry::pathToPathValue");
-
-  return pathValue;
+  FABRIC_CATCH_END("ToolsNotifierRegistry::registerPathValueTool");
 }
 
 void ToolsNotifierRegistry::deletePathValueTool(
@@ -253,24 +191,20 @@ void ToolsNotifierRegistry::deletePathValueTool(
     << std::endl;
 
   if(dfgPortPath.isExecArg())
-  {
-    FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
-    RTVal pathVal = RTVal::ConstructString(appStates->getClient(), dfgPortPath.getAbsolutePortPath().toUtf8().constData());
-    getKLToolManager().callMethod("Boolean", "deleteTool", 1, &pathVal);
-  }
-
+    PathValueTool::deleteTool(
+      dfgPortPath.getAbsolutePortPath()
+      );   
+ 
   else
   {
     foreach(ToolsNotifier *notifier, m_registeredNotifiers)
     {
       DFGToolsNotifierPortPaths notDFGPortPath = notifier->getDFGToolsNotifierPortPaths();
-      bool deleteTool = false;
- 
-      if(!fromNode)
-        deleteTool = notDFGPortPath.getAbsolutePortPath() == dfgPortPath.getAbsolutePortPath();
-      else
-        deleteTool = notDFGPortPath.getAbsoluteNodePath() == dfgPortPath.getAbsoluteNodePath();
-
+      
+      bool deleteTool = fromNode
+        ? notDFGPortPath.getAbsoluteNodePath() == dfgPortPath.getAbsoluteNodePath()
+        : notDFGPortPath.getAbsolutePortPath() == dfgPortPath.getAbsolutePortPath();
+  
        std::cout 
         << "notDFGPortPath.getAbsolutePortPath "
         << notDFGPortPath.getAbsolutePortPath().toUtf8().constData()
@@ -285,10 +219,6 @@ void ToolsNotifierRegistry::deletePathValueTool(
         m_registeredNotifiers.removeAll(notifier);
         delete notifier;
         notifier = 0;
-
-        FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
-        RTVal pathVal = RTVal::ConstructString(appStates->getClient(), notDFGPortPath.getAbsolutePortPath().toUtf8().constData());
-        getKLToolManager().callMethod("Boolean", "deleteTool", 1, &pathVal);
       }
     }
   }
@@ -311,26 +241,21 @@ void ToolsNotifierRegistry::changedNotifiedToolPath(
     << std::endl;
 
   if(dfgPortPath.isExecArg())
-  {
-    FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
-    RTVal args[2] = { 
-      RTVal::ConstructString(appStates->getClient(), dfgPortPath.getOldAbsolutePortPath().toUtf8().constData()),
-      RTVal::ConstructString(appStates->getClient(), dfgPortPath.getAbsolutePortPath().toUtf8().constData())
-    };
-    getKLToolManager().callMethod("Boolean", "renameTool", 2, args);
-  }
-
+    PathValueTool::renameTool(
+      dfgPortPath.getOldAbsolutePortPath(), 
+      dfgPortPath.getAbsolutePortPath()
+      );   
+ 
   else
   {
     foreach(ToolsNotifier *notifier, m_registeredNotifiers)
     {
       DFGToolsNotifierPortPaths notDFGPortPath = notifier->getDFGToolsNotifierPortPaths();
-      bool renameTool = false;
-      if(!fromNode)
-        renameTool = notDFGPortPath.getOldAbsolutePortPath() == dfgPortPath.getOldAbsolutePortPath();
-      else
-        renameTool = notDFGPortPath.getOldAbsoluteNodePath() == dfgPortPath.getOldAbsoluteNodePath();
-
+      
+      bool renameTool = fromNode
+        ? notDFGPortPath.getOldAbsoluteNodePath() == dfgPortPath.getOldAbsoluteNodePath()
+        : notDFGPortPath.getOldAbsolutePortPath() == dfgPortPath.getOldAbsolutePortPath();
+    
        std::cout 
         << "notDFGPortPath.getAbsolutePortPath "
         << notDFGPortPath.getAbsolutePortPath().toUtf8().constData() 
@@ -341,14 +266,10 @@ void ToolsNotifierRegistry::changedNotifiedToolPath(
         << std::endl;
 
       if(renameTool)
-      {
-        FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
-        RTVal args[2] = { 
-          RTVal::ConstructString(appStates->getClient(), notDFGPortPath.getOldAbsolutePortPath().toUtf8().constData()),
-          RTVal::ConstructString(appStates->getClient(), notDFGPortPath.getAbsolutePortPath().toUtf8().constData())
-        };
-        getKLToolManager().callMethod("Boolean", "renameTool", 2, args);      
-      }
+        PathValueTool::renameTool(
+          notDFGPortPath.getOldAbsolutePortPath(), 
+          notDFGPortPath.getAbsolutePortPath()
+          );      
     }
   }
 
@@ -360,14 +281,10 @@ void ToolsNotifierRegistry::toolValueChanged(
 {
   FABRIC_CATCH_BEGIN();
  
-  RTVal pathValue = pathToPathValue(dfgPortPath.getAbsolutePortPath());
-
-  getKLToolManager().callMethod(
-    "",
-    "toolValueChanged",
-    1,
-    &pathValue);
-
+  PathValueTool::toolValueChanged(
+    dfgPortPath.getAbsolutePortPath()
+    );
+  
   emit toolUpdated();
 
   FABRIC_CATCH_END("ToolsNotifierRegistry::toolValueChanged");
@@ -452,6 +369,16 @@ ToolsNotifier::ToolsNotifier(
 
 ToolsNotifier::~ToolsNotifier()
 {
+  std::cout 
+    << "\nToolsNotifierRegistry::~ToolsNotifier " 
+    << " getAbsolutePortPath "
+    << m_dfgPortPaths.getAbsolutePortPath().toUtf8().constData() 
+    << std::endl;
+
+  PathValueTool::deleteTool(
+    m_dfgPortPaths.getAbsolutePortPath()
+    ); 
+
   m_notifier.clear();
 }
 
@@ -467,7 +394,7 @@ void ToolsNotifier::setupConnections(
 
   m_notifier.clear();
 
-  m_notifier = DFG::DFGExecNotifier::Create( exec );
+  m_notifier = DFGExecNotifier::Create( exec );
   connect(
     m_notifier.data(),
     SIGNAL(nodeRenamed(FTL::CStrRef, FTL::CStrRef)),

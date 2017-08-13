@@ -119,7 +119,7 @@ class ToolsNotifierRegistry : public QObject
 
     void initConnections();
 
-    void createPathValueTool(
+    void registerPathValueTool(
       FabricCore::RTVal pathValue
       );
  
