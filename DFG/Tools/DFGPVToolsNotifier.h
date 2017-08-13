@@ -68,43 +68,7 @@ class DFGPVToolsNotifierRegistry_BindingNotifProxy :
 
 class DFGPVToolsNotifier;
 
-struct DFGPVToolsNotifierPortPaths : public DFG::DFGPathValueResolver::DFGPortPaths
-{
-  public:
-    QString oldPortName; 
-    QString oldBlockName;
-    QString oldNodeName;
 
-    DFGPVToolsNotifierPortPaths::DFGPVToolsNotifierPortPaths()
-      : DFG::DFGPathValueResolver::DFGPortPaths()
-    {
-    }
- 
-    QString getOldRelativePortPath() {
-      if(isExecBlockPort())
-        return oldNodeName + "." + oldBlockName + "." + oldPortName;
-      else if(isExecArg())
-        return oldPortName;
-      else if(!oldNodeName.isEmpty())
-        return oldNodeName + "." + oldPortName;
-      else
-        return "";
-    }
-
-    QString getOldAbsolutePortPath() {
-     return execPath.isEmpty()
-      ? getOldRelativePortPath()
-      : execPath + "." + getOldRelativePortPath();
-    }
-
-    QString getOldAbsoluteNodePath() {
-     if(!oldNodeName.isEmpty())
-        return execPath.isEmpty()
-          ? oldNodeName
-          : execPath + "." + oldNodeName;
-      return "";;
-    }
-};
  
 class DFGPVToolsNotifierRegistry : public QObject
 {
@@ -122,7 +86,23 @@ class DFGPVToolsNotifierRegistry : public QObject
     void registerPathValueTool(
       FabricCore::RTVal pathValue
       );
- 
+    
+    struct DFGPVToolsNotifierPortPaths : public DFGPathValueResolver::DFGPortPaths
+    {
+      public:
+        QString oldPortName; 
+        QString oldBlockName;
+        QString oldNodeName;
+
+        DFGPVToolsNotifierPortPaths();
+     
+        QString getOldRelativePortPath();
+
+        QString getOldAbsolutePortPath();
+
+        QString getOldAbsoluteNodePath();
+    };
+
     void deletePathValueTool(
       DFGPVToolsNotifierPortPaths dfgPortPath,
       bool fromNode = false
@@ -200,7 +180,8 @@ class DFGPVToolsNotifier : public QObject
 
     ~DFGPVToolsNotifier();
    
-    DFGPVToolsNotifierPortPaths getDFGPVToolsNotifierPortPaths() const;
+    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths 
+      getDFGPVToolsNotifierPortPaths() const;
   
   protected slots:
     void onExecNodePortRenamed(
@@ -281,7 +262,7 @@ class DFGPVToolsNotifier : public QObject
       );
 
     DFGPVToolsNotifierRegistry *m_registry;
-    DFGPVToolsNotifierPortPaths m_dfgPortPaths;
+    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths m_dfgPortPaths;
     QSharedPointer<DFG::DFGNotifier> m_notifier;
 };
 
