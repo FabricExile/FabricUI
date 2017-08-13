@@ -6,12 +6,12 @@
 #define __UI_DFG_CREATE_TOOLS_COMMAND__
 
 #include <FabricUI/Tools/ToolsNotifier.h>
-#include <FabricUI/Tools/CreateToolCommand.h>
+#include <FabricUI/Tools/CreatePVToolCommand.h>
 
 namespace FabricUI {
 namespace DFG {
 
-class DFGCreatePVToolCommand : public Tools::CreateToolCommand
+class DFGCreatePVToolCommand : public Tools::CreatePVToolCommand
 {
   Q_OBJECT
   

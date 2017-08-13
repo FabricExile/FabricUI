@@ -12,7 +12,7 @@ using namespace FabricCore;
 using namespace Application;
 
 DFGCreatePVToolCommand::DFGCreatePVToolCommand() 
-  : CreateToolCommand()
+  : CreatePVToolCommand()
 {
 }
 
@@ -32,7 +32,7 @@ bool DFGCreatePVToolCommand::doIt()
 {
   FABRIC_CATCH_BEGIN();
 
-  if(CreateToolCommand::doIt())
+  if(CreatePVToolCommand::doIt())
   {
     RTVal pathValue = getRTValArg("target");
     m_registry->registerPathValueTool(pathValue);
