@@ -57,41 +57,15 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
         QString nodeName;
         QString execPath;
 
-        DFGPortPaths::DFGPortPaths()
-        {
-        }
+        bool isExecBlockPort();
 
-        bool isExecBlockPort() {
-          return !blockName.isEmpty();
-        }
+        bool isExecArg();
 
-        bool isExecArg() {
-          return !isExecBlockPort() && nodeName.isEmpty();
-        }
+        QString getRelativePortPath();
 
-        QString getRelativePortPath() {
-          if(isExecBlockPort())
-            return nodeName + "." + blockName + "." + portName;
-          else if(isExecArg())
-            return portName;
-          else if(!nodeName.isEmpty())
-            return nodeName + "." + portName;
-          return "";
-        }
+        QString getAbsolutePortPath();
 
-        QString getAbsolutePortPath() {
-           return execPath.isEmpty()
-            ? getRelativePortPath()
-            : execPath + "." + getRelativePortPath();
-        }
-
-        QString getAbsoluteNodePath() {
-          if(!nodeName.isEmpty())
-            return execPath.isEmpty()
-              ? nodeName
-              : execPath + "." + nodeName;
-          return "";
-        }
+        QString getAbsoluteNodePath();
     };
 
     /// Gets the executable and DFGPortPaths

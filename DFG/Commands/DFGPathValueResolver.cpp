@@ -441,3 +441,35 @@ void DFGPathValueResolver::castPathToHRFormat(
 
   FABRIC_CATCH_END("DFGPathValueResolver::castPathToHRFormat");
 }
+
+bool DFGPathValueResolver::DFGPortPaths::isExecBlockPort() {
+  return !blockName.isEmpty();
+}
+
+bool DFGPathValueResolver::DFGPortPaths::isExecArg() {
+  return !isExecBlockPort() && nodeName.isEmpty();
+}
+
+QString DFGPathValueResolver::DFGPortPaths::getRelativePortPath() {
+  if(isExecBlockPort())
+    return nodeName + "." + blockName + "." + portName;
+  else if(isExecArg())
+    return portName;
+  else if(!nodeName.isEmpty())
+    return nodeName + "." + portName;
+  return "";
+}
+
+QString DFGPathValueResolver::DFGPortPaths::getAbsolutePortPath() {
+   return execPath.isEmpty()
+    ? getRelativePortPath()
+    : execPath + "." + getRelativePortPath();
+}
+
+QString DFGPathValueResolver::DFGPortPaths::getAbsoluteNodePath() {
+  if(!nodeName.isEmpty())
+    return execPath.isEmpty()
+      ? nodeName
+      : execPath + "." + nodeName;
+  return "";
+}
