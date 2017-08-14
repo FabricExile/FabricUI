@@ -27,11 +27,11 @@ namespace FabricUI
 class FabricStyleUtil
 {
   public:
-    static void applyStyle(
+    static void applyFabricStyle(
       QApplication *app
       );
 
-    static void applyStyle(
+    static void applyFabricStyle(
       QWidget *widget
       );
 };

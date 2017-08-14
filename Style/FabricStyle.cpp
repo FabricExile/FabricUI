@@ -65,13 +65,13 @@ void FabricStyle::polish(QPalette &palette)
   PALETTE_SET_BRUSH(QPalette::HighlightedText, highlightedTextColor);
 }
 
-void FabricStyleUtil::applyStyle(
+void FabricStyleUtil::applyFabricStyle(
   QApplication *app)
 {
   app->setStyle(new FabricStyle());
 }
 
-void FabricStyleUtil::applyStyle(
+void FabricStyleUtil::applyFabricStyle(
   QWidget *widget)
 {
   widget->setStyle(new FabricStyle());

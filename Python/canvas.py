@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # startup.
 
     app = QtGui.QApplication("")
-    Style.FabricStyleUtil.applyStyle(app)
+    Style.FabricStyleUtil.applyFabricStyle(app)
     app.setOrganizationName('Fabric Software Inc')
     app.setApplicationName('Fabric Canvas Standalone')
     app.setApplicationVersion(CAPI.GetVersionStr())
