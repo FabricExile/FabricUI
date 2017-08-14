@@ -6,7 +6,7 @@
 #define __UI_DFG_TOOLS_COMMAND_REGISTRATION__
 
 #include "DFGPVToolsNotifier.h"
-#include "DFGCreatePVToolCommand.h"
+#include "DFGPVToolCommands.h"
 #include <FabricUI/Commands/CommandRegistry.h>
  
 namespace FabricUI {

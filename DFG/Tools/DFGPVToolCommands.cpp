@@ -2,7 +2,7 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#include "DFGCreatePVToolCommand.h"
+#include "DFGPVToolCommands.h"
 #include <FabricUI/Application/FabricException.h>
 
 using namespace FabricUI;
