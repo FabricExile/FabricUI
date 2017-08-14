@@ -63,7 +63,7 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   m_reqExtLabel->setObjectName( "DFGRequiredExtensionsLabel" );
   m_reqExtLineEdit = new ReqExtLineEdit; // [FE-7883] [FE-4882]
   m_reqExtLineEdit->setObjectName( "DFGRequiredExtensionsLineEdit" );
-  m_reqExtLineEdit->setFocusPolicy( Qt::ClickFocus ); // [FE-5446]
+
   QObject::connect(
     m_reqExtLineEdit, SIGNAL(editingFinished()),
     this, SLOT(reqExtEditingFinished())
@@ -150,6 +150,49 @@ DFGExecHeaderWidget::~DFGExecHeaderWidget()
 {
 }
 
+ReqExtLineEdit::ReqExtLineEdit(QWidget *parent)
+: FELineEdit( parent )
+, m_allowEdits( false)
+{
+  init();
+}
+
+void ReqExtLineEdit::setAllowEdits(bool allow)
+{
+  m_allowEdits = allow;
+}
+
+void ReqExtLineEdit::onEditingFinished()
+{
+  setEnabled(false);
+}
+
+bool ReqExtLineEdit::eventFilter(QObject * watched, QEvent * event)
+{
+  if (event->type() == QEvent::MouseButtonDblClick)
+  {
+    if (m_allowEdits)
+    {
+      setEnabled(true);
+      setFocus();
+    }
+    selectAll();
+    return true;
+  }
+  return QObject::eventFilter(watched, event);
+}
+
+void ReqExtLineEdit::init()
+{
+  setEnabled(false);
+  installEventFilter(this);
+
+  QObject::connect(
+    this, SIGNAL(editingFinished()),
+    this, SLOT(onEditingFinished())
+    );
+}
+
 void ReqExtLineEdit::onGoUpPressed()
 {
   clearFocus();
@@ -217,26 +260,6 @@ void DFGExecHeaderWidget::refresh()
 void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
 {
   refresh();
-}
-
-bool DFGExecHeaderWidget::reqExtLineEditWidgetHasFocus() const
-{
-  return (m_reqExtLineEdit && QApplication::focusWidget() == m_reqExtLineEdit);
-}
-
-bool DFGExecHeaderWidget::reqExtLineEditWidgetClearFocus()
-{
-  if (!m_reqExtLineEdit)
-    return false;
-
-  // cancel any text changes.
-  FabricCore::String currentExtDepDesc = getExec().getExtDeps();
-  m_reqExtLineEdit->setText(currentExtDepDesc.getCStr());
-
-  // remove keyboard focus.
-  m_reqExtLineEdit->clearFocus();
-
-  return true;
 }
 
 void DFGExecHeaderWidget::reqExtEditingFinished()

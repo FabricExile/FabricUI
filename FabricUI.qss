@@ -801,13 +801,14 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 
 #DFGExecHeaderWidget QLineEdit
 {
+  color: #CBCBCB;
   background-color: #333;
 }
 
-#DFGExecHeaderWidget QLineEdit
+#DFGExecHeaderWidget QLineEdit:focus,
+#DFGExecHeaderWidget QLineEdit:hover
 {
-  color: #cbcbcb;
-  background-color: #333;
+  background-color: #242424;
 }
 
 #DFGExecHeaderWidget #DFGPresetSplitWidget
