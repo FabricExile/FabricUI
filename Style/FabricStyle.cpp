@@ -20,6 +20,11 @@ QBrush FabricUI::Util::ConfigSection::getOrCreateValue( const FTL::StrRef key, Q
 
 }} // namespace FabricUI::Util
 
+FabricStyle::FabricStyle() 
+  : QProxyStyle(QStyleFactory::create("windows")) 
+{
+}
+
 void FabricStyle::polish(QPalette &palette)
 {
   QColor baseColor = QColor(60, 60, 60);

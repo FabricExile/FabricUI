@@ -16,7 +16,7 @@ class FabricStyle : public QProxyStyle
   Q_OBJECT
 
   public:
-    FabricStyle() : QProxyStyle(QStyleFactory::create("windows")) {}
+    FabricStyle();
 
     virtual void polish(
       QPalette &palette
