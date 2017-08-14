@@ -65,7 +65,7 @@ bool CreatePVToolCommand::doIt()
   if(!createIfExist && pathValueToolIsValid)
     FabricException::Throw(
       "CreatePVToolCommand::doIt",
-      "A PathValueTool of type '" + getRTValArgType("target") + "' already targets the path '" + getRTValArgPath("target") + "'"
+      "A PathValueTool already targets the path '" + getRTValArgPath("target") + "'"
       );
 
   pathValueTool = PathValueTool::createTool(pathValue);
@@ -74,8 +74,8 @@ bool CreatePVToolCommand::doIt()
   if(!pathValueToolIsValid)
     FabricException::Throw(
       "CreatePVToolCommand::doIt",
-      "The PathValue tool of type '" + getRTValArgType("target") + "' targeting the path '" + getRTValArgPath("target") + "' is invalid"
-);
+      "The PathValue tool targeting the path '" + getRTValArgPath("target") + "' is invalid"
+      );
 
   return true;
   
