@@ -30,44 +30,19 @@ namespace FabricUI
 
     public:
 
-      ReqExtLineEdit( QWidget *parent = 0 )
-        : FELineEdit( parent )
-        , m_allowEdits( false)
-      {
-        init();
-      }
+      ReqExtLineEdit( QWidget *parent = 0 );
 
-      void setAllowEdits(bool allow)
-      {
-        m_allowEdits = allow;
-      }
-      
-      virtual void mouseDoubleClickEvent(QMouseEvent *event)
-      {
-        // [FE-4882] textfield requires a double-click before it can be edited.
-        if (m_allowEdits)
-        {
-          setReadOnly(false);
-          setFocus();
-        }
-        selectAll();
-        event->accept();
-      }
+      void setAllowEdits(bool allow);
 
-      void focusOutEvent(QFocusEvent * event)
-      {
-        setReadOnly(true);
-        Util::FELineEdit::focusOutEvent(event);
-      }
+    protected slots:
+
+      void onEditingFinished();
 
     protected:
 
-      void init()
-      {
-        setReadOnly( true);
-      }
+      virtual bool eventFilter(QObject * watched, QEvent * event);
 
-    signals:
+      void init();
 
     protected slots:
 
@@ -93,15 +68,6 @@ namespace FabricUI
       virtual ~DFGExecHeaderWidget();
       
       void refreshExtDeps( FTL::CStrRef extDeps );
-
-      // return true if the req. exts QLineEdit
-      // widget has the keyboard focus..
-      bool reqExtLineEditWidgetHasFocus() const;
-
-      // discard the changes made in the req. exts
-      // QLineEdit widget and remove the keyboard focus.
-      // returns true on success.
-      bool reqExtLineEditWidgetClearFocus();
 
     signals:
 
