@@ -83,7 +83,7 @@ void BaseCommand::blockLog() {
 
 
 bool BaseCommand::canMerge(
-  BaseCommand *prevCmd) 
+  BaseCommand *prevCmd, bool& undoPrevAndMergeFirst )
 {
   if(prevCmd) 
   {

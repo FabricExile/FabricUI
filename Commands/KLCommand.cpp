@@ -107,12 +107,13 @@ int KLCommand::getCanMergeID()
 }
 
 bool KLCommand::canMerge(
-  BaseCommand *prevCmd) 
+  BaseCommand *prevCmd,
+  bool &undoPrevAndMergeFirst )
 {
   KLCommand* scriptCmd = qobject_cast<KLCommand*>(prevCmd);
   if(scriptCmd == 0)
     return false;
-  return KLCommandHelpers::canMergeKLCommand(m_klCmd, scriptCmd->m_klCmd);
+  return KLCommandHelpers::canMergeKLCommand(m_klCmd, scriptCmd->m_klCmd, undoPrevAndMergeFirst);
 }
 
 void KLCommand::merge(
