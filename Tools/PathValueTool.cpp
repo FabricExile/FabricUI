@@ -16,7 +16,8 @@ using namespace FabricCore;
 using namespace Application;
 
 inline RTVal pathToPathValue(
-  QString const&toolPath)
+  QString const&toolPath,
+  bool resolve)
 {
   RTVal pathValue;
 
@@ -35,11 +36,21 @@ inline RTVal pathToPathValue(
     1, 
     &toolPathVal);
 
-  PathValueResolverRegistry::getRegistry()->getValue(pathValue);
+  if(resolve)
+    PathValueResolverRegistry::getRegistry()->getValue(pathValue);
    
   FABRIC_CATCH_END("PathValueTool::pathToPathValue");
 
   return pathValue;
+}
+
+inline RTVal pathToPathValue(
+  QString const&toolPath)
+{
+  return pathToPathValue(
+    toolPath, 
+    true
+    );
 }
 
 inline RTVal getKLToolManager()
@@ -151,61 +162,75 @@ RTVal PathValueTool::getTool(
 }
 
 void PathValueTool::deleteTool(
-	QString const& toolPath)
+  QString const& toolPath)
+{
+  deleteTool(
+    pathToPathValue(toolPath, false)
+    );
+}
+
+void PathValueTool::deleteTool(
+	FabricCore::RTVal pathValue)
 {
   FABRIC_CATCH_BEGIN();
-
-	FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
-
-  RTVal toolPathVal = RTVal::ConstructString(
-  	appStates->getClient(), 
-  	toolPath.toUtf8().constData()
-  	);
-
+ 
   getKLToolManager().callMethod(
   	"", 
   	"deletePathValueTool", 
   	1, 
-  	&toolPathVal);
+  	&pathValue);
   
   FABRIC_CATCH_END("PathValueTool::deleteTool");
 }
 
-void PathValueTool::renameTool(
+void PathValueTool::setToolPath(
 	QString const& oldToolPath,
 	QString const& newToolPath)
 {
+  setToolPath(
+    pathToPathValue(oldToolPath, false),
+    pathToPathValue(newToolPath, false)   
+    );
+}
+
+void PathValueTool::setToolPath(
+  FabricCore::RTVal oldPathValue,
+  FabricCore::RTVal newPathValue)
+{
   FABRIC_CATCH_BEGIN();
-
-	FabricApplicationStates* appStates = FabricApplicationStates::GetAppStates();
-	Client client = appStates->getClient();
-
+ 
   RTVal args[2] = { 
-    RTVal::ConstructString(client, oldToolPath.toUtf8().constData()),
-    RTVal::ConstructString(client, newToolPath.toUtf8().constData())
+    oldPathValue,
+    newPathValue
   };
 
   getKLToolManager().callMethod(
-  	"", 
-  	"renamePathValueTool", 
-  	2, 
-  	args);   
+    "", 
+    "setPathValueToolPath", 
+    2, 
+    args);   
 
-  FABRIC_CATCH_END("PathValueTool::renameTool");
+  FABRIC_CATCH_END("PathValueTool::setToolPath");
 }
 
-void PathValueTool::toolValueChanged(
+void PathValueTool::setToolValue(
 	QString const& toolPath)
+{
+  setToolValue(
+    pathToPathValue(toolPath)
+    );
+}
+
+void PathValueTool::setToolValue(
+  FabricCore::RTVal pathValue)
 {
   FABRIC_CATCH_BEGIN();
 
-	RTVal pathValue = pathToPathValue(toolPath);
-
-	getKLToolManager().callMethod(
+  getKLToolManager().callMethod(
     "",
-    "pathValueToolValueChanged",
+    "setPathValueToolValue",
     1,
     &pathValue);
 
-  FABRIC_CATCH_END("PathValueTool::toolValueChanged");
+  FABRIC_CATCH_END("PathValueTool::setToolValue");
 }

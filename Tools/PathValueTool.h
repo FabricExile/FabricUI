@@ -23,14 +23,10 @@ class PathValueTool
 			);
 
 		static FabricCore::RTVal createTool(
-			FabricCore::RTVal pathValue
-			);
-
-		static FabricCore::RTVal createTool(
 			QString const& toolPath
 			);
 
-		static FabricCore::RTVal getTool(
+		static FabricCore::RTVal createTool(
 			FabricCore::RTVal pathValue
 			);
 
@@ -38,17 +34,34 @@ class PathValueTool
 			QString const& toolPath
 			);
  
+		static FabricCore::RTVal getTool(
+			FabricCore::RTVal pathValue
+			);
+
 		static void deleteTool(
 			QString const& toolPath
 			);
 
-		static void renameTool(
+		static void deleteTool(
+			FabricCore::RTVal pathValue
+			);
+
+		static void setToolPath(
 			QString const& oldToolPath,
 			QString const& newToolPath
 			);
 
-		static void toolValueChanged(
+		static void setToolPath(
+			FabricCore::RTVal oldPathValue,
+			FabricCore::RTVal newPathValue
+			);
+
+		static void setToolValue(
 			QString const& toolPath
+			);
+
+		static void setToolValue(
+			FabricCore::RTVal pathValue
 			);
 };
 
