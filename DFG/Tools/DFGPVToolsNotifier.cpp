@@ -104,7 +104,7 @@ void DFGPVToolsNotifierRegistry::onBindingArgTypeChanged(
 
   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPath;
   dfgPortPath.portName = name.data();
-  deletePathValueTool(dfgPortPath);
+  unregisterPathValueTool(dfgPortPath);
 
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::onBindingArgTypeChanged");
 }
@@ -117,7 +117,7 @@ void DFGPVToolsNotifierRegistry::onBindingArgRemoved(
 
   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPath;
   dfgPortPath.portName = name.data();
-  deletePathValueTool(dfgPortPath);
+  unregisterPathValueTool(dfgPortPath);
 
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::onBindingArgRemoved");
 }
@@ -133,7 +133,7 @@ void DFGPVToolsNotifierRegistry::onBindingArgRenamed(
   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPath;
   dfgPortPath.portName = newArgName.data();
   dfgPortPath.oldPortName = oldArgName.data();
-  changedNotifiedToolPath(dfgPortPath);
+  setPathValueToolPath(dfgPortPath);
 
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::onBindingArgRenamed");
 }
@@ -145,7 +145,7 @@ void DFGPVToolsNotifierRegistry::onBindingArgValueChanged(
   FABRIC_CATCH_BEGIN();
   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPath;
   dfgPortPath.portName = name.data();
-  toolValueChanged(dfgPortPath);
+  setPathValueToolValue(dfgPortPath);
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::onBindingArgValueChanged");
 }
 
@@ -161,12 +161,12 @@ void DFGPVToolsNotifierRegistry::registerPathValueTool(
   m_registeredNotifiers.append(notifier);
 
   // Update the tool'value from its pathValue.
-  toolValueChanged(notifier->getDFGPVToolsNotifierPortPaths());
+  setPathValueToolValue(notifier->getDFGPVToolsNotifierPortPaths());
   
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::registerPathValueTool");
 }
 
-void DFGPVToolsNotifierRegistry::deletePathValueTool(
+void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPath,
   bool fromNode)
 {
@@ -196,17 +196,17 @@ void DFGPVToolsNotifierRegistry::deletePathValueTool(
     }
   }
  
-  FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::deletePathValueTool");
+  FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::unregisterPathValueTool");
 }
 
-void DFGPVToolsNotifierRegistry::changedNotifiedToolPath(
+void DFGPVToolsNotifierRegistry::setPathValueToolPath(
   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPath,
   bool fromNode)
 {
   FABRIC_CATCH_BEGIN();
  
   if(dfgPortPath.isExecArg())
-    PathValueTool::renameTool(
+    PathValueTool::setToolPath(
       dfgPortPath.getOldAbsolutePortPath(), 
       dfgPortPath.getAbsolutePortPath()
       );   
@@ -222,28 +222,28 @@ void DFGPVToolsNotifierRegistry::changedNotifiedToolPath(
         : notDFGPortPath.getOldAbsolutePortPath() == dfgPortPath.getOldAbsolutePortPath();
     
       if(renameTool)
-        PathValueTool::renameTool(
+        PathValueTool::setToolPath(
           notDFGPortPath.getOldAbsolutePortPath(), 
           notDFGPortPath.getAbsolutePortPath()
           );      
     }
   }
 
-  FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::changedNotifiedToolPath");
+  FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::setPathValueToolPath");
 }
 
-void DFGPVToolsNotifierRegistry::toolValueChanged(
+void DFGPVToolsNotifierRegistry::setPathValueToolValue(
   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPath)
 {
   FABRIC_CATCH_BEGIN();
  
-  PathValueTool::toolValueChanged(
+  PathValueTool::setToolValue(
     dfgPortPath.getAbsolutePortPath()
     );
   
   emit toolUpdated();
 
-  FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::toolValueChanged");
+  FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::setPathValueToolValue");
 }
 
 DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::DFGPVToolsNotifierPortPaths()
@@ -467,7 +467,7 @@ void DFGPVToolsNotifier::onExecNodePortDefaultValuesChanged(
 {
   FABRIC_CATCH_BEGIN();
   if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.portName == portName.data())
-    m_registry->toolValueChanged(m_dfgPortPaths);
+    m_registry->setPathValueToolValue(m_dfgPortPaths);
   FABRIC_CATCH_END("DFGPVToolsNotifier::onExecNodePortDefaultValuesChanged");
 }
 
@@ -478,7 +478,7 @@ void DFGPVToolsNotifier::onInstBlockPortDefaultValuesChanged(
 {
   FABRIC_CATCH_BEGIN();
   if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data() && m_dfgPortPaths.portName == portName.data())
-    m_registry->toolValueChanged(m_dfgPortPaths);
+    m_registry->setPathValueToolValue(m_dfgPortPaths);
   FABRIC_CATCH_END("DFGPVToolsNotifier::onExecNodePortDefaultValuesChanged");
 }
  
@@ -517,7 +517,7 @@ void DFGPVToolsNotifier::onExecNodePortRenamed(
     m_dfgPortPaths.oldNodeName = nodeName.data();
     m_dfgPortPaths.oldPortName = oldPortName.data();
     m_dfgPortPaths.portName = newPortName.data();
-    m_registry->changedNotifiedToolPath(m_dfgPortPaths);
+    m_registry->setPathValueToolPath(m_dfgPortPaths);
   }
   FABRIC_CATCH_END("DFGPVToolsNotifier::onExecNodePortRenamed");
 }
@@ -536,7 +536,7 @@ void DFGPVToolsNotifier::onInstBlockPortRenamed(
     m_dfgPortPaths.oldBlockName = blockName.data();
     m_dfgPortPaths.oldPortName = oldPortName.data();
     m_dfgPortPaths.portName = newPortName.data();
-    m_registry->changedNotifiedToolPath(m_dfgPortPaths);
+    m_registry->setPathValueToolPath(m_dfgPortPaths);
   }
   FABRIC_CATCH_END("DFGPVToolsNotifier::onInstBlockPortRenamed");
 }
@@ -548,7 +548,7 @@ void DFGPVToolsNotifier::onExecNodePortRemoved(
 {
   FABRIC_CATCH_BEGIN();
   if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.portName == portName.data())
-    m_registry->deletePathValueTool(m_dfgPortPaths);
+    m_registry->unregisterPathValueTool(m_dfgPortPaths);
   FABRIC_CATCH_END("DFGPVToolsNotifier::onExecNodePortRemoved");
 }
 
@@ -560,7 +560,7 @@ void DFGPVToolsNotifier::onInstBlockPortRemoved(
 {
   FABRIC_CATCH_BEGIN();
   if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data() && m_dfgPortPaths.portName == portName.data())
-    m_registry->deletePathValueTool(m_dfgPortPaths);
+    m_registry->unregisterPathValueTool(m_dfgPortPaths);
   FABRIC_CATCH_END("DFGPVToolsNotifier::onInstBlockPortRemoved");
 }
 
@@ -569,7 +569,7 @@ void DFGPVToolsNotifier::onExecNodeRemoved(
 {
   FABRIC_CATCH_BEGIN();
   if(m_dfgPortPaths.nodeName == nodeName.data())
-    m_registry->deletePathValueTool(m_dfgPortPaths, true);
+    m_registry->unregisterPathValueTool(m_dfgPortPaths, true);
   FABRIC_CATCH_END("DFGPVToolsNotifier::onExecNodeRemoved");
 }
 
@@ -579,7 +579,7 @@ void DFGPVToolsNotifier::onInstBlockRemoved(
 {
   FABRIC_CATCH_BEGIN();
   if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data())
-    m_registry->deletePathValueTool(m_dfgPortPaths, true);
+    m_registry->unregisterPathValueTool(m_dfgPortPaths, true);
   FABRIC_CATCH_END("DFGPVToolsNotifier::onInstBlockRemoved");
 }
 
@@ -593,7 +593,7 @@ void DFGPVToolsNotifier::onExecNodeRenamed(
     m_dfgPortPaths.oldPortName = m_dfgPortPaths.portName;
     m_dfgPortPaths.oldNodeName = oldNodeName.data();
     m_dfgPortPaths.nodeName = newNodeName.data();
-    m_registry->changedNotifiedToolPath(m_dfgPortPaths, true);
+    m_registry->setPathValueToolPath(m_dfgPortPaths, true);
   }
   FABRIC_CATCH_END("DFGPVToolsNotifier::onExecNodeRenamed");
 }
@@ -610,7 +610,7 @@ void DFGPVToolsNotifier::onInstBlockRenamed(
     m_dfgPortPaths.oldBlockName = m_dfgPortPaths.blockName;
     m_dfgPortPaths.blockName = newBlockName.data();
     m_dfgPortPaths.oldPortName = m_dfgPortPaths.portName;
-    m_registry->changedNotifiedToolPath(m_dfgPortPaths, true);
+    m_registry->setPathValueToolPath(m_dfgPortPaths, true);
   }
   FABRIC_CATCH_END("DFGPVToolsNotifier::onInstBlockRenamed");
 }

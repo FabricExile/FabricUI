@@ -103,19 +103,19 @@ class DFGPVToolsNotifierRegistry : public QObject
         QString getOldAbsoluteNodePath();
     };
 
-    void deletePathValueTool(
+    void unregisterPathValueTool(
       DFGPVToolsNotifierPortPaths dfgPortPath,
       bool fromNode = false
       );
 
-    void changedNotifiedToolPath(
+    void setPathValueToolPath(
       DFGPVToolsNotifierPortPaths dfgPortPath,
       bool fromNode = false
       );
 
     /// Update the value of the tool 
     /// associated to the `pathValue`.
-    void toolValueChanged(
+    void setPathValueToolValue(
       DFGPVToolsNotifierPortPaths dfgPortPath
       );
 
