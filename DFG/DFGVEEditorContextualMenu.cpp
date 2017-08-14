@@ -5,7 +5,7 @@
 #include <QMap>
 #include <assert.h>
 #include "DFGVEEditorContextualMenu.h"
-#include <FabricUI/DFG/Tools/DFGVEEditorCreatePVToolAction.h>
+#include <FabricUI/DFG/Tools/DFGVEEditorPVToolActions.h>
 
 using namespace FabricUI;
 using namespace DFG;
@@ -48,11 +48,19 @@ void DFGVEEditorContextualMenu::create(
 
 void DFGVEEditorContextualMenu::onConstructMenu()
 {
-	QAction* toolAction = DFGVEEditorCreatePVToolAction::create(
+	QAction* createDFGPVToolAction = DFGVEEditorCreatePVToolAction::create(
 		this,
 		m_veTreeItem
 		);
 
-	if(toolAction)
-	 	addAction(toolAction);
+	if(createDFGPVToolAction)
+	 	addAction(createDFGPVToolAction);
+
+ 	QAction* deleteDFGPVToolAction = DFGVEEditorDeletePVToolAction::create(
+		this,
+		m_veTreeItem
+		);
+
+	if(deleteDFGPVToolAction)
+	 	addAction(deleteDFGPVToolAction);
 }

@@ -3,7 +3,7 @@
 //
 
 #include <assert.h>
-#include "DFGVEEditorCreatePVToolAction.h"
+#include "DFGVEEditorPVToolActions.h"
 #include <FabricUI/Tools/PathValueTool.h>
 #include <FabricUI/ValueEditor/ItemMetadata.h>
 #include <FabricUI/ValueEditor/BaseViewItem.h>
