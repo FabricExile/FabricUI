@@ -67,8 +67,9 @@ bool DFGDeletePVToolCommand::doIt()
 
   if(DeletePVToolCommand::doIt())
   {
-    RTVal pathValue = getRTValArg("target");
-    m_registry->registerPathValueTool(pathValue);
+    m_registry->unregisterPathValueTool(
+      getRTValArgPath("target")
+      );
     return true;
   }
  

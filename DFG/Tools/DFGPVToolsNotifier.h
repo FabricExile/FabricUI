@@ -86,6 +86,10 @@ class DFGPVToolsNotifierRegistry : public QObject
     void registerPathValueTool(
       FabricCore::RTVal pathValue
       );
+
+    void unregisterPathValueTool(
+      QString const& itemPath
+      );
     
     struct DFGPVToolsNotifierPortPaths : public DFGPathValueResolver::DFGPortPaths
     {

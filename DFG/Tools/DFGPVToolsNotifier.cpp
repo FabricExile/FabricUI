@@ -167,6 +167,28 @@ void DFGPVToolsNotifierRegistry::registerPathValueTool(
 }
 
 void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
+  QString const& itemPath)
+{
+  FABRIC_CATCH_BEGIN();
+ 
+  foreach(DFGPVToolsNotifier *notifier, m_registeredNotifiers)
+  {
+    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths notDFGPortPath = notifier->getDFGPVToolsNotifierPortPaths();
+    
+    bool deleteTool = notDFGPortPath.getAbsoluteNodePath() == itemPath;     
+
+    if(deleteTool)
+    {
+      m_registeredNotifiers.removeAll(notifier);
+      delete notifier;
+      notifier = 0;
+    }
+  }
+ 
+  FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::unregisterPathValueTool");
+}
+
+void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPath,
   bool fromNode)
 {

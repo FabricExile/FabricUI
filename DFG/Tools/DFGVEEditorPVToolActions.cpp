@@ -28,13 +28,10 @@ DFGVEEditorCreatePVToolAction::~DFGVEEditorCreatePVToolAction()
 {
 }
  
-QAction* DFGVEEditorCreatePVToolAction::create(
-	QObject *parent,
+inline QString getItemPathFromItemMetaData(
   VETreeWidgetItem *veTreeItem)
-{ 
-  FABRIC_CATCH_BEGIN();
-
-	BaseModelItem *modelItem = 0;
+{
+  BaseModelItem *modelItem = 0;
   BaseViewItem *viewItem = veTreeItem->getViewItem();
   
   if(viewItem)
@@ -56,15 +53,31 @@ QAction* DFGVEEditorCreatePVToolAction::create(
       if(portPath.mid(0, 1) == ".")
         portPath = portPath.mid(1);
 
-      QString itemPath = bindingId + "." + portPath;
-      RTVal pathValueTool = PathValueTool::getTool(itemPath);
-      bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
-
-      if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
-        return new DFGVEEditorCreatePVToolAction(
-          parent,
-          itemPath);
+      return bindingId + "." + portPath;
     }
+  }      
+ 
+  return "";
+}
+
+QAction* DFGVEEditorCreatePVToolAction::create(
+	QObject *parent,
+  VETreeWidgetItem *veTreeItem)
+{ 
+  FABRIC_CATCH_BEGIN();
+
+	QString itemPath = getItemPathFromItemMetaData(
+    veTreeItem);
+  
+  if(!itemPath.isEmpty())
+  {
+    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
+
+    if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
+      return new DFGVEEditorCreatePVToolAction(
+        parent,
+        itemPath);
   }      
 
   FABRIC_CATCH_END("DFGVEEditorCreatePVToolAction::create");
@@ -89,40 +102,21 @@ QAction* DFGVEEditorDeletePVToolAction::create(
 { 
   FABRIC_CATCH_BEGIN();
 
-  BaseModelItem *modelItem = 0;
-  BaseViewItem *viewItem = veTreeItem->getViewItem();
+  QString itemPath = getItemPathFromItemMetaData(
+    veTreeItem);
   
-  if(viewItem)
+  if(!itemPath.isEmpty())
   {
-    modelItem = viewItem->getModelItem();
+    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
-    if(modelItem)
-    {
-      ItemMetadata* metadata = modelItem->getMetadata();
-
-      QString bindingId = metadata->getString(
-        ModelItems::DFGModelItemMetadata::VEDFGBindingIdKey.data() 
-        );
-
-      QString portPath = metadata->getString(
-        ModelItems::DFGModelItemMetadata::VEDFGPortPathKey.data() 
-        );
-
-      if(portPath.mid(0, 1) == ".")
-        portPath = portPath.mid(1);
-
-      QString itemPath = bindingId + "." + portPath;
-      RTVal pathValueTool = PathValueTool::getTool(itemPath);
-      bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
-
-      if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
-        return new DFGVEEditorDeletePVToolAction(
-          parent,
-          itemPath);
-    }
+    if(pathValueToolIsValid)
+      return new DFGVEEditorDeletePVToolAction(
+        parent,
+        itemPath);
   }      
 
-  FABRIC_CATCH_END("DFGVEEditorDeletePVToolAction::create");
+  FABRIC_CATCH_END("DFGVEEditorCreatePVToolAction::create");
 
   return 0;
 }
