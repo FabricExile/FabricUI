@@ -27,6 +27,7 @@
     </namespace-type>
 
     <load-typesystem name="fabricui_application.xml" generate="yes"/>
+    <load-typesystem name="fabricui_style.xml" generate="yes"/>
     <load-typesystem name="fabricui_menus.xml" generate="yes"/>
     <load-typesystem name="fabricui_dialog.xml" generate="yes"/>
     <load-typesystem name="fabricui_tools.xml" generate="yes"/>

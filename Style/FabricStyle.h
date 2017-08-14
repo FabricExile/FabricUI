@@ -3,7 +3,9 @@
 #ifndef __UI_Style_FabricStyle__
 #define __UI_Style_FabricStyle__
 
+#include <QWidget>
 #include <QProxyStyle>
+#include <QApplication>
 #include <QStyleFactory>
 
 namespace FabricUI
@@ -21,6 +23,18 @@ namespace FabricUI
 
         virtual void polish(QPalette &palette);
     };
+
+class FabricStyleUtil
+{
+  public:
+    static void applyStyle(
+      QApplication *app
+      );
+
+    static void applyStyle(
+      QWidget *widget
+      );
+};
 
   };
 
