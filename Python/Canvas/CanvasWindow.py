@@ -416,6 +416,7 @@ class CanvasWindow(QtGui.QMainWindow):
                 FabricUI.HandleLicenseData(self, self.client, data, True)
             except Exception as e:
                 self.dfgWidget.getDFGController().logError(str(e))
+                print e
         elif target == 'slowOp.push':
             self._slowOpPush(data)
         elif target == 'slowOp.pop':
@@ -445,14 +446,13 @@ class CanvasWindow(QtGui.QMainWindow):
           'rtValFromJSONDecoder': self.rtvalEncoderDecoder.decode,
           }
 
-        client = Core.createClient(clientOpts)
-        client.loadExtension('Math')
-        client.loadExtension('Parameters')
-        client.loadExtension('Util')
-        client.loadExtension('FabricInterfaces')
-        client.loadExtension('Manipulation')
-        client.setStatusCallback(self._statusCallback)
-        self.client = client
+        self.client = Core.createClient(clientOpts)
+        self.client.setStatusCallback(self._statusCallback)
+        self.client.loadExtension('Math')
+        self.client.loadExtension('Parameters')
+        self.client.loadExtension('Util')
+        self.client.loadExtension('FabricInterfaces')
+        self.client.loadExtension('Manipulation')
         self.rtvalEncoderDecoder.client = self.client
         CreateAppStates(self.client, self.settings)
 
