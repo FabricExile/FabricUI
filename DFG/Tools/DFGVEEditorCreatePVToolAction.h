@@ -5,7 +5,7 @@
 #ifndef __UI_DFG_VEEDITOR_CREATE_PV_TOOL_ACTION__
 #define __UI_DFG_VEEDITOR_CREATE_PV_TOOL_ACTION__
 
-#include "DFGCreatePVToolAction.h"
+#include "DFGPVToolActions.h"
 #include <FabricUI/ValueEditor/VETreeWidgetItem.h>
 
 namespace FabricUI {

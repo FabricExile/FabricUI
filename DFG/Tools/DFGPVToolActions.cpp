@@ -3,7 +3,7 @@
 //
 
 #include <QMap>
-#include "DFGCreatePVToolAction.h"
+#include "DFGPVToolActions.h"
 #include <FabricUI/Commands/CommandManager.h>
 #include <FabricUI/Application/FabricException.h>
 
