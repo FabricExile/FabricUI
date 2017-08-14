@@ -35,11 +35,6 @@ DFGCreatePVToolAction::~DFGCreatePVToolAction()
 void DFGCreatePVToolAction::onTriggered(
 	bool checked)
 {
- 	createTool();
-}
- 
-void DFGCreatePVToolAction::createTool()
-{ 
 	try
 	{
    	CommandManager* manager = CommandManager::getCommandManager();
@@ -51,10 +46,54 @@ void DFGCreatePVToolAction::createTool()
 	catch(FabricException &e)
 	{
 		FabricException::Throw(
-			"DFGCreatePVToolAction::createTool",
+			"DFGCreatePVToolAction::onTriggered",
 			e.what(),
 			"",
 			FabricException::LOG
 			);
 	}
 }
+
+DFGDeletePVToolAction::DFGDeletePVToolAction(
+  QObject *parent,
+	QString const& itemPath)
+  : Actions::BaseAction(parent)
+  , m_itemPath(itemPath)
+{
+	setText("Delete tool");
+	
+ 	connect(
+    this,
+    SIGNAL(triggered(bool)),
+    this,
+    SLOT(onTriggered(bool))
+    );
+}
+
+DFGDeletePVToolAction::~DFGDeletePVToolAction()
+{
+}
+
+void DFGDeletePVToolAction::onTriggered(
+	bool checked)
+{
+	try
+	{
+   	CommandManager* manager = CommandManager::getCommandManager();
+    QMap<QString, QString> args;
+    args["target"] = "<" + m_itemPath + ">";
+    manager->createCommand( "deleteDFGPVTool", args );
+	}
+
+	catch(FabricException &e)
+	{
+		FabricException::Throw(
+			"DFGDeletePVToolAction::onTriggered",
+			e.what(),
+			"",
+			FabricException::LOG
+			);
+	}
+}
+
+

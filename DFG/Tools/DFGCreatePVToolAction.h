@@ -27,10 +27,29 @@ class DFGCreatePVToolAction : public Actions::BaseAction
 	  virtual void onTriggered(
 	  	bool checked 
 	  	);
+	  
+  private:
+  	QString m_itemPath;
+};
 
-  protected:
-	 	virtual void createTool();
+class DFGDeletePVToolAction : public Actions::BaseAction
+{
+  Q_OBJECT
 
+	public:
+	  DFGDeletePVToolAction(
+	    QObject *parent,
+	  	QString const& itemPath
+	    );
+
+	  virtual ~DFGDeletePVToolAction();
+ 
+	private slots:
+	  virtual void onTriggered(
+	  	bool checked 
+	  	);
+ 
+ 	private:
   	QString m_itemPath;
 };
 

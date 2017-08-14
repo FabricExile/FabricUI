@@ -43,3 +43,36 @@ bool DFGCreatePVToolCommand::doIt()
 
   return false;
 }
+
+DFGDeletePVToolCommand::DFGDeletePVToolCommand() 
+  : DeletePVToolCommand()
+{
+}
+
+DFGDeletePVToolCommand::~DFGDeletePVToolCommand() 
+{
+}
+
+void DFGDeletePVToolCommand::registrationCallback(
+  QString const&name, 
+  void *userData)
+{
+  if(userData != 0)
+    m_registry = static_cast<DFGPVToolsNotifierRegistry*>(userData);
+}
+ 
+bool DFGDeletePVToolCommand::doIt()
+{
+  FABRIC_CATCH_BEGIN();
+
+  if(DeletePVToolCommand::doIt())
+  {
+    RTVal pathValue = getRTValArg("target");
+    m_registry->registerPathValueTool(pathValue);
+    return true;
+  }
+ 
+  FABRIC_CATCH_END("DFGDeletePVToolCommand::doIt");
+
+  return false;
+}

@@ -26,6 +26,11 @@ class DFGToolsCommandRegistration
         "createDFGPVTool",
         (void*)registry
         );
+
+      Commands::CommandFactory<DFGDeletePVToolCommand>::Register(
+        "deleteDFGPVTool",
+        (void*)registry
+        );
     }
 };
 

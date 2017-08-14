@@ -29,6 +29,24 @@ class DFGVEEditorCreatePVToolAction : public DFGCreatePVToolAction
 	    );
 };
 
+class DFGVEEditorDeletePVToolAction : public DFGDeletePVToolAction
+{
+  Q_OBJECT
+
+	public:
+	  DFGVEEditorDeletePVToolAction(
+	    QObject *parent,
+	  	QString const& itemPath
+	    );
+
+	  virtual ~DFGVEEditorDeletePVToolAction();
+
+	  static QAction* create(
+	    QObject *parent,
+	  	ValueEditor::VETreeWidgetItem *veTreeItem
+	    );
+};
+
 } // namespace DFG
 } // namespace FabricUI
 

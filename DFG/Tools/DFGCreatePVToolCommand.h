@@ -7,6 +7,7 @@
 
 #include "DFGPVToolsNotifier.h"
 #include <FabricUI/Tools/CreatePVToolCommand.h>
+#include <FabricUI/Tools/DeletePVToolCommand.h>
 
 namespace FabricUI {
 namespace DFG {
@@ -32,6 +33,29 @@ class DFGCreatePVToolCommand : public Tools::CreatePVToolCommand
   private:
     DFGPVToolsNotifierRegistry* m_registry;
 };
+
+class DFGDeletePVToolCommand : public Tools::DeletePVToolCommand
+{
+  Q_OBJECT
+  
+  public:
+    DFGDeletePVToolCommand();
+
+    /// Implementation of BaseCommand.
+    virtual void registrationCallback(
+      QString const&name, 
+      void *userData
+      );
+
+    virtual ~DFGDeletePVToolCommand();
+ 
+    /// Implementation of BaseCommand.
+    virtual bool doIt();
+ 
+  private:
+    DFGPVToolsNotifierRegistry* m_registry;
+};
+
 
 } // namespace DFG
 } // namespace FabricUI
