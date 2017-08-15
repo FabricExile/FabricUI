@@ -3,6 +3,7 @@
 //
 
 #include "DFGPVToolCommands.h"
+#include <FabricUI/Commands/CommandManager.h>
 #include <FabricUI/Application/FabricException.h>
 
 using namespace FabricUI;
@@ -107,3 +108,27 @@ bool DFGDeleteAllPVToolsCommand::doIt()
 
   return false;
 }
+
+DFGDeleteAllAndCreatePVToolCommand::DFGDeleteAllAndCreatePVToolCommand() 
+  : DFGCreatePVToolCommand()
+{
+}
+
+DFGDeleteAllAndCreatePVToolCommand::~DFGDeleteAllAndCreatePVToolCommand() 
+{
+}
+ 
+bool DFGDeleteAllAndCreatePVToolCommand::doIt()
+{
+  FABRIC_CATCH_BEGIN();
+  
+  m_registry->unregisterAllPathValueTools();
+  DFGCreatePVToolCommand::doIt();
+
+  return true;
+ 
+  FABRIC_CATCH_END("DFGDeleteAllAndCreatePVToolCommand::doIt");
+
+  return false;
+}
+

@@ -31,7 +31,7 @@ class DFGCreatePVToolCommand : public Tools::CreatePVToolCommand
     /// Implementation of BaseCommand.
     virtual bool doIt();
  
-  private:
+  protected:
     DFGPVToolsNotifierRegistry* m_registry;
 };
 
@@ -78,6 +78,20 @@ class DFGDeleteAllPVToolsCommand : public Commands::BaseRTValScriptableCommand
   private:
     DFGPVToolsNotifierRegistry* m_registry;
 };
+
+class DFGDeleteAllAndCreatePVToolCommand : DFGCreatePVToolCommand
+{
+  Q_OBJECT
+  
+  public:
+    DFGDeleteAllAndCreatePVToolCommand();
+ 
+    virtual ~DFGDeleteAllAndCreatePVToolCommand();
+ 
+    /// Implementation of BaseCommand.
+    virtual bool doIt();
+};
+
 
 } // namespace DFG
 } // namespace FabricUI

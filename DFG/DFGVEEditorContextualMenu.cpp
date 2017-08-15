@@ -71,4 +71,12 @@ void DFGVEEditorContextualMenu::onConstructMenu()
 
 	if(deleteAllDFGPVToolsAction)
 	 	addAction(deleteAllDFGPVToolsAction);
+
+ 	QAction* deleteAllAndCreateDFGPVToolAction = DFGVEEditorDeleteAllAndCreatePVToolAction::create(
+		this,
+		m_veTreeItem
+		);
+
+	if(deleteAllAndCreateDFGPVToolAction)
+	 	addAction(deleteAllAndCreateDFGPVToolAction);
 }

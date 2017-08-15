@@ -154,3 +154,40 @@ QAction* DFGVEEditorDeleteAllPVToolsAction::create(
 
   return 0;
 }
+
+DFGVEEditorDeleteAllAndCreatePVToolAction::DFGVEEditorDeleteAllAndCreatePVToolAction(
+  QObject *parent,
+  QString const& itemPath)
+  : DFGDeleteAllAndCreatePVToolAction(parent, itemPath)
+{
+}
+
+DFGVEEditorDeleteAllAndCreatePVToolAction::~DFGVEEditorDeleteAllAndCreatePVToolAction()
+{
+}
+ 
+QAction* DFGVEEditorDeleteAllAndCreatePVToolAction::create(
+  QObject *parent,
+  VETreeWidgetItem *veTreeItem)
+{ 
+  FABRIC_CATCH_BEGIN();
+
+  QString itemPath = getItemPathFromItemMetaData(
+    veTreeItem);
+  
+  if(!itemPath.isEmpty())
+  {
+    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
+
+    if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
+      return new DFGVEEditorDeleteAllAndCreatePVToolAction(
+        parent,
+        itemPath);
+  }      
+
+  FABRIC_CATCH_END("DFGVEEditorDeleteAllAndCreatePVToolAction::create");
+
+  return 0;
+}
+

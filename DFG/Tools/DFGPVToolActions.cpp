@@ -18,7 +18,7 @@ DFGCreatePVToolAction::DFGCreatePVToolAction(
   : Actions::BaseAction(parent)
   , m_itemPath(itemPath)
 {
-	setText("Create Tool");
+	setText("Edit");
 	
  	connect(
     this,
@@ -60,7 +60,7 @@ DFGDeletePVToolAction::DFGDeletePVToolAction(
   : Actions::BaseAction(parent)
   , m_itemPath(itemPath)
 {
-	setText("Delete Tool");
+	setText("Delete");
 	
  	connect(
     this,
@@ -100,7 +100,7 @@ DFGDeleteAllPVToolsAction::DFGDeleteAllPVToolsAction(
   QObject *parent)
   : Actions::BaseAction(parent)
 {
-	setText("Delete All Tools");
+	setText("Delete All");
 	
  	connect(
     this,
@@ -127,6 +127,48 @@ void DFGDeleteAllPVToolsAction::onTriggered(
 	{
 		FabricException::Throw(
 			"DFGDeleteAllPVToolsAction::onTriggered",
+			e.what(),
+			"",
+			FabricException::LOG
+			);
+	}
+}
+
+DFGDeleteAllAndCreatePVToolAction::DFGDeleteAllAndCreatePVToolAction(
+  QObject *parent,
+	QString const& itemPath)
+  : Actions::BaseAction(parent)
+  , m_itemPath(itemPath)
+{
+	setText("Edit (single)");
+	
+ 	connect(
+    this,
+    SIGNAL(triggered(bool)),
+    this,
+    SLOT(onTriggered(bool))
+    );
+}
+
+DFGDeleteAllAndCreatePVToolAction::~DFGDeleteAllAndCreatePVToolAction()
+{
+}
+
+void DFGDeleteAllAndCreatePVToolAction::onTriggered(
+	bool checked)
+{
+	try
+	{
+   	CommandManager* manager = CommandManager::getCommandManager();
+    QMap<QString, QString> args;
+    args["target"] = "<" + m_itemPath + ">";
+    manager->createCommand( "deleteAllAndCreateDFGPVTool", args );
+	}
+
+	catch(FabricException &e)
+	{
+		FabricException::Throw(
+			"DFGDeleteAllAndCreatePVToolAction::onTriggered",
 			e.what(),
 			"",
 			FabricException::LOG

@@ -64,6 +64,24 @@ class DFGVEEditorDeleteAllPVToolsAction : public DFGDeleteAllPVToolsAction
 	    );
 };
 
+class DFGVEEditorDeleteAllAndCreatePVToolAction : public DFGDeleteAllAndCreatePVToolAction
+{
+  Q_OBJECT
+
+	public:
+	  DFGVEEditorDeleteAllAndCreatePVToolAction(
+	    QObject *parent,
+	  	QString const& itemPath
+	    );
+
+	  virtual ~DFGVEEditorDeleteAllAndCreatePVToolAction();
+
+	  static QAction* create(
+	    QObject *parent,
+ 	 		ValueEditor::VETreeWidgetItem *veTreeItem
+	    );
+};
+
 } // namespace DFG
 } // namespace FabricUI
 
