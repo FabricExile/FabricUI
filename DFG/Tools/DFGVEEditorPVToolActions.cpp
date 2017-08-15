@@ -4,7 +4,7 @@
 
 #include <assert.h>
 #include "DFGVEEditorPVToolActions.h"
-#include <FabricUI/Tools/PathValueTool.h>
+#include <FabricUI/Tools/ToolManager.h>
 #include <FabricUI/ValueEditor/ItemMetadata.h>
 #include <FabricUI/ValueEditor/BaseViewItem.h>
 #include <FabricUI/ValueEditor/BaseModelItem.h>
@@ -73,10 +73,10 @@ QAction* DFGVEEditorCreatePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
-    if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
+    if(!pathValueToolIsValid && ToolManager::canCreateTool(itemPath))
       return new DFGVEEditorCreatePVToolAction(
         parent,
         text,
@@ -112,7 +112,7 @@ QAction* DFGVEEditorDeletePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
     if(pathValueToolIsValid)
@@ -150,7 +150,7 @@ QAction* DFGVEEditorDeleteAllPVToolsAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
     if(pathValueToolIsValid)
@@ -188,10 +188,10 @@ QAction* DFGVEEditorDeleteAllAndCreatePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
-    if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
+    if(!pathValueToolIsValid && ToolManager::canCreateTool(itemPath))
       return new DFGVEEditorDeleteAllAndCreatePVToolAction(
         parent,
         text,

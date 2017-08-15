@@ -2,4 +2,4 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#include <FabricUI/Tools/PathValueTool.h>
+#include <FabricUI/Tools/ToolManager.h>

@@ -3,7 +3,7 @@
 //
 
 #include "DFGPVToolsNotifier.h"
-#include <FabricUI/Tools/PathValueTool.h>
+#include <FabricUI/Tools/ToolManager.h>
 #include <FabricUI/DFG/DFGExecNotifier.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Commands/PathValueResolverRegistry.h>
@@ -204,7 +204,7 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
   FABRIC_CATCH_BEGIN();
  
   if(dfgPortPath.isExecArg())
-    PathValueTool::deleteTool(
+    ToolManager::deleteTool(
       dfgPortPath.getAbsolutePortPath()
       );   
  
@@ -239,7 +239,7 @@ void DFGPVToolsNotifierRegistry::setPathValueToolPath(
   FABRIC_CATCH_BEGIN();
  
   if(dfgPortPath.isExecArg())
-    PathValueTool::setToolPath(
+    ToolManager::setToolPath(
       dfgPortPath.getOldAbsolutePortPath(), 
       dfgPortPath.getAbsolutePortPath()
       );   
@@ -255,7 +255,7 @@ void DFGPVToolsNotifierRegistry::setPathValueToolPath(
         : notDFGPortPath.getOldAbsolutePortPath() == dfgPortPath.getOldAbsolutePortPath();
     
       if(renameTool)
-        PathValueTool::setToolPath(
+        ToolManager::setToolPath(
           notDFGPortPath.getOldAbsolutePortPath(), 
           notDFGPortPath.getAbsolutePortPath()
           );      
@@ -270,7 +270,7 @@ void DFGPVToolsNotifierRegistry::setPathValueToolValue(
 {
   FABRIC_CATCH_BEGIN();
  
-  PathValueTool::setToolValue(
+  ToolManager::setToolValue(
     dfgPortPath.getAbsolutePortPath()
     );
   
@@ -391,7 +391,7 @@ DFGPVToolsNotifier::DFGPVToolsNotifier(
 
 DFGPVToolsNotifier::~DFGPVToolsNotifier()
 {
-  PathValueTool::deleteTool(
+  ToolManager::deleteTool(
     m_dfgPortPaths.getAbsolutePortPath()
     ); 
 

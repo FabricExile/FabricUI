@@ -2,7 +2,7 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#include "PathValueTool.h"
+#include "ToolManager.h"
 #include "DeletePVToolCommand.h"
 #include <FabricUI/Commands/CommandHelpers.h>
 #include <FabricUI/Application/FabricException.h>
@@ -46,7 +46,7 @@ bool DeletePVToolCommand::doIt()
   // Update the tool'value from its target.
   RTVal pathValue = getRTValArg("target");
  
-  RTVal pathValueTool = PathValueTool::getTool(pathValue);
+  RTVal pathValueTool = ToolManager::getTool(pathValue);
   bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
   if(!pathValueToolIsValid)
@@ -55,7 +55,7 @@ bool DeletePVToolCommand::doIt()
       "The PathValue tool of type '" + getRTValArgType("target") + "' targeting the path '" + getRTValArgPath("target") + "' is invalid"
       );
 
-  PathValueTool::deleteTool(pathValue);
+  ToolManager::deleteTool(pathValue);
 
   return true;
   
