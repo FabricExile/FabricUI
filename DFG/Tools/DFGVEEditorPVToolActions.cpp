@@ -262,41 +262,43 @@ QList<QAction*> DFGVEEditorPVToolMenu::createActions(
 {
   QList<QAction*> actions;
 
-  QAction* createDFGPVToolAction = DFGVEEditorCreatePVToolAction::create(
+  // QAction* createDFGPVToolAction = DFGVEEditorCreatePVToolAction::create(
+  //   parent,
+  //   "Edit With Tool With Others",
+  //   veTreeItem
+  //   );
+  
+  // if(createDFGPVToolAction)
+  //   actions.append(createDFGPVToolAction);
+
+
+  // QAction* deleteAllDFGPVToolsAction = DFGVEEditorDeleteAllPVToolsAction::create(
+  //   parent,
+  //   "Close All Tools",
+  //   veTreeItem
+  //   );
+ 
+  // if(deleteAllDFGPVToolsAction)
+  //   actions.append(deleteAllDFGPVToolsAction);
+  
+  QAction* deleteAllAndCreateDFGPVToolAction = DFGVEEditorDeleteAllAndCreatePVToolAction::create(
     parent,
-    "Edit with tool with others",
+    "Edit With Tool",
     veTreeItem
     );
-  
-  if(createDFGPVToolAction)
-    actions.append(createDFGPVToolAction);
+
+  if(deleteAllAndCreateDFGPVToolAction)
+    actions.append(deleteAllAndCreateDFGPVToolAction);
 
   QAction* deleteDFGPVToolAction = DFGVEEditorDeletePVToolAction::create(
     parent,
-    "Close edit tool",
+    "Close tool",
     veTreeItem
     );
 
   if(deleteDFGPVToolAction)
     actions.append(deleteDFGPVToolAction);
   
-  QAction* deleteAllDFGPVToolsAction = DFGVEEditorDeleteAllPVToolsAction::create(
-    parent,
-    "Close all edit tool",
-    veTreeItem
-    );
- 
-  if(deleteAllDFGPVToolsAction)
-    actions.append(deleteAllDFGPVToolsAction);
-  
-  QAction* deleteAllAndCreateDFGPVToolAction = DFGVEEditorDeleteAllAndCreatePVToolAction::create(
-    parent,
-    "Edit With tool",
-    veTreeItem
-    );
-
-  if(deleteAllAndCreateDFGPVToolAction)
-    actions.append(deleteAllAndCreateDFGPVToolAction);
 
   return actions;
 }
