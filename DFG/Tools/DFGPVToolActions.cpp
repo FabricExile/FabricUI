@@ -14,26 +14,19 @@ using namespace Application;
 
 DFGCreatePVToolAction::DFGCreatePVToolAction(
   QObject *parent,
+  QString const& name,
+	QString const& text,
 	QString const& itemPath)
-  : Actions::BaseAction(parent)
+  : Actions::BaseAction(parent, name, text, QKeySequence())
   , m_itemPath(itemPath)
 {
-	setText("Edit");
-	
- 	connect(
-    this,
-    SIGNAL(triggered(bool)),
-    this,
-    SLOT(onTriggered(bool))
-    );
 }
 
 DFGCreatePVToolAction::~DFGCreatePVToolAction()
 {
 }
 
-void DFGCreatePVToolAction::onTriggered(
-	bool checked)
+void DFGCreatePVToolAction::onTriggered()
 {
 	try
 	{
@@ -56,26 +49,19 @@ void DFGCreatePVToolAction::onTriggered(
 
 DFGDeletePVToolAction::DFGDeletePVToolAction(
   QObject *parent,
+  QString const& name,
+	QString const& text,
 	QString const& itemPath)
-  : Actions::BaseAction(parent)
+  : Actions::BaseAction(parent, name, text, QKeySequence())
   , m_itemPath(itemPath)
 {
-	setText("Delete");
-	
- 	connect(
-    this,
-    SIGNAL(triggered(bool)),
-    this,
-    SLOT(onTriggered(bool))
-    );
 }
 
 DFGDeletePVToolAction::~DFGDeletePVToolAction()
 {
 }
 
-void DFGDeletePVToolAction::onTriggered(
-	bool checked)
+void DFGDeletePVToolAction::onTriggered()
 {
 	try
 	{
@@ -97,25 +83,18 @@ void DFGDeletePVToolAction::onTriggered(
 }
 
 DFGDeleteAllPVToolsAction::DFGDeleteAllPVToolsAction(
-  QObject *parent)
-  : Actions::BaseAction(parent)
+  QObject *parent,
+  QString const& name,
+  QString const& text)
+  : Actions::BaseAction(parent, name, text, QKeySequence())
 {
-	setText("Delete All");
-	
- 	connect(
-    this,
-    SIGNAL(triggered(bool)),
-    this,
-    SLOT(onTriggered(bool))
-    );
 }
 
 DFGDeleteAllPVToolsAction::~DFGDeleteAllPVToolsAction()
 {
 }
 
-void DFGDeleteAllPVToolsAction::onTriggered(
-	bool checked)
+void DFGDeleteAllPVToolsAction::onTriggered()
 {
 	try
 	{
@@ -136,26 +115,19 @@ void DFGDeleteAllPVToolsAction::onTriggered(
 
 DFGDeleteAllAndCreatePVToolAction::DFGDeleteAllAndCreatePVToolAction(
   QObject *parent,
+  QString const& name,
+	QString const& text,
 	QString const& itemPath)
-  : Actions::BaseAction(parent)
+  : Actions::BaseAction(parent, name, text, QKeySequence())
   , m_itemPath(itemPath)
 {
-	setText("Edit (single)");
-	
- 	connect(
-    this,
-    SIGNAL(triggered(bool)),
-    this,
-    SLOT(onTriggered(bool))
-    );
 }
 
 DFGDeleteAllAndCreatePVToolAction::~DFGDeleteAllAndCreatePVToolAction()
 {
 }
 
-void DFGDeleteAllAndCreatePVToolAction::onTriggered(
-	bool checked)
+void DFGDeleteAllAndCreatePVToolAction::onTriggered()
 {
 	try
 	{

@@ -18,6 +18,7 @@ class DFGVEEditorCreatePVToolAction : public DFGCreatePVToolAction
 	public:
 	  DFGVEEditorCreatePVToolAction(
 	    QObject *parent,
+	    QString const& text,
 	  	QString const& itemPath
 	    );
 
@@ -25,6 +26,7 @@ class DFGVEEditorCreatePVToolAction : public DFGCreatePVToolAction
 
 	  static QAction* create(
 	    QObject *parent,
+	    QString const& text,
 	  	ValueEditor::VETreeWidgetItem *veTreeItem
 	    );
 };
@@ -36,6 +38,7 @@ class DFGVEEditorDeletePVToolAction : public DFGDeletePVToolAction
 	public:
 	  DFGVEEditorDeletePVToolAction(
 	    QObject *parent,
+	    QString const& text,
 	  	QString const& itemPath
 	    );
 
@@ -43,6 +46,7 @@ class DFGVEEditorDeletePVToolAction : public DFGDeletePVToolAction
 
 	  static QAction* create(
 	    QObject *parent,
+	    QString const& text,
 	  	ValueEditor::VETreeWidgetItem *veTreeItem
 	    );
 };
@@ -53,13 +57,15 @@ class DFGVEEditorDeleteAllPVToolsAction : public DFGDeleteAllPVToolsAction
 
 	public:
 	  DFGVEEditorDeleteAllPVToolsAction(
-	    QObject *parent
+	    QObject *parent,
+	    QString const& text
 	    );
 
 	  virtual ~DFGVEEditorDeleteAllPVToolsAction();
 
 	  static QAction* create(
 	    QObject *parent,
+	    QString const& text,
  	 		ValueEditor::VETreeWidgetItem *veTreeItem
 	    );
 };
@@ -71,6 +77,7 @@ class DFGVEEditorDeleteAllAndCreatePVToolAction : public DFGDeleteAllAndCreatePV
 	public:
 	  DFGVEEditorDeleteAllAndCreatePVToolAction(
 	    QObject *parent,
+	    QString const& text,
 	  	QString const& itemPath
 	    );
 
@@ -78,6 +85,7 @@ class DFGVEEditorDeleteAllAndCreatePVToolAction : public DFGDeleteAllAndCreatePV
 
 	  static QAction* create(
 	    QObject *parent,
+	    QString const& text,
  	 		ValueEditor::VETreeWidgetItem *veTreeItem
 	    );
 };

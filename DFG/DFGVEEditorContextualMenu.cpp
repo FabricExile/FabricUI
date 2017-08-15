@@ -50,6 +50,7 @@ void DFGVEEditorContextualMenu::onConstructMenu()
 {
 	QAction* createDFGPVToolAction = DFGVEEditorCreatePVToolAction::create(
 		this,
+		"Edit with tool with others",
 		m_veTreeItem
 		);
 
@@ -58,6 +59,7 @@ void DFGVEEditorContextualMenu::onConstructMenu()
 
  	QAction* deleteDFGPVToolAction = DFGVEEditorDeletePVToolAction::create(
 		this,
+		"Close edit tool",
 		m_veTreeItem
 		);
 
@@ -66,6 +68,7 @@ void DFGVEEditorContextualMenu::onConstructMenu()
 
  	QAction* deleteAllDFGPVToolsAction = DFGVEEditorDeleteAllPVToolsAction::create(
 		this,
+		"Close all edit tool",
 		m_veTreeItem
 		);
 
@@ -74,6 +77,7 @@ void DFGVEEditorContextualMenu::onConstructMenu()
 
  	QAction* deleteAllAndCreateDFGPVToolAction = DFGVEEditorDeleteAllAndCreatePVToolAction::create(
 		this,
+		"Edit With tool",
 		m_veTreeItem
 		);
 
