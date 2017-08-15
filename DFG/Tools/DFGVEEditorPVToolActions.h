@@ -5,12 +5,13 @@
 #ifndef __UI_DFG_VEEDITOR_CREATE_PV_TOOL_ACTION__
 #define __UI_DFG_VEEDITOR_CREATE_PV_TOOL_ACTION__
 
+#include <QMenu>
 #include "DFGPVToolActions.h"
 #include <FabricUI/ValueEditor/VETreeWidgetItem.h>
 
 namespace FabricUI {
 namespace DFG {
- 
+
 class DFGVEEditorCreatePVToolAction : public DFGCreatePVToolAction
 {
   Q_OBJECT
@@ -88,6 +89,39 @@ class DFGVEEditorDeleteAllAndCreatePVToolAction : public DFGDeleteAllAndCreatePV
 	    QString const& text,
  	 		ValueEditor::VETreeWidgetItem *veTreeItem
 	    );
+};
+
+class DFGVEEditorPVToolMenu : public QMenu
+{
+	Q_OBJECT
+
+	public:
+		DFGVEEditorPVToolMenu(
+			QWidget *parent,
+			ValueEditor::VETreeWidgetItem *veTreeItem
+			);
+
+		~DFGVEEditorPVToolMenu();
+
+		static QMenu* createMenu(
+			QWidget *parent,
+			ValueEditor::VETreeWidgetItem *veTreeItem
+			);
+
+		static QList<QAction*> createActions(
+			QWidget *parent,
+  		ValueEditor::VETreeWidgetItem *veTreeItem
+			);
+
+		static bool canCreate(
+			ValueEditor::VETreeWidgetItem *veTreeItem
+			);
+
+		protected slots:
+			virtual void onConstructMenu();
+
+	private:
+		ValueEditor::VETreeWidgetItem *m_veTreeItem;
 };
 
 } // namespace DFG

@@ -203,3 +203,100 @@ QAction* DFGVEEditorDeleteAllAndCreatePVToolAction::create(
   return 0;
 }
 
+DFGVEEditorPVToolMenu::DFGVEEditorPVToolMenu(
+  QWidget *parent,
+  VETreeWidgetItem *veTreeItem)
+  : QMenu(parent),
+  m_veTreeItem(veTreeItem)
+{
+  QObject::connect(
+    this, 
+    SIGNAL(aboutToShow()), 
+    this, 
+    SLOT(onConstructMenu())
+    );
+}
+
+DFGVEEditorPVToolMenu::~DFGVEEditorPVToolMenu()
+{
+}
+
+bool DFGVEEditorPVToolMenu::canCreate(
+  VETreeWidgetItem *veTreeItem)
+{
+  FABRIC_CATCH_BEGIN();
+
+  QString itemPath = getItemPathFromItemMetaData(
+    veTreeItem);
+  
+  if(!itemPath.isEmpty())
+    return ToolManager::canCreatePathValueTool(itemPath); 
+
+  FABRIC_CATCH_END("DFGVEEditorPVToolMenu::canCreate");
+
+  return 0;
+}
+
+QMenu* DFGVEEditorPVToolMenu::createMenu(
+  QWidget *parent,
+  VETreeWidgetItem *veTreeItem)
+{
+  assert( veTreeItem );
+
+  return new DFGVEEditorPVToolMenu( 
+    parent,
+    veTreeItem
+    );
+}
+
+void DFGVEEditorPVToolMenu::onConstructMenu()
+{
+  QAction* action;
+  foreach(action, createActions(this, m_veTreeItem))
+    addAction(action);
+}
+
+QList<QAction*> DFGVEEditorPVToolMenu::createActions(
+  QWidget *parent,
+  ValueEditor::VETreeWidgetItem *veTreeItem)
+{
+  QList<QAction*> actions;
+
+  QAction* createDFGPVToolAction = DFGVEEditorCreatePVToolAction::create(
+    parent,
+    "Edit with tool with others",
+    veTreeItem
+    );
+  
+  if(createDFGPVToolAction)
+    actions.append(createDFGPVToolAction);
+
+  QAction* deleteDFGPVToolAction = DFGVEEditorDeletePVToolAction::create(
+    parent,
+    "Close edit tool",
+    veTreeItem
+    );
+
+  if(deleteDFGPVToolAction)
+    actions.append(deleteDFGPVToolAction);
+  
+  QAction* deleteAllDFGPVToolsAction = DFGVEEditorDeleteAllPVToolsAction::create(
+    parent,
+    "Close all edit tool",
+    veTreeItem
+    );
+ 
+  if(deleteAllDFGPVToolsAction)
+    actions.append(deleteAllDFGPVToolsAction);
+  
+  QAction* deleteAllAndCreateDFGPVToolAction = DFGVEEditorDeleteAllAndCreatePVToolAction::create(
+    parent,
+    "Edit With tool",
+    veTreeItem
+    );
+
+  if(deleteAllAndCreateDFGPVToolAction)
+    actions.append(deleteAllAndCreateDFGPVToolAction);
+
+  return actions;
+}
