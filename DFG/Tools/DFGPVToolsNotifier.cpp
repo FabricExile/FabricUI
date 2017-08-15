@@ -26,12 +26,7 @@ DFGPVToolsNotifierRegistry::DFGPVToolsNotifierRegistry(
 
 DFGPVToolsNotifierRegistry::~DFGPVToolsNotifierRegistry()
 {
-  foreach(DFGPVToolsNotifier *notifier, m_registeredNotifiers)
-  {
-    m_registeredNotifiers.removeAll(notifier);
-    delete notifier;
-    notifier = 0;
-  }
+  unregisterAllPathValueTools();
 }
 
 void DFGPVToolsNotifierRegistry::initConnections()
@@ -166,6 +161,18 @@ void DFGPVToolsNotifierRegistry::registerPathValueTool(
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::registerPathValueTool");
 }
 
+void DFGPVToolsNotifierRegistry::unregisterAllPathValueTools()
+{
+  foreach(DFGPVToolsNotifier *notifier, m_registeredNotifiers)
+  {
+    m_registeredNotifiers.removeAll(notifier);
+    delete notifier;
+    notifier = 0;
+  }
+
+  emit toolUpdated();
+}
+
 void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
   QString const& itemPath)
 {
@@ -175,7 +182,7 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
   {
     DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths notDFGPortPath = notifier->getDFGPVToolsNotifierPortPaths();
     
-    bool deleteTool = notDFGPortPath.getAbsoluteNodePath() == itemPath;     
+    bool deleteTool = notDFGPortPath.getAbsolutePortPath() == itemPath;     
 
     if(deleteTool)
     {
@@ -184,6 +191,8 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
       notifier = 0;
     }
   }
+
+  emit toolUpdated();
  
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::unregisterPathValueTool");
 }
@@ -218,6 +227,8 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
     }
   }
  
+  emit toolUpdated();
+
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::unregisterPathValueTool");
 }
 

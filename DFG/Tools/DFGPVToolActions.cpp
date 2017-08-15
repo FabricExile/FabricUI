@@ -18,7 +18,7 @@ DFGCreatePVToolAction::DFGCreatePVToolAction(
   : Actions::BaseAction(parent)
   , m_itemPath(itemPath)
 {
-	setText("Create tool");
+	setText("Create Tool");
 	
  	connect(
     this,
@@ -60,7 +60,7 @@ DFGDeletePVToolAction::DFGDeletePVToolAction(
   : Actions::BaseAction(parent)
   , m_itemPath(itemPath)
 {
-	setText("Delete tool");
+	setText("Delete Tool");
 	
  	connect(
     this,
@@ -96,4 +96,40 @@ void DFGDeletePVToolAction::onTriggered(
 	}
 }
 
+DFGDeleteAllPVToolsAction::DFGDeleteAllPVToolsAction(
+  QObject *parent)
+  : Actions::BaseAction(parent)
+{
+	setText("Delete All Tools");
+	
+ 	connect(
+    this,
+    SIGNAL(triggered(bool)),
+    this,
+    SLOT(onTriggered(bool))
+    );
+}
 
+DFGDeleteAllPVToolsAction::~DFGDeleteAllPVToolsAction()
+{
+}
+
+void DFGDeleteAllPVToolsAction::onTriggered(
+	bool checked)
+{
+	try
+	{
+   	CommandManager* manager = CommandManager::getCommandManager();
+    manager->createCommand( "deleteAllDFGPVTools" );
+	}
+
+	catch(FabricException &e)
+	{
+		FabricException::Throw(
+			"DFGDeleteAllPVToolsAction::onTriggered",
+			e.what(),
+			"",
+			FabricException::LOG
+			);
+	}
+}

@@ -120,3 +120,37 @@ QAction* DFGVEEditorDeletePVToolAction::create(
 
   return 0;
 }
+
+DFGVEEditorDeleteAllPVToolsAction::DFGVEEditorDeleteAllPVToolsAction(
+  QObject *parent)
+  : DFGDeleteAllPVToolsAction(parent)
+{
+}
+
+DFGVEEditorDeleteAllPVToolsAction::~DFGVEEditorDeleteAllPVToolsAction()
+{
+}
+ 
+QAction* DFGVEEditorDeleteAllPVToolsAction::create(
+  QObject *parent,
+  VETreeWidgetItem *veTreeItem)
+{ 
+  FABRIC_CATCH_BEGIN();
+
+  QString itemPath = getItemPathFromItemMetaData(
+    veTreeItem);
+  
+  if(!itemPath.isEmpty())
+  {
+    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
+
+    if(pathValueToolIsValid)
+      return new DFGVEEditorDeleteAllPVToolsAction(
+        parent);
+  }      
+
+  FABRIC_CATCH_END("DFGVEEditorCreatePVToolAction::create");
+
+  return 0;
+}

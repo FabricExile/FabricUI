@@ -53,6 +53,23 @@ class DFGDeletePVToolAction : public Actions::BaseAction
   	QString m_itemPath;
 };
 
+class DFGDeleteAllPVToolsAction : public Actions::BaseAction
+{
+  Q_OBJECT
+
+	public:
+	  DFGDeleteAllPVToolsAction(
+	    QObject *parent
+	    );
+
+	  virtual ~DFGDeleteAllPVToolsAction();
+ 
+	private slots:
+	  virtual void onTriggered(
+	  	bool checked 
+	  	);
+};
+
 } // namespace DFG
 } // namespace FabricUI
 
