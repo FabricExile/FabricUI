@@ -31,6 +31,10 @@ class DFGVEEditorContextualMenu : public QMenu
 			ValueEditor::VETreeWidgetItem *veTreeItem
 			);
 
+		static bool canCreate(
+			ValueEditor::VETreeWidgetItem *veTreeItem
+			);
+
 	protected slots:
 		virtual void onConstructMenu();
 
