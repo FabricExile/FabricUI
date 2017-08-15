@@ -20,6 +20,11 @@ QBrush FabricUI::Util::ConfigSection::getOrCreateValue( const FTL::StrRef key, Q
 
 }} // namespace FabricUI::Util
 
+FabricStyle::FabricStyle() 
+  : QProxyStyle(QStyleFactory::create("windows")) 
+{
+}
+
 void FabricStyle::polish(QPalette &palette)
 {
   QColor baseColor = QColor(60, 60, 60);
@@ -65,3 +70,14 @@ void FabricStyle::polish(QPalette &palette)
   PALETTE_SET_BRUSH(QPalette::HighlightedText, highlightedTextColor);
 }
 
+void FabricStyleUtil::applyFabricStyle(
+  QApplication *app)
+{
+  app->setStyle(new FabricStyle());
+}
+
+void FabricStyleUtil::applyFabricStyle(
+  QWidget *widget)
+{
+  widget->setStyle(new FabricStyle());
+}

@@ -9,7 +9,7 @@ if sys.version_info < (2, 7):
 
 from PySide import QtCore, QtGui
 from FabricEngine.Core import CAPI
-from FabricEngine.FabricUI import Application
+from FabricEngine.FabricUI import Style
 from FabricEngine.SceneHub.SceneHubWindow import SceneHubWindow
 from FabricEngine.Canvas.FabricParser import FabricParser
 from FabricEngine.Canvas.FabricParser import CheckExtension
@@ -19,7 +19,8 @@ if __name__ == "__main__":
     # A QApplication is setup and the SceneHub Window is instanced and attached to
     # the QApplication and shown.
      
-    app = Application.FabricApplication()
+    app = QtGui.QApplication("")
+    Style.FabricStyleUtil.applyFabricStyle(app)
     app.setOrganizationName('Fabric Software Inc')
     app.setApplicationName('Fabric SceneHub Standalone')
     app.setApplicationVersion(CAPI.GetVersionStr())
