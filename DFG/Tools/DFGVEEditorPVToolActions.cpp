@@ -73,10 +73,10 @@ QAction* DFGVEEditorCreatePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = ToolManager::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
-    if(!pathValueToolIsValid && ToolManager::canCreateTool(itemPath))
+    if(!pathValueToolIsValid && ToolManager::canCreatePathValueTool(itemPath))
       return new DFGVEEditorCreatePVToolAction(
         parent,
         text,
@@ -112,7 +112,7 @@ QAction* DFGVEEditorDeletePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = ToolManager::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
     if(pathValueToolIsValid)
@@ -150,7 +150,7 @@ QAction* DFGVEEditorDeleteAllPVToolsAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = ToolManager::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
     if(pathValueToolIsValid)
@@ -188,10 +188,10 @@ QAction* DFGVEEditorDeleteAllAndCreatePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = ToolManager::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
-    if(!pathValueToolIsValid && ToolManager::canCreateTool(itemPath))
+    if(!pathValueToolIsValid && ToolManager::canCreatePathValueTool(itemPath))
       return new DFGVEEditorDeleteAllAndCreatePVToolAction(
         parent,
         text,

@@ -59,7 +59,7 @@ bool CreatePVToolCommand::doIt()
   RTVal pathValue = getRTValArg("target");
   bool createIfExist = getRTValArgValue("createIfExist").getBoolean();
 
-  RTVal pathValueTool = ToolManager::getTool(pathValue);
+  RTVal pathValueTool = ToolManager::getPathValueTool(pathValue);
   bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
   if(!createIfExist && pathValueToolIsValid)
@@ -68,7 +68,7 @@ bool CreatePVToolCommand::doIt()
       "A ToolManager already targets the path '" + getRTValArgPath("target") + "'"
       );
 
-  pathValueTool = ToolManager::createTool(pathValue);
+  pathValueTool = ToolManager::createPathValueTool(pathValue);
   pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
   if(!pathValueToolIsValid)

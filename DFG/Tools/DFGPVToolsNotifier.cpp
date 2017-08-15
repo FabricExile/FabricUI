@@ -182,9 +182,9 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
   {
     DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths notDFGPortPath = notifier->getDFGPVToolsNotifierPortPaths();
     
-    bool deleteTool = notDFGPortPath.getAbsolutePortPath() == itemPath;     
+    bool deletePathValueTool = notDFGPortPath.getAbsolutePortPath() == itemPath;     
 
-    if(deleteTool)
+    if(deletePathValueTool)
     {
       m_registeredNotifiers.removeAll(notifier);
       delete notifier;
@@ -204,7 +204,7 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
   FABRIC_CATCH_BEGIN();
  
   if(dfgPortPath.isExecArg())
-    ToolManager::deleteTool(
+    ToolManager::deletePathValueTool(
       dfgPortPath.getAbsolutePortPath()
       );   
  
@@ -214,11 +214,11 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
     {
       DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths notDFGPortPath = notifier->getDFGPVToolsNotifierPortPaths();
       
-      bool deleteTool = fromNode
+      bool deletePathValueTool = fromNode
         ? notDFGPortPath.getAbsoluteNodePath() == dfgPortPath.getAbsoluteNodePath()
         : notDFGPortPath.getAbsolutePortPath() == dfgPortPath.getAbsolutePortPath();
 
-      if(deleteTool)
+      if(deletePathValueTool)
       {
         m_registeredNotifiers.removeAll(notifier);
         delete notifier;
@@ -239,7 +239,7 @@ void DFGPVToolsNotifierRegistry::setPathValueToolPath(
   FABRIC_CATCH_BEGIN();
  
   if(dfgPortPath.isExecArg())
-    ToolManager::setToolPath(
+    ToolManager::setPathValueToolPath(
       dfgPortPath.getOldAbsolutePortPath(), 
       dfgPortPath.getAbsolutePortPath()
       );   
@@ -255,7 +255,7 @@ void DFGPVToolsNotifierRegistry::setPathValueToolPath(
         : notDFGPortPath.getOldAbsolutePortPath() == dfgPortPath.getOldAbsolutePortPath();
     
       if(renameTool)
-        ToolManager::setToolPath(
+        ToolManager::setPathValueToolPath(
           notDFGPortPath.getOldAbsolutePortPath(), 
           notDFGPortPath.getAbsolutePortPath()
           );      
@@ -270,7 +270,7 @@ void DFGPVToolsNotifierRegistry::setPathValueToolValue(
 {
   FABRIC_CATCH_BEGIN();
  
-  ToolManager::setToolValue(
+  ToolManager::setPathValueToolValue(
     dfgPortPath.getAbsolutePortPath()
     );
   
@@ -391,7 +391,7 @@ DFGPVToolsNotifier::DFGPVToolsNotifier(
 
 DFGPVToolsNotifier::~DFGPVToolsNotifier()
 {
-  ToolManager::deleteTool(
+  ToolManager::deletePathValueTool(
     m_dfgPortPaths.getAbsolutePortPath()
     ); 
 

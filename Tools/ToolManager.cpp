@@ -76,15 +76,15 @@ inline RTVal getKLToolManager()
   return toolRegistry;
 }
 
-bool ToolManager::canCreateTool(
+bool ToolManager::canCreatePathValueTool(
   QString const&toolPath)
 {
- 	return canCreateTool(
+ 	return canCreatePathValueTool(
  		pathToPathValue(toolPath)
  		);
 }
 
-bool ToolManager::canCreateTool(
+bool ToolManager::canCreatePathValueTool(
   RTVal value)
 {
 	bool res = false;
@@ -97,30 +97,30 @@ bool ToolManager::canCreateTool(
   	1, 
   	&value).getBoolean();
  
-  FABRIC_CATCH_END("ToolManager::canCreateTool");
+  FABRIC_CATCH_END("ToolManager::canCreatePathValueTool");
 
   return res;
 }
 
-RTVal ToolManager::createTool(
+RTVal ToolManager::createPathValueTool(
   QString const& toolPath)
 {
- 	return createTool(
+ 	return createPathValueTool(
  		pathToPathValue(toolPath)
  		);
 }
 
-RTVal ToolManager::createTool(
+RTVal ToolManager::createPathValueTool(
   RTVal pathValue)
 {
 	RTVal pathValueTool;
 
   FABRIC_CATCH_BEGIN();
   
-  if(!canCreateTool(pathValue))
+  if(!canCreatePathValueTool(pathValue))
     FabricException::Throw(
-      "ToolManager::createTool",
-      "Cannot createTool a tool for un-register type '" + 
+      "ToolManager::createPathValueTool",
+      "Cannot createPathValueTool a tool for un-register type '" + 
       RTValUtil::getType(RTValUtil::toRTVal(pathValue).maybeGetMember("value")) + "'"
       );
    
@@ -130,20 +130,20 @@ RTVal ToolManager::createTool(
     1,
     &pathValue);
  	
-  FABRIC_CATCH_END("ToolManager::createTool");
+  FABRIC_CATCH_END("ToolManager::createPathValueTool");
 
   return pathValueTool;
 }
 
-RTVal ToolManager::getTool(
+RTVal ToolManager::getPathValueTool(
   QString const& toolPath)
 {
-  return getTool(
+  return getPathValueTool(
     pathToPathValue(toolPath)
     );
 }
 
-RTVal ToolManager::getTool(
+RTVal ToolManager::getPathValueTool(
   RTVal pathValue)
 {
   RTVal pathValueTool;
@@ -156,20 +156,20 @@ RTVal ToolManager::getTool(
     1,
     &pathValue);
   
-  FABRIC_CATCH_END("ToolManager::getTool");
+  FABRIC_CATCH_END("ToolManager::getPathValueTool");
 
   return pathValueTool;
 }
 
-void ToolManager::deleteTool(
+void ToolManager::deletePathValueTool(
   QString const& toolPath)
 {
-  deleteTool(
+  deletePathValueTool(
     pathToPathValue(toolPath, false)
     );
 }
 
-void ToolManager::deleteTool(
+void ToolManager::deletePathValueTool(
 	FabricCore::RTVal pathValue)
 {
   FABRIC_CATCH_BEGIN();
@@ -180,20 +180,20 @@ void ToolManager::deleteTool(
   	1, 
   	&pathValue);
   
-  FABRIC_CATCH_END("ToolManager::deleteTool");
+  FABRIC_CATCH_END("ToolManager::deletePathValueTool");
 }
 
-void ToolManager::setToolPath(
+void ToolManager::setPathValueToolPath(
 	QString const& oldToolPath,
 	QString const& newToolPath)
 {
-  setToolPath(
+  setPathValueToolPath(
     pathToPathValue(oldToolPath, false),
     pathToPathValue(newToolPath, false)   
     );
 }
 
-void ToolManager::setToolPath(
+void ToolManager::setPathValueToolPath(
   FabricCore::RTVal oldPathValue,
   FabricCore::RTVal newPathValue)
 {
@@ -210,18 +210,18 @@ void ToolManager::setToolPath(
     2, 
     args);   
 
-  FABRIC_CATCH_END("ToolManager::setToolPath");
+  FABRIC_CATCH_END("ToolManager::setPathValueToolPath");
 }
 
-void ToolManager::setToolValue(
+void ToolManager::setPathValueToolValue(
 	QString const& toolPath)
 {
-  setToolValue(
+  setPathValueToolValue(
     pathToPathValue(toolPath)
     );
 }
 
-void ToolManager::setToolValue(
+void ToolManager::setPathValueToolValue(
   FabricCore::RTVal pathValue)
 {
   FABRIC_CATCH_BEGIN();
@@ -232,5 +232,5 @@ void ToolManager::setToolValue(
     1,
     &pathValue);
 
-  FABRIC_CATCH_END("ToolManager::setToolValue");
+  FABRIC_CATCH_END("ToolManager::setPathValueToolValue");
 }

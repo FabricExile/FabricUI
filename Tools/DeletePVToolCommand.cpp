@@ -46,7 +46,7 @@ bool DeletePVToolCommand::doIt()
   // Update the tool'value from its target.
   RTVal pathValue = getRTValArg("target");
  
-  RTVal pathValueTool = ToolManager::getTool(pathValue);
+  RTVal pathValueTool = ToolManager::getPathValueTool(pathValue);
   bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
   if(!pathValueToolIsValid)
@@ -55,7 +55,7 @@ bool DeletePVToolCommand::doIt()
       "The PathValue tool of type '" + getRTValArgType("target") + "' targeting the path '" + getRTValArgPath("target") + "' is invalid"
       );
 
-  ToolManager::deleteTool(pathValue);
+  ToolManager::deletePathValueTool(pathValue);
 
   return true;
   
