@@ -134,7 +134,7 @@ class PythonHighlighter (QSyntaxHighlighter):
         # Do multi-line strings
         in_multiline = self.match_multiline(text, *self.tri_single)
         if not in_multiline:
-            in_multiline = self.match_multiline(text, *self.tri_double)
+            in_multiline = self.match_multiline(str(text), *self.tri_double)
 
 
     def match_multiline(self, text, delimiter, in_state, style):
