@@ -159,6 +159,10 @@ namespace FabricUI {
 
       virtual void onSidePanelInspectRequested();
 
+      virtual void onCustomContextMenu(
+        const QPoint &point
+        );
+
       void onNodeInspectRequested(
         FabricUI::GraphView::Node *node
         );

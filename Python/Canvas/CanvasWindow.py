@@ -259,7 +259,7 @@ class CanvasWindow(QtGui.QMainWindow):
         self.onFrameChanged(self.timeLine.getTime())
         self.onGraphSet(self.dfgWidget.getUIGraph())
         self.valueEditor.initConnections()
-        self.toolsNotifierRegistry.initConnections()
+        self.toolsDFGPVNotifierRegistry.initConnections()
         self.installEventFilter(CanvasWindowEventFilter(self))
 
         self._slowOpPop()
@@ -527,8 +527,8 @@ class CanvasWindow(QtGui.QMainWindow):
     def _initTools(self):
         """Initializes the Tools.
         """
-        self.toolsNotifierRegistry = FabricUI.Tools.ToolsNotifierRegistry(self.dfgWidget)
-        FabricUI.Tools.ToolsCommandRegistration.RegisterCommands(self.toolsNotifierRegistry)
+        self.toolsDFGPVNotifierRegistry = FabricUI.DFG.DFGPVToolsNotifierRegistry(self.dfgWidget.getDFGController())
+        FabricUI.DFG.DFGToolsCommandRegistration.RegisterCommands(self.toolsDFGPVNotifierRegistry)
 
     def _initTreeView(self):
         """Initializes the preset TreeView.
@@ -561,8 +561,9 @@ class CanvasWindow(QtGui.QMainWindow):
 
         OptionsEditor.KLOptionsTargetEditor.create( "Rendering Options", "Rendering Options", "", self )
 
-        # When a klWidget is activated/deactivated from the value-editor.
+        # When a tool is activated/deactivated from the value-editor.
         self.valueEditor.refreshViewport.connect(self.viewport.redraw)
+        self.toolsDFGPVNotifierRegistry.toolUpdated.connect(self.viewport.redraw)
 
     def _initValueEditor(self):
         """Initializes the value editor."""

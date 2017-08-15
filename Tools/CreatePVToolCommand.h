@@ -2,29 +2,22 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#ifndef __UI_CREATE_TOOLS_COMMAND__
-#define __UI_CREATE_TOOLS_COMMAND__
+#ifndef __UI_CREATE_PV_TOOL_COMMAND__
+#define __UI_CREATE_PV_TOOL_COMMAND__
 
-#include "ToolsNotifier.h"
 #include <FabricUI/Commands/BaseRTValScriptableCommand.h>
 
 namespace FabricUI {
 namespace Tools {
 
-class CreateToolCommand : public FabricUI::Commands::BaseRTValScriptableCommand
+class CreatePVToolCommand : public Commands::BaseRTValScriptableCommand
 {
   Q_OBJECT
   
   public:
-    CreateToolCommand();
+    CreatePVToolCommand();
 
-    /// Implementation of BaseCommand.
-    virtual void registrationCallback(
-      QString const&name, 
-      void *userData
-      );
-
-    virtual ~CreateToolCommand();
+    virtual ~CreatePVToolCommand();
 
     /// Implementation of BaseCommand.
     virtual bool canUndo();
@@ -37,12 +30,9 @@ class CreateToolCommand : public FabricUI::Commands::BaseRTValScriptableCommand
 
     /// Implementation of BaseCommand.
     virtual QString getHelp();
-
-  private:
-    ToolsNotifierRegistry* m_registry;
 };
 
 } // namespace Tools
 } // namespace FabricUI
 
-#endif // __UI_CREATE_TOOLS_COMMAND__
+#endif // __UI_CREATE_PV_TOOL_COMMAND__
