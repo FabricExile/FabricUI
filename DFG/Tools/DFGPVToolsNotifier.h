@@ -114,7 +114,7 @@ class DFGPVToolsNotifierRegistry : public QObject
 
     void unregisterAllPathValueTools();
 
-    void setPathValueToolPath(
+    void renamePathValueToolPath(
       DFGPVToolsNotifierPortPaths dfgPortPath,
       bool fromNode = false
       );

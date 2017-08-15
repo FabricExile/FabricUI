@@ -183,17 +183,17 @@ void ToolManager::deletePathValueTool(
   FABRIC_CATCH_END("ToolManager::deletePathValueTool");
 }
 
-void ToolManager::setPathValueToolPath(
+void ToolManager::renamePathValueToolPath(
 	QString const& oldToolPath,
 	QString const& newToolPath)
 {
-  setPathValueToolPath(
+  renamePathValueToolPath(
     pathToPathValue(oldToolPath, false),
     pathToPathValue(newToolPath, false)   
     );
 }
 
-void ToolManager::setPathValueToolPath(
+void ToolManager::renamePathValueToolPath(
   FabricCore::RTVal oldPathValue,
   FabricCore::RTVal newPathValue)
 {
@@ -206,11 +206,11 @@ void ToolManager::setPathValueToolPath(
 
   getKLToolManager().callMethod(
     "", 
-    "setPathValueToolPath", 
+    "renamePathValueToolPath", 
     2, 
     args);   
 
-  FABRIC_CATCH_END("ToolManager::setPathValueToolPath");
+  FABRIC_CATCH_END("ToolManager::renamePathValueToolPath");
 }
 
 void ToolManager::setPathValueToolValue(

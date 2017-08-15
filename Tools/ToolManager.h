@@ -66,7 +66,7 @@ class ToolManager
 		/// The resolved values must be of the same type.
 		/// \param oldToolPath The old path (to retrieve the tool).
 		/// \param newToolPath The new path to resolves.
-		static void setPathValueToolPath(
+		static void renamePathValueToolPath(
 			QString const& oldToolPath,
 			QString const& newToolPath
 			);
@@ -75,7 +75,7 @@ class ToolManager
 		/// The resolved values must be of the same type.
 		/// \param oldPathValue The old pathValue (to retrieve the tool).
 		/// \param newPathValue The new pathValue to resolves.
-		static void setPathValueToolPath(
+		static void renamePathValueToolPath(
 			FabricCore::RTVal oldPathValue,
 			FabricCore::RTVal newPathValue
 			);
