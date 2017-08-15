@@ -16,15 +16,14 @@ class VarItemMetadata : public DFGModelItemMetadata
 {
 public:
 
-  VarItemMetadata( VarModelItem *varModelItem ) {}
+  VarItemMetadata( VarModelItem *varModelItem )
+  : m_varModelItem(varModelItem)
+  {}
 
-  virtual const char* getString( const char* key ) const /*override*/
-  {
-    if ( key == FTL_STR("vePortType") )
-      return FTL_STR("IO").c_str();
+  virtual const char* getString( const char* key ) const; /*override*/
 
-    return 0;
-  }
+private:
+  VarModelItem * m_varModelItem;
 };
 
 } // namespace ModelItems

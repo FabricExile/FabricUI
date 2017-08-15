@@ -164,11 +164,11 @@ DFGConfig::DFGConfig()
   REGISTER_DATA_TYPE_COLOR( "RGBA", QColor( 255, 0, 0 ) );
   REGISTER_DATA_TYPE_COLOR( "ARGB", QColor( 255, 0, 0 ) );
   REGISTER_DATA_TYPE_COLOR( "Complex", QColor( "#E30761" ) );
-  REGISTER_DATA_TYPE_COLOR( "Geometry", QColor( 51, 1, 106 ) );
-  REGISTER_DATA_TYPE_COLOR( "Lines", QColor( 51, 1, 106 ) );
-  REGISTER_DATA_TYPE_COLOR( "Curves", QColor( 51, 1, 106 ) );
-  REGISTER_DATA_TYPE_COLOR( "Curve", QColor( 51, 1, 106 ) );
-  REGISTER_DATA_TYPE_COLOR( "Points", QColor( 51, 1, 106 ) );
+  REGISTER_DATA_TYPE_COLOR( "Geometry", QColor( 110, 58, 166 ) );
+  REGISTER_DATA_TYPE_COLOR( "Lines", QColor( 110, 58, 166 ) );
+  REGISTER_DATA_TYPE_COLOR( "Curves", QColor( 110, 58, 166 ) );
+  REGISTER_DATA_TYPE_COLOR( "Curve", QColor( 110, 58, 166 ) );
+  REGISTER_DATA_TYPE_COLOR( "Points", QColor( 110, 58, 166 ) );
   REGISTER_DATA_TYPE_COLOR( "PolygonMesh", QColor( 110, 58, 166 ) );
   REGISTER_DATA_TYPE_COLOR( "ImporterObject", QColor( 206, 165, 151 ) );
   REGISTER_DATA_TYPE_COLOR( "ImporterContext", QColor( 206, 165, 151 ) );

@@ -75,6 +75,18 @@ FabricUI::ValueEditor::ItemMetadata *VarModelItem::getMetadata()
 {
   return &m_metadata;
 }
+bool VarModelItem::shouldBeReadOnly() const
+{
+  try
+  {
+    return m_exec.hasSrcPorts( (m_itemPath + ".value").c_str() );
+  }
+  catch ( FabricCore::Exception e )
+  {
+    printf("%s\n", e.getDesc_cstr());
+    return false;
+  }
+}
 
 } // namespace ModelItems
 } // namespace FabricUI

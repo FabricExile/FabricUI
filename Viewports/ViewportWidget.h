@@ -7,6 +7,7 @@
 
 #include <QTime>
 #include <QGLWidget>
+#include "ManipulationTool.h"
 #include "ViewportEventFilter.h"
 
 namespace FabricUI {
@@ -33,24 +34,40 @@ class ViewportWidget : public QGLWidget
   	virtual ~ViewportWidget();
 
     /// Check if the manipulation is activated.
-    /// To override
-    virtual bool isManipulationActive();
+    bool isManipulationActive();
 
     /// Activate/deactivaye the manips.
-    /// To override
-    virtual void setManipulationActive(
+    void setManipulationActive(
       bool state
       );
 
+    /// Gets a pointor to the manip-tool.
+    ManipulationTool* getManipTool();
+       
     /// Gets the FPS.
     double fps();
-  
+    
+    /// To get the focus.
+    virtual void enterEvent(
+      QEvent * event
+      );
+    
+    /// To release the focus.
+    virtual void leaveEvent(
+      QEvent * event
+      );
+
   signals:
     /// Emitted when OpenGL has been initialized.
     void initComplete();
       
     /// Emitted after the vewport redraw.
     void redrawn();
+
+    /// \internal, depreciated.
+    void portManipulationRequested(
+      QString portName
+      );
 
   public slots:
     /// Clear the widget.
@@ -80,6 +97,7 @@ class ViewportWidget : public QGLWidget
     QTime m_fpsTimer;
     double m_fpsStack[16];
     ViewportEventFilter *m_eventFilter;
+    ManipulationTool *m_manipTool;
 };
   
 } // namespace Viewports

@@ -89,7 +89,7 @@ GraphConfig::GraphConfig()
 
   GET_PARAMETER( mainPanelBackgroundColor, QColor(58, 58, 58, 255) );
 
-  GET_PARAMETER( mainPanelHotkeyZoomBackgroundColor, QColor(56, 56, 56, 255) );
+  GET_PARAMETER( mainPanelHotkeyZoomBackgroundColor, QColor(45, 45, 45, 255) );
   GET_PARAMETER( mainPanelHotkeyZoomBorderColor, QColor(255, 255, 255, 160) );
 
   GET_PARAMETER( mainPanelDrawGrid, true );
