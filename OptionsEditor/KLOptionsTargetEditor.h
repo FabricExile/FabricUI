@@ -51,6 +51,8 @@ class KLOptionsTargetEditor
       FabricCore::RTVal options
       );
 
+    virtual void refreshKLOptions();
+
   public slots:  
     /// \implmentation of BaseRTValOptionsEditor
     virtual void resetModel(
