@@ -85,7 +85,7 @@ bool PathValueTool::canCreateTool(
 }
 
 bool PathValueTool::canCreateTool(
-  RTVal pathValue)
+  RTVal value)
 {
 	bool res = false;
 
@@ -95,7 +95,7 @@ bool PathValueTool::canCreateTool(
   	"Boolean", 
   	"canCreatePathValueTool", 
   	1, 
-  	&pathValue).getBoolean();
+  	&value).getBoolean();
  
   FABRIC_CATCH_END("PathValueTool::canCreateTool");
 
