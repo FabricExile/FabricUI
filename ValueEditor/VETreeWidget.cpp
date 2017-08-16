@@ -33,6 +33,7 @@ const QString s_outNodeName = " - Out - ";
 
 VETreeWidget::VETreeWidget( )
  : m_manipulationToggled(false)
+ , m_currentOveredItem(0)
 {
   setColumnCount( 2 );
   setContextMenuPolicy( Qt::CustomContextMenu );
@@ -699,6 +700,20 @@ void VETreeWidget::keyPressEvent(QKeyEvent *event)
     event->ignore();  // [FE-7365]
   else
     QTreeWidget::keyPressEvent(event);
+}
+
+void VETreeWidget::mouseMoveEvent(QMouseEvent *event)
+{
+  QTreeWidget::mouseMoveEvent(event);
+  if(hasMouseTracking())
+  {
+    QTreeWidgetItem *newItem = itemAt(event->pos());
+    if(m_currentOveredItem != newItem)
+    {
+      emit itemOveredChanged(m_currentOveredItem, newItem);
+      m_currentOveredItem = newItem;
+    }
+  }
 }
 
 void VETreeWidget::emitToggleManipulation(bool toggled) {

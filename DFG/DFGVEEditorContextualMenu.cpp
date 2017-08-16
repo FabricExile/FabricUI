@@ -46,37 +46,18 @@ void DFGVEEditorContextualMenu::create(
     );
 }
 
+bool DFGVEEditorContextualMenu::canCreate(
+	VETreeWidgetItem *veTreeItem)
+{
+	assert( veTreeItem );
+
+  return DFGVEEditorPVToolMenu::canCreate(veTreeItem);
+}
+
 void DFGVEEditorContextualMenu::onConstructMenu()
 {
-	QAction* createDFGPVToolAction = DFGVEEditorCreatePVToolAction::create(
-		this,
-		m_veTreeItem
-		);
-
-	if(createDFGPVToolAction)
-	 	addAction(createDFGPVToolAction);
-
- 	QAction* deleteDFGPVToolAction = DFGVEEditorDeletePVToolAction::create(
-		this,
-		m_veTreeItem
-		);
-
-	if(deleteDFGPVToolAction)
-	 	addAction(deleteDFGPVToolAction);
-
- 	QAction* deleteAllDFGPVToolsAction = DFGVEEditorDeleteAllPVToolsAction::create(
-		this,
-		m_veTreeItem
-		);
-
-	if(deleteAllDFGPVToolsAction)
-	 	addAction(deleteAllDFGPVToolsAction);
-
- 	QAction* deleteAllAndCreateDFGPVToolAction = DFGVEEditorDeleteAllAndCreatePVToolAction::create(
-		this,
-		m_veTreeItem
-		);
-
-	if(deleteAllAndCreateDFGPVToolAction)
-	 	addAction(deleteAllAndCreateDFGPVToolAction);
+	// Don't create a sub menu since it's the only one
+  QAction* action;
+	foreach(action, DFGVEEditorPVToolMenu::createActions(this, m_veTreeItem))
+    addAction(action);
 }

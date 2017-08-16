@@ -18,15 +18,15 @@ class DFGCreatePVToolAction : public Actions::BaseAction
 	public:
 	  DFGCreatePVToolAction(
 	    QObject *parent,
+	    QString const& name,
+	    QString const& text,
 	  	QString const& itemPath
 	    );
 
 	  virtual ~DFGCreatePVToolAction();
  
 	private slots:
-	  virtual void onTriggered(
-	  	bool checked 
-	  	);
+	  virtual void onTriggered();
 	  
   private:
   	QString m_itemPath;
@@ -39,15 +39,15 @@ class DFGDeletePVToolAction : public Actions::BaseAction
 	public:
 	  DFGDeletePVToolAction(
 	    QObject *parent,
+	    QString const& name,
+	    QString const& text,
 	  	QString const& itemPath
 	    );
 
 	  virtual ~DFGDeletePVToolAction();
  
 	private slots:
-	  virtual void onTriggered(
-	  	bool checked 
-	  	);
+	  virtual void onTriggered();
  
  	private:
   	QString m_itemPath;
@@ -59,15 +59,15 @@ class DFGDeleteAllPVToolsAction : public Actions::BaseAction
 
 	public:
 	  DFGDeleteAllPVToolsAction(
-	    QObject *parent
+	    QObject *parent,
+	    QString const& name,
+	    QString const& text
 	    );
 
 	  virtual ~DFGDeleteAllPVToolsAction();
  
 	private slots:
-	  virtual void onTriggered(
-	  	bool checked 
-	  	);
+	  virtual void onTriggered();
 };
 
 class DFGDeleteAllAndCreatePVToolAction : public Actions::BaseAction
@@ -77,15 +77,15 @@ class DFGDeleteAllAndCreatePVToolAction : public Actions::BaseAction
 	public:
 	  DFGDeleteAllAndCreatePVToolAction(
 	    QObject *parent,
+	    QString const& name,
+	    QString const& text,
 	  	QString const& itemPath
 	    );
 
 	  virtual ~DFGDeleteAllAndCreatePVToolAction();
  
 	private slots:
-	  virtual void onTriggered(
-	  	bool checked 
-	  	);
+	  virtual void onTriggered();
  
  	private:
   	QString m_itemPath;

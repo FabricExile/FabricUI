@@ -4,7 +4,7 @@
 
 #include <assert.h>
 #include "DFGVEEditorPVToolActions.h"
-#include <FabricUI/Tools/PathValueTool.h>
+#include <FabricUI/Tools/ToolManager.h>
 #include <FabricUI/ValueEditor/ItemMetadata.h>
 #include <FabricUI/ValueEditor/BaseViewItem.h>
 #include <FabricUI/ValueEditor/BaseModelItem.h>
@@ -19,8 +19,9 @@ using namespace ValueEditor;
 
 DFGVEEditorCreatePVToolAction::DFGVEEditorCreatePVToolAction(
   QObject *parent,
+  QString const& text,
 	QString const& itemPath)
-  : DFGCreatePVToolAction(parent, itemPath)
+  : DFGCreatePVToolAction(parent, "DFGVEEditorCreatePVToolAction", text, itemPath)
 {
 }
 
@@ -62,6 +63,7 @@ inline QString getItemPathFromItemMetaData(
 
 QAction* DFGVEEditorCreatePVToolAction::create(
 	QObject *parent,
+  QString const& text,
   VETreeWidgetItem *veTreeItem)
 { 
   FABRIC_CATCH_BEGIN();
@@ -71,12 +73,13 @@ QAction* DFGVEEditorCreatePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
-    if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
+    if(!pathValueToolIsValid && ToolManager::canCreatePathValueTool(itemPath))
       return new DFGVEEditorCreatePVToolAction(
         parent,
+        text,
         itemPath);
   }      
 
@@ -87,8 +90,9 @@ QAction* DFGVEEditorCreatePVToolAction::create(
 
 DFGVEEditorDeletePVToolAction::DFGVEEditorDeletePVToolAction(
   QObject *parent,
+  QString const& text,
   QString const& itemPath)
-  : DFGDeletePVToolAction(parent, itemPath)
+  : DFGDeletePVToolAction(parent, "DFGVEEditorDeletePVToolAction", text, itemPath)
 {
 }
 
@@ -98,6 +102,7 @@ DFGVEEditorDeletePVToolAction::~DFGVEEditorDeletePVToolAction()
  
 QAction* DFGVEEditorDeletePVToolAction::create(
   QObject *parent,
+  QString const& text,
   VETreeWidgetItem *veTreeItem)
 { 
   FABRIC_CATCH_BEGIN();
@@ -107,12 +112,13 @@ QAction* DFGVEEditorDeletePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
     if(pathValueToolIsValid)
       return new DFGVEEditorDeletePVToolAction(
         parent,
+        text,
         itemPath);
   }      
 
@@ -122,8 +128,9 @@ QAction* DFGVEEditorDeletePVToolAction::create(
 }
 
 DFGVEEditorDeleteAllPVToolsAction::DFGVEEditorDeleteAllPVToolsAction(
-  QObject *parent)
-  : DFGDeleteAllPVToolsAction(parent)
+  QObject *parent,
+  QString const& text)
+  : DFGDeleteAllPVToolsAction(parent, "DFGVEEditorDeleteAllPVToolsAction", text)
 {
 }
 
@@ -133,6 +140,7 @@ DFGVEEditorDeleteAllPVToolsAction::~DFGVEEditorDeleteAllPVToolsAction()
  
 QAction* DFGVEEditorDeleteAllPVToolsAction::create(
   QObject *parent,
+  QString const& text,
   VETreeWidgetItem *veTreeItem)
 { 
   FABRIC_CATCH_BEGIN();
@@ -142,12 +150,13 @@ QAction* DFGVEEditorDeleteAllPVToolsAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
     if(pathValueToolIsValid)
       return new DFGVEEditorDeleteAllPVToolsAction(
-        parent);
+        parent,
+        text);
   }      
 
   FABRIC_CATCH_END("DFGVEEditorCreatePVToolAction::create");
@@ -157,8 +166,9 @@ QAction* DFGVEEditorDeleteAllPVToolsAction::create(
 
 DFGVEEditorDeleteAllAndCreatePVToolAction::DFGVEEditorDeleteAllAndCreatePVToolAction(
   QObject *parent,
+  QString const& text,
   QString const& itemPath)
-  : DFGDeleteAllAndCreatePVToolAction(parent, itemPath)
+  : DFGDeleteAllAndCreatePVToolAction(parent, "DFGVEEditorDeleteAllAndCreatePVToolAction", text, itemPath)
 {
 }
 
@@ -168,6 +178,7 @@ DFGVEEditorDeleteAllAndCreatePVToolAction::~DFGVEEditorDeleteAllAndCreatePVToolA
  
 QAction* DFGVEEditorDeleteAllAndCreatePVToolAction::create(
   QObject *parent,
+  QString const& text,
   VETreeWidgetItem *veTreeItem)
 { 
   FABRIC_CATCH_BEGIN();
@@ -177,12 +188,13 @@ QAction* DFGVEEditorDeleteAllAndCreatePVToolAction::create(
   
   if(!itemPath.isEmpty())
   {
-    RTVal pathValueTool = PathValueTool::getTool(itemPath);
+    RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
     bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
-    if(!pathValueToolIsValid && PathValueTool::canCreateTool(itemPath))
+    if(!pathValueToolIsValid && ToolManager::canCreatePathValueTool(itemPath))
       return new DFGVEEditorDeleteAllAndCreatePVToolAction(
         parent,
+        text,
         itemPath);
   }      
 
@@ -191,3 +203,102 @@ QAction* DFGVEEditorDeleteAllAndCreatePVToolAction::create(
   return 0;
 }
 
+DFGVEEditorPVToolMenu::DFGVEEditorPVToolMenu(
+  QWidget *parent,
+  VETreeWidgetItem *veTreeItem)
+  : QMenu(parent),
+  m_veTreeItem(veTreeItem)
+{
+  QObject::connect(
+    this, 
+    SIGNAL(aboutToShow()), 
+    this, 
+    SLOT(onConstructMenu())
+    );
+}
+
+DFGVEEditorPVToolMenu::~DFGVEEditorPVToolMenu()
+{
+}
+
+bool DFGVEEditorPVToolMenu::canCreate(
+  VETreeWidgetItem *veTreeItem)
+{
+  FABRIC_CATCH_BEGIN();
+
+  QString itemPath = getItemPathFromItemMetaData(
+    veTreeItem);
+  
+  if(!itemPath.isEmpty())
+    return ToolManager::canCreatePathValueTool(itemPath); 
+
+  FABRIC_CATCH_END("DFGVEEditorPVToolMenu::canCreate");
+
+  return 0;
+}
+
+QMenu* DFGVEEditorPVToolMenu::createMenu(
+  QWidget *parent,
+  VETreeWidgetItem *veTreeItem)
+{
+  assert( veTreeItem );
+
+  return new DFGVEEditorPVToolMenu( 
+    parent,
+    veTreeItem
+    );
+}
+
+void DFGVEEditorPVToolMenu::onConstructMenu()
+{
+  QAction* action;
+  foreach(action, createActions(this, m_veTreeItem))
+    addAction(action);
+}
+
+QList<QAction*> DFGVEEditorPVToolMenu::createActions(
+  QWidget *parent,
+  ValueEditor::VETreeWidgetItem *veTreeItem)
+{
+  QList<QAction*> actions;
+
+  // QAction* createDFGPVToolAction = DFGVEEditorCreatePVToolAction::create(
+  //   parent,
+  //   "Edit With Tool With Others",
+  //   veTreeItem
+  //   );
+  
+  // if(createDFGPVToolAction)
+  //   actions.append(createDFGPVToolAction);
+
+
+  // QAction* deleteAllDFGPVToolsAction = DFGVEEditorDeleteAllPVToolsAction::create(
+  //   parent,
+  //   "Close All Tools",
+  //   veTreeItem
+  //   );
+ 
+  // if(deleteAllDFGPVToolsAction)
+  //   actions.append(deleteAllDFGPVToolsAction);
+  
+  QAction* deleteAllAndCreateDFGPVToolAction = DFGVEEditorDeleteAllAndCreatePVToolAction::create(
+    parent,
+    "Edit With Tool",
+    veTreeItem
+    );
+
+  if(deleteAllAndCreateDFGPVToolAction)
+    actions.append(deleteAllAndCreateDFGPVToolAction);
+
+  QAction* deleteDFGPVToolAction = DFGVEEditorDeletePVToolAction::create(
+    parent,
+    "Close tool",
+    veTreeItem
+    );
+
+  if(deleteDFGPVToolAction)
+    actions.append(deleteDFGPVToolAction);
+  
+
+  return actions;
+}

@@ -2,7 +2,7 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#include "PathValueTool.h"
+#include "ToolManager.h"
 #include "CreatePVToolCommand.h"
 #include <FabricUI/Commands/CommandHelpers.h>
 #include <FabricUI/Application/FabricException.h>
@@ -59,16 +59,16 @@ bool CreatePVToolCommand::doIt()
   RTVal pathValue = getRTValArg("target");
   bool createIfExist = getRTValArgValue("createIfExist").getBoolean();
 
-  RTVal pathValueTool = PathValueTool::getTool(pathValue);
+  RTVal pathValueTool = ToolManager::getPathValueTool(pathValue);
   bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
   if(!createIfExist && pathValueToolIsValid)
     FabricException::Throw(
       "CreatePVToolCommand::doIt",
-      "A PathValueTool already targets the path '" + getRTValArgPath("target") + "'"
+      "A ToolManager already targets the path '" + getRTValArgPath("target") + "'"
       );
 
-  pathValueTool = PathValueTool::createTool(pathValue);
+  pathValueTool = ToolManager::createPathValueTool(pathValue);
   pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
 
   if(!pathValueToolIsValid)

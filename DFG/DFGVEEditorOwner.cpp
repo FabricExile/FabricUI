@@ -21,7 +21,7 @@
 #include <FabricUI/ValueEditor/VETreeWidget.h>
 #include <FabricUI/ValueEditor/VETreeWidgetItem.h>
 #include <FabricUI/DFG/DFGVEEditorContextualMenu.h>
-
+#include <iostream>
 using namespace FabricUI;
 using namespace DFG;
 using namespace ModelItems;
@@ -32,6 +32,14 @@ DFGVEEditorOwner::DFGVEEditorOwner( DFGWidget * dfgWidget )
   , m_notifProxy( NULL )
 {
   m_valueEditor->setContextMenuPolicy(Qt::CustomContextMenu);
+  m_valueEditor->setMouseTracking(true);
+
+  connect(
+    m_valueEditor,
+    SIGNAL(itemOveredChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
+    this,
+    SLOT(onItemOveredChanged(QTreeWidgetItem*, QTreeWidgetItem*))
+    );
 }
 
 DFGVEEditorOwner::~DFGVEEditorOwner()
@@ -1109,6 +1117,28 @@ void DFGVEEditorOwner::onCustomContextMenu(const QPoint &point)
         point,
         veTreeItem);
   }
+}
+
+void DFGVEEditorOwner::onItemOveredChanged( QTreeWidgetItem * oldItem, QTreeWidgetItem * newItem ) {
+
+  /// To indicate if an item can be edited from a contextual menu action.
+  // if(newItem != 0)
+  // {
+  //   ValueEditor::VETreeWidgetItem *newVETreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(newItem);
+  //   if(newVETreeItem && DFGVEEditorContextualMenu::canCreate(newVETreeItem))
+  //   {
+  //     // std::cout << "DFGVEEditorOwner::onItemOvered " << "Add New " << std::endl;
+  //   }
+  // }
+
+  // if(oldItem != 0)
+  // {
+  //   ValueEditor::VETreeWidgetItem *oldVETreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(oldItem);
+  //   if(oldVETreeItem && DFGVEEditorContextualMenu::canCreate(oldVETreeItem))
+  //   {
+  //     //std::cout << "DFGVEEditorOwner::onItemOvered " << "Remove old " << std::endl;
+  //   }
+  // }
 }
 
 void DFGVEEditorOwner_BindingNotifProxy::onBindingArgValueChanged(

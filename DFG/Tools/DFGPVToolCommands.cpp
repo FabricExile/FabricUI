@@ -3,12 +3,14 @@
 //
 
 #include "DFGPVToolCommands.h"
+#include <FabricUI/Actions/ActionRegistry.h>
 #include <FabricUI/Commands/CommandManager.h>
 #include <FabricUI/Application/FabricException.h>
 
 using namespace FabricUI;
 using namespace DFG;
 using namespace Tools;
+using namespace Actions;
 using namespace Commands;
 using namespace FabricCore;
 using namespace Application;
@@ -36,6 +38,14 @@ bool DFGCreatePVToolCommand::doIt()
 
   if(CreatePVToolCommand::doIt())
   {
+    /// Retrieve the toggle manip action with the registry.
+    QAction *toggleManipAction = ActionRegistry::GetActionRegistry()->getAction(
+      "Viewport.ToggleManipulationAction"
+      );
+    
+    if(toggleManipAction && !toggleManipAction->isChecked())
+      toggleManipAction->trigger();
+
     RTVal pathValue = getRTValArg("target");
     m_registry->registerPathValueTool(pathValue);
     return true;
