@@ -96,24 +96,50 @@ void RTValCommandManager::preDoCommand(
   BaseRTValScriptableCommand* scriptCmd = qobject_cast<BaseRTValScriptableCommand*>(cmd);
   if(!scriptCmd) return;
 
-  FABRIC_CATCH_BEGIN();
-
   QString key;
-  foreach(key, scriptCmd->getArgKeys())
+
+  try
   {
-    if( scriptCmd->hasArgFlag(key, CommandArgFlags::IN_ARG) ||
-        scriptCmd->hasArgFlag(key, CommandArgFlags::IO_ARG) )
+    foreach(key, scriptCmd->getArgKeys())
     {
-      RTVal pathValue = scriptCmd->getRTValArg(key);
-      if(PathValueResolverRegistry::getRegistry()->knownPath(pathValue))
+      if( scriptCmd->hasArgFlag(key, CommandArgFlags::IN_ARG) ||
+          scriptCmd->hasArgFlag(key, CommandArgFlags::IO_ARG) )
       {
-        PathValueResolverRegistry::getRegistry()->getValue(pathValue);
-        scriptCmd->setRTValArg(key, pathValue);
+        bool isPathEmpty = scriptCmd->getRTValArgPath(key).isEmpty();
+        bool isArgSet = scriptCmd->getRTValArgType(key) != "None";
+        bool isOptional = scriptCmd->hasArgFlag(key, CommandArgFlags::OPTIONAL_ARG);
+
+        if(!isOptional && isPathEmpty && !isArgSet) 
+          FabricException::Throw(
+            "RTValCommandManager::preDoCommand", 
+            "No optional argument '" + key + "' has not been set"
+            );
+    
+        else if(!isPathEmpty)
+        {
+          RTVal pathValue = scriptCmd->getRTValArg(key);
+          if(PathValueResolverRegistry::getRegistry()->knownPath(pathValue))
+          {
+            PathValueResolverRegistry::getRegistry()->getValue(pathValue);
+            scriptCmd->setRTValArg(key, pathValue);
+          }
+       
+          else  
+            FabricException::Throw("", "");
+        }
       }
     }
   }
 
-  FABRIC_CATCH_END("RTValCommandManager::preDoCommand");
+  catch(FabricException &e)
+  {
+    FabricException::Throw(
+      "RTValCommandManager::preDoCommand",
+      "Argument '" + key + "' of command '" + scriptCmd->getName() + 
+      "', cannot resolve path '" + scriptCmd->getRTValArgPath(key) + "'",
+      e.what()
+      );
+  }
 }
 
 void RTValCommandManager::postDoCommand(
@@ -122,20 +148,45 @@ void RTValCommandManager::postDoCommand(
   BaseRTValScriptableCommand* scriptCmd = qobject_cast<BaseRTValScriptableCommand*>(cmd);
   if(!scriptCmd) return;
 
-  FABRIC_CATCH_BEGIN();
-
   QString key;
-  foreach(key, scriptCmd->getArgKeys())
-  {         
-    if( scriptCmd->hasArgFlag(key, CommandArgFlags::OUT_ARG) ||
-        scriptCmd->hasArgFlag(key, CommandArgFlags::IO_ARG) )
-    {
-      RTVal pathValue = scriptCmd->getRTValArg(key);
-      if(PathValueResolverRegistry::getRegistry()->knownPath(pathValue))
-        PathValueResolverRegistry::getRegistry()->setValue(
-          pathValue);
+  try
+  {
+    foreach(key, scriptCmd->getArgKeys())
+    {         
+      if( scriptCmd->hasArgFlag(key, CommandArgFlags::OUT_ARG) ||
+          scriptCmd->hasArgFlag(key, CommandArgFlags::IO_ARG) )
+      {
+        bool isPathEmpty = scriptCmd->getRTValArgPath(key).isEmpty();
+        bool isArgSet = scriptCmd->getRTValArgType(key) != "None";
+        bool isOptional = scriptCmd->hasArgFlag(key, CommandArgFlags::OPTIONAL_ARG);
+
+        if(!isOptional && isPathEmpty && !isArgSet) 
+          FabricException::Throw(
+            "RTValCommandManager::postDoCommand", 
+            "No optional argument '" + key + "' has not been set"
+            );
+    
+        else if(!isPathEmpty)
+        {
+          RTVal pathValue = scriptCmd->getRTValArg(key);
+          if(PathValueResolverRegistry::getRegistry()->knownPath(pathValue))
+            PathValueResolverRegistry::getRegistry()->setValue(
+              pathValue);
+
+          else  
+            FabricException::Throw("", "");
+        }
+      }
     }
   }
 
-  FABRIC_CATCH_END("RTValCommandManager::postDoCommand");
+  catch(FabricException &e)
+  {
+    FabricException::Throw(
+      "RTValCommandManager::postDoCommand",
+      "Argument '" + key + "' of command '" + scriptCmd->getName() + 
+      "', cannot resolve path '" + scriptCmd->getRTValArgPath(key) + "'",
+      e.what()
+      );
+  }
 }

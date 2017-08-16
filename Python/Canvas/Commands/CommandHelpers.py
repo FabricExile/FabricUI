@@ -76,9 +76,10 @@ class CommandHelpers:
                         val = Util.RTValUtil.toRTVal(pathValue.value)
                         if CommandHelpers.__IsPyRTValArg(arg) and Util.RTValUtil.getType(val) == 'String':
                             arg = val.getSimpleType()
-                    else:
-                        arg = str(arg)
-
+    
+                    elif not CommandHelpers.__IsPyStringArg(arg):
+                        raise Exception("Command '" + str(cmd.getName()) + "', invalid input for argument '" + str(key) + "' must be a string, not a " + str(type(arg)))
+         
                 if arg is not None:
                     strArgs[key] = arg
  

@@ -255,67 +255,45 @@ FabricCore::DFGExec DFGPathValueResolver::getDFGPortPathsAndType(
   DFGPathValueResolver::DFGType &dfgType)
 {
   DFGExec exec;
+  dfgType = DFGUnknow;
 
-  try 
+  FABRIC_CATCH_BEGIN();
+
+  QString path = getPathWithoutBindingOrSolverID(pathValue);
+
+  // Vars
+  if(m_binding.getExec().hasVar(path.toUtf8().constData()))
+    dfgType = DFGVar;
+
+  // Args or Ports
+  else
   {
-    QString path = getPathWithoutBindingOrSolverID(pathValue);
+    exec = getDFGPortPaths(
+      pathValue,
+      dfgPortPaths);
 
-    // Vars
-    if(m_binding.getExec().hasVar(path.toUtf8().constData()))
-      dfgType = DFGVar;
+    if(dfgPortPaths.isExecArg() && exec.haveExecPort(dfgPortPaths.portName.toUtf8().constData()))
+      dfgType = DFGArg; 
 
-    // Args or Ports
     else
     {
-      exec = getDFGPortPaths(
-        pathValue,
-        dfgPortPaths);
+      DFGExec subExec;
 
-      if(dfgPortPaths.isExecArg() && exec.haveExecPort(dfgPortPaths.portName.toUtf8().constData()))
-        dfgType = DFGArg; 
+      if(dfgPortPaths.isExecBlockPort())
+        subExec = exec.getInstBlockExec(
+          dfgPortPaths.nodeName.toUtf8().constData(), 
+          dfgPortPaths.blockName.toUtf8().constData()
+          );
 
       else
-      {
-        DFGExec subExec;
+        subExec = exec.getSubExec(dfgPortPaths.nodeName.toUtf8().constData());
 
-        if(dfgPortPaths.isExecBlockPort())
-          subExec = exec.getInstBlockExec(
-            dfgPortPaths.nodeName.toUtf8().constData(), 
-            dfgPortPaths.blockName.toUtf8().constData()
-            );
-
-        else
-          subExec = exec.getSubExec(dfgPortPaths.nodeName.toUtf8().constData());
-
-        if(subExec.haveExecPort(dfgPortPaths.portName.toUtf8().constData()))
-          dfgType = DFGPort;
-      }
+      if(subExec.haveExecPort(dfgPortPaths.portName.toUtf8().constData()))
+        dfgType = DFGPort;
     }
   }
 
-  catch(Exception &e)
-  {
-    FabricException::Throw(
-      "DFGPathValueResolver::getDFGPortPathsAndType ",
-      "Invalid PathValue",
-      e.getDesc_cstr(),
-      FabricException::LOG
-      );
-
-    dfgType = DFGUnknow;
-  }
-
-  catch(FabricException &e)
-  {
-    FabricException::Throw(
-      "DFGPathValueResolver::getDFGPortPathsAndType ",
-      "Invalid PathValue",
-      e.what(),
-      FabricException::LOG
-      );
-
-    dfgType = DFGUnknow;
-  }
+  FABRIC_CATCH_END("DFGPathValueResolver::getDFGPortPathsAndType");
 
   return exec;
 }
