@@ -259,7 +259,6 @@ class CanvasWindow(QtGui.QMainWindow):
         self.onFrameChanged(self.timeLine.getTime())
         self.onGraphSet(self.dfgWidget.getUIGraph())
         self.valueEditor.initConnections()
-        self.toolsDFGPVNotifierRegistry.initConnections()
         self.installEventFilter(CanvasWindowEventFilter(self))
 
         self._slowOpPop()
@@ -527,7 +526,7 @@ class CanvasWindow(QtGui.QMainWindow):
     def _initTools(self):
         """Initializes the Tools.
         """
-        self.toolsDFGPVNotifierRegistry = FabricUI.DFG.DFGPVToolsNotifierRegistry(self.dfgWidget.getDFGController())
+        self.toolsDFGPVNotifierRegistry = FabricUI.DFG.DFGPVToolsNotifierRegistry()
         FabricUI.DFG.DFGToolsCommandRegistration.RegisterCommands(self.toolsDFGPVNotifierRegistry)
 
     def _initTreeView(self):
