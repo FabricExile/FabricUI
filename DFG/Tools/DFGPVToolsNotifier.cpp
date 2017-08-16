@@ -26,7 +26,12 @@ DFGPVToolsNotifierRegistry::DFGPVToolsNotifierRegistry(
 
 DFGPVToolsNotifierRegistry::~DFGPVToolsNotifierRegistry()
 {
-  unregisterAllPathValueTools();
+  foreach(DFGPVToolsNotifier *notifier, m_registeredNotifiers)
+  {
+    m_registeredNotifiers.removeAll(notifier);
+    delete notifier;
+    notifier = 0;
+  }
 }
 
 void DFGPVToolsNotifierRegistry::initConnections()
@@ -165,6 +170,12 @@ void DFGPVToolsNotifierRegistry::unregisterAllPathValueTools()
 {
   foreach(DFGPVToolsNotifier *notifier, m_registeredNotifiers)
   {
+    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths notDFGPortPath = notifier->getDFGPVToolsNotifierPortPaths();
+
+    ToolManager::deletePathValueTool(
+      notDFGPortPath.getAbsolutePortPath()
+      );  
+
     m_registeredNotifiers.removeAll(notifier);
     delete notifier;
     notifier = 0;
@@ -186,6 +197,10 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
 
     if(deletePathValueTool)
     {
+      ToolManager::deletePathValueTool(
+        itemPath
+        );  
+
       m_registeredNotifiers.removeAll(notifier);
       delete notifier;
       notifier = 0;
@@ -220,6 +235,10 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
 
       if(deletePathValueTool)
       {
+        ToolManager::deletePathValueTool(
+          notDFGPortPath.getAbsolutePortPath()
+          );   
+
         m_registeredNotifiers.removeAll(notifier);
         delete notifier;
         notifier = 0;
@@ -391,9 +410,9 @@ DFGPVToolsNotifier::DFGPVToolsNotifier(
 
 DFGPVToolsNotifier::~DFGPVToolsNotifier()
 {
-  ToolManager::deletePathValueTool(
-    m_dfgPortPaths.getAbsolutePortPath()
-    ); 
+  // ToolManager::deletePathValueTool(
+  //   m_dfgPortPaths.getAbsolutePortPath()
+  //   ); 
 
   m_notifier.clear();
 }
