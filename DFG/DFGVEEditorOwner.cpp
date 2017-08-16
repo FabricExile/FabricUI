@@ -1121,23 +1121,24 @@ void DFGVEEditorOwner::onCustomContextMenu(const QPoint &point)
 
 void DFGVEEditorOwner::onItemOveredChanged( QTreeWidgetItem * oldItem, QTreeWidgetItem * newItem ) {
 
-  if(newItem != 0)
-  {
-    ValueEditor::VETreeWidgetItem *newVETreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(newItem);
-    if(newVETreeItem && DFGVEEditorContextualMenu::canCreate(newVETreeItem))
-    {
-      // std::cout << "DFGVEEditorOwner::onItemOvered " << "Add New " << std::endl;
-    }
-  }
+  /// To indicate if an item can be edited from a contextual menu action.
+  // if(newItem != 0)
+  // {
+  //   ValueEditor::VETreeWidgetItem *newVETreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(newItem);
+  //   if(newVETreeItem && DFGVEEditorContextualMenu::canCreate(newVETreeItem))
+  //   {
+  //     // std::cout << "DFGVEEditorOwner::onItemOvered " << "Add New " << std::endl;
+  //   }
+  // }
 
-  if(oldItem != 0)
-  {
-    ValueEditor::VETreeWidgetItem *oldVETreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(oldItem);
-    if(oldVETreeItem && DFGVEEditorContextualMenu::canCreate(oldVETreeItem))
-    {
-      //std::cout << "DFGVEEditorOwner::onItemOvered " << "Remove old " << std::endl;
-    }
-  }
+  // if(oldItem != 0)
+  // {
+  //   ValueEditor::VETreeWidgetItem *oldVETreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(oldItem);
+  //   if(oldVETreeItem && DFGVEEditorContextualMenu::canCreate(oldVETreeItem))
+  //   {
+  //     //std::cout << "DFGVEEditorOwner::onItemOvered " << "Remove old " << std::endl;
+  //   }
+  // }
 }
 
 void DFGVEEditorOwner_BindingNotifProxy::onBindingArgValueChanged(
