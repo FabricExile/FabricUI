@@ -419,8 +419,14 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
 
   FabricCore::String execPath = exec.getExecPath();
   dfgPortPaths.execPath = QString(std::string(execPath.getCStr(), execPath.getSize()).c_str());
+  dfgPortPaths.id = m_id;
 
   return exec;
+}
+
+DFGBinding DFGPathValueResolver::getDFGBinding() const 
+{
+  return m_binding;
 }
 
 void DFGPathValueResolver::castPathToHRFormat(
@@ -462,19 +468,30 @@ QString DFGPathValueResolver::DFGPortPaths::getRelativePortPath()
     return nodeName + "." + portName;
   return "";
 }
-
+ 
 QString DFGPathValueResolver::DFGPortPaths::getAbsolutePortPath() 
 {
-   return execPath.isEmpty()
+  QString absPath = execPath.isEmpty()
     ? getRelativePortPath()
     : execPath + "." + getRelativePortPath();
+
+  return !id.isEmpty()
+    ? id + "." + absPath
+    : absPath;
 }
 
 QString DFGPathValueResolver::DFGPortPaths::getAbsoluteNodePath() 
 {
   if(!nodeName.isEmpty())
-    return execPath.isEmpty()
+  {
+    QString absPath = execPath.isEmpty()
       ? nodeName
       : execPath + "." + nodeName;
+
+    return !id.isEmpty()
+      ? id + "." + absPath
+      : absPath;
+  }
+   
   return "";
 }
