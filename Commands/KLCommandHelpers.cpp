@@ -111,7 +111,7 @@ bool KLCommandHelpers::doKLCommand(
 
   getKLCommandManager().callMethod(
     "", 
-    "_doCommand", 
+    "doCommandForAppCommandManager", 
     2, 
     args);
   
