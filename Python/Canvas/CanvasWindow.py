@@ -144,6 +144,10 @@ class ToggleManipulationAction(BaseCanvasWindowAction):
     def onTriggered(self):
         self.viewport.toggleManipulation()
 
+    def triggerIfInactive(self):
+        if not self.viewport.isManipulationActive():
+            self.trigger()
+
 class GridVisibilityAction(BaseCanvasWindowAction):
 
     def __init__(self, parent, viewport):
@@ -1449,6 +1453,9 @@ class CanvasWindow(QtGui.QMainWindow):
                     self.manipAction = ToggleManipulationAction(self, self.viewport)
                     menu.addAction(self.manipAction)
 
+                    self.toolsDFGPVNotifierRegistry.toolRegistered.connect(self.manipAction.triggerIfInactive)
+                    self.deleteDFGPVToolsAction = FabricUI.DFG.DFGDeleteAllPVToolsAction(self, "CanvasWindow.deleteDFGPVToolsAction", "Delete Edition Tool")
+                    menu.addAction(self.deleteDFGPVToolsAction)
                     # menu.addSeparator()
 
                     # editorMenu = menu.addMenu("Editors")

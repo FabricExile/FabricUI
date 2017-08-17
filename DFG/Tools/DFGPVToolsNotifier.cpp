@@ -55,6 +55,8 @@ void DFGPVToolsNotifierRegistry::registerPathValueTool(
  
     m_registeredNotifiers.append(notifier);
 
+    emit toolRegistered(dfgPortPaths.getAbsolutePortPath());
+
     // Update the tool'value from its pathValue.
     setPathValueToolValue(notifier->getDFGPVToolsNotifierPortPaths());
   }
@@ -77,7 +79,7 @@ void DFGPVToolsNotifierRegistry::unregisterAllPathValueTools()
     notifier = 0;
   }
 
-  emit toolUpdated();
+  emit toolUpdated("");
 }
 
 void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
@@ -100,11 +102,12 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
       m_registeredNotifiers.removeAll(notifier);
       delete notifier;
       notifier = 0;
+
+      emit toolUpdated(itemPath);
+
       break;
     }
   }
-
-  emit toolUpdated();
  
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::unregisterPathValueTool");
 }
@@ -140,14 +143,14 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
         delete notifier;
         notifier = 0;
 
+        emit toolUpdated(notDFGPortPaths.getAbsolutePortPath());
+
         if(!fromNode)
           break;
       }
     }
   }
  
-  emit toolUpdated();
-
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::unregisterPathValueTool");
 }
 
@@ -193,7 +196,7 @@ void DFGPVToolsNotifierRegistry::setPathValueToolValue(
     dfgPortPaths.getAbsolutePortPath()
     );
   
-  emit toolUpdated();
+  emit toolUpdated(dfgPortPaths.getAbsolutePortPath());
 
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::setPathValueToolValue");
 }

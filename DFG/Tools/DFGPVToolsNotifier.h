@@ -31,7 +31,7 @@ class DFGPVToolsNotifierRegistry : public QObject
       );
 
     void unregisterPathValueTool(
-      QString const& itemPath
+      QString const& toolPath
       );
     
     struct DFGPVToolsNotifierPortPaths : public DFGPathValueResolver::DFGPortPaths
@@ -69,7 +69,13 @@ class DFGPVToolsNotifierRegistry : public QObject
       );
 
   signals:
-    void toolUpdated();
+    void toolUpdated(
+      QString const& toolPath
+      );
+
+    void toolRegistered(
+      QString const& toolPath
+      );
 
   private:
     QList<BaseDFGPVToolsNotifier *> m_registeredNotifiers;
