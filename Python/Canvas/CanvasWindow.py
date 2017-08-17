@@ -1456,7 +1456,7 @@ class CanvasWindow(QtGui.QMainWindow):
                     menu.addAction(self.manipAction)
 
                     self.toolsDFGPVNotifierRegistry.toolRegistered.connect(self.manipAction.triggerIfInactive)
-                    self.deleteDFGPVToolsAction = FabricUI.DFG.DFGDeleteAllPVToolsAction(self, "CanvasWindow.deleteDFGPVToolsAction", "Delete Edition Tool")
+                    self.deleteDFGPVToolsAction = FabricUI.DFG.DFGDeleteAllPVToolsAction(self, "CanvasWindow.deleteDFGPVToolsAction", "Delete All Edition Tools")
                     menu.addAction(self.deleteDFGPVToolsAction)
                     # menu.addSeparator()
 
