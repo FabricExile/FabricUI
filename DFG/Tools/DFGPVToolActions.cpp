@@ -4,13 +4,16 @@
 
 #include <QMap>
 #include "DFGPVToolActions.h"
+#include <FabricUI/Tools/ToolManager.h>
 #include <FabricUI/Commands/CommandManager.h>
 #include <FabricUI/Application/FabricException.h>
 
 using namespace FabricUI;
 using namespace DFG;
+using namespace Tools;
 using namespace Commands;
 using namespace Application;
+using namespace FabricCore;
 
 DFGCreatePVToolAction::DFGCreatePVToolAction(
   QObject *parent,
@@ -146,4 +149,90 @@ void DFGDeleteAllAndCreatePVToolAction::onTriggered()
 			FabricException::LOG
 			);
 	}
+}
+
+DFGPVToolMenu::DFGPVToolMenu(
+  QWidget *parent,
+  QString const& itemPath)
+  : QMenu(parent),
+  m_itemPath(itemPath)
+{
+  QObject::connect(
+    this, 
+    SIGNAL(aboutToShow()), 
+    this, 
+    SLOT(onConstructMenu())
+    );
+}
+
+DFGPVToolMenu::~DFGPVToolMenu()
+{
+}
+
+bool DFGPVToolMenu::canCreate(
+  QString const& itemPath)
+{
+  FABRIC_CATCH_BEGIN();
+ 
+  if(!itemPath.isEmpty())
+    return ToolManager::canCreatePathValueTool(itemPath); 
+
+  FABRIC_CATCH_END("DFGPVToolMenu::canCreate");
+
+  return 0;
+}
+
+QMenu* DFGPVToolMenu::createMenu(
+  QWidget *parent,
+  QString const& itemPath)
+{
+  return new DFGPVToolMenu( 
+    parent,
+    itemPath
+    );
+}
+
+void DFGPVToolMenu::onConstructMenu()
+{
+  QAction* action;
+  foreach(action, createActions(this, m_itemPath))
+    addAction(action);
+}
+
+QList<QAction*> DFGPVToolMenu::createActions(
+  QWidget *parent,
+  QString const& itemPath)
+{
+  QList<QAction*> actions;
+
+  RTVal pathValueTool = ToolManager::getPathValueTool(itemPath);
+  bool pathValueToolIsValid = pathValueTool.isValid() && !pathValueTool.isNullObject();
+
+  if(!pathValueToolIsValid && ToolManager::canCreatePathValueTool(itemPath))
+  {
+    QAction* action = new DFGDeleteAllAndCreatePVToolAction(
+      parent,
+      "DFGDeleteAllAndCreatePVToolAction",
+      "Edit With Tool",
+      itemPath
+      );
+
+    if(action)
+      actions.append(action);
+  }
+
+  else if(pathValueToolIsValid)
+  {
+    QAction* action = new DFGDeletePVToolAction(
+      parent,
+      "DFGDeletePVToolAction",
+      "Close Tool",
+      itemPath
+      );
+
+    if(action)
+      actions.append(action);
+  }
+
+  return actions;
 }

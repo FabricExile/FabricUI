@@ -5,6 +5,7 @@
 #ifndef __UI_DFG_CREATE_PV_TOOL_ACTION__
 #define __UI_DFG_CREATE_PV_TOOL_ACTION__
 
+#include <QMenu>
 #include <QString>
 #include <FabricUI/Actions/BaseAction.h>
 
@@ -89,6 +90,39 @@ class DFGDeleteAllAndCreatePVToolAction : public Actions::BaseAction
  
  	private:
   	QString m_itemPath;
+};
+
+class DFGPVToolMenu : public QMenu
+{
+	Q_OBJECT
+
+	public:
+		DFGPVToolMenu(
+			QWidget *parent,
+			QString const& itemPath
+			);
+
+		~DFGPVToolMenu();
+
+		static QMenu* createMenu(
+			QWidget *parent,
+			QString const& itemPath
+			);
+
+		static QList<QAction*> createActions(
+			QWidget *parent,
+  		QString const& itemPath
+			);
+
+		static bool canCreate(
+			QString const& itemPath
+			);
+
+		protected slots:
+			virtual void onConstructMenu();
+
+	private:
+		QString m_itemPath;
 };
 
 } // namespace DFG

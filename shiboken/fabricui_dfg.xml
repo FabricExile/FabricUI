@@ -61,6 +61,11 @@
       <object-type name="DFGCommandRegistration" />
       <object-type name="DFGToolsCommandRegistration" />
       <object-type name="DFGPVToolsNotifierRegistry" />
+      <object-type name="DFGCreatePVToolAction" />
+      <object-type name="DFGDeletePVToolAction" />
+      <object-type name="DFGDeleteAllPVToolsAction" />
+      <object-type name="DFGDeleteAllAndCreatePVToolAction" />
+      <object-type name="DFGVEEditorPVToolMenu" />
       </namespace-type>
   </namespace-type>
 </typesystem>

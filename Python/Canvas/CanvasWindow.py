@@ -144,6 +144,10 @@ class ToggleManipulationAction(BaseCanvasWindowAction):
     def onTriggered(self):
         self.viewport.toggleManipulation()
 
+    def triggerIfInactive(self):
+        if not self.viewport.isManipulationActive():
+            self.trigger()
+
 class GridVisibilityAction(BaseCanvasWindowAction):
 
     def __init__(self, parent, viewport):
@@ -259,7 +263,6 @@ class CanvasWindow(QtGui.QMainWindow):
         self.onFrameChanged(self.timeLine.getTime())
         self.onGraphSet(self.dfgWidget.getUIGraph())
         self.valueEditor.initConnections()
-        self.toolsDFGPVNotifierRegistry.initConnections()
         self.installEventFilter(CanvasWindowEventFilter(self))
 
         self._slowOpPop()
@@ -527,7 +530,7 @@ class CanvasWindow(QtGui.QMainWindow):
     def _initTools(self):
         """Initializes the Tools.
         """
-        self.toolsDFGPVNotifierRegistry = FabricUI.DFG.DFGPVToolsNotifierRegistry(self.dfgWidget.getDFGController())
+        self.toolsDFGPVNotifierRegistry = FabricUI.DFG.DFGPVToolsNotifierRegistry()
         FabricUI.DFG.DFGToolsCommandRegistration.RegisterCommands(self.toolsDFGPVNotifierRegistry)
 
     def _initTreeView(self):
@@ -1124,6 +1127,8 @@ class CanvasWindow(QtGui.QMainWindow):
         """ Clear the app before loading a new graph.
         """
         manipActive = self.viewport.isManipulationActive()
+        self.toolsDFGPVNotifierRegistry.unregisterAllPathValueTools()
+        
         if manipActive is True:
             self.manipAction.onTriggered()
     
@@ -1450,6 +1455,9 @@ class CanvasWindow(QtGui.QMainWindow):
                     self.manipAction = ToggleManipulationAction(self, self.viewport)
                     menu.addAction(self.manipAction)
 
+                    self.toolsDFGPVNotifierRegistry.toolRegistered.connect(self.manipAction.triggerIfInactive)
+                    self.deleteDFGPVToolsAction = FabricUI.DFG.DFGDeleteAllPVToolsAction(self, "CanvasWindow.deleteDFGPVToolsAction", "Delete All Edition Tools")
+                    menu.addAction(self.deleteDFGPVToolsAction)
                     # menu.addSeparator()
 
                     # editorMenu = menu.addMenu("Editors")

@@ -38,14 +38,6 @@ bool DFGCreatePVToolCommand::doIt()
 
   if(CreatePVToolCommand::doIt())
   {
-    /// Retrieve the toggle manip action with the registry.
-    QAction *toggleManipAction = ActionRegistry::GetActionRegistry()->getAction(
-      "Viewport.ToggleManipulationAction"
-      );
-    
-    if(toggleManipAction && !toggleManipAction->isChecked())
-      toggleManipAction->trigger();
-
     RTVal pathValue = getRTValArg("target");
     m_registry->registerPathValueTool(pathValue);
     return true;

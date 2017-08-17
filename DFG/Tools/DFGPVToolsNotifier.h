@@ -8,87 +8,30 @@
 #include <QList>
 #include <QString>
 #include <QObject>
+#include <QSharedPointer>
 #include <FabricUI/DFG/DFGNotifier.h>
-#include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/Commands/DFGPathValueResolver.h>
  
 namespace FabricUI {
 namespace DFG {
 
-class DFGPVToolsNotifierRegistry;
+class BaseDFGPVToolsNotifier;
 
-class DFGPVToolsNotifierRegistry_NotifProxy : public QObject
-{
-  public:
-    DFGPVToolsNotifierRegistry_NotifProxy(
-      DFGPVToolsNotifierRegistry *dst,
-      QObject *parent
-      );
-
-    virtual ~DFGPVToolsNotifierRegistry_NotifProxy();
-
-  protected:
-    DFGPVToolsNotifierRegistry *m_dst;
-};
-
-class DFGPVToolsNotifierRegistry_BindingNotifProxy :
-  public DFGPVToolsNotifierRegistry_NotifProxy
-{
-  Q_OBJECT
-
-  public:
-    DFGPVToolsNotifierRegistry_BindingNotifProxy(
-      DFGPVToolsNotifierRegistry *dst,
-      QObject *parent
-      );
-
-  public slots:
-    void onBindingArgValueChanged(
-      unsigned index,
-      FTL::CStrRef name
-      );
- 
-    void onBindingArgRenamed(
-      unsigned argIndex,
-      FTL::CStrRef oldArgName,
-      FTL::CStrRef newArgName
-      );
-
-    void onBindingArgRemoved(
-      unsigned index,
-      FTL::CStrRef name
-      );
-
-    void onBindingArgTypeChanged(
-      unsigned index,
-      FTL::CStrRef name,
-      FTL::CStrRef newType
-      );
-};
-
-class DFGPVToolsNotifier;
-
-
- 
 class DFGPVToolsNotifierRegistry : public QObject
 {
   Q_OBJECT
 
   public:
-    DFGPVToolsNotifierRegistry( 
-      DFG::DFGController *dfgContoller 
-      );
+    DFGPVToolsNotifierRegistry();
 
     ~DFGPVToolsNotifierRegistry();
-
-    void initConnections();
 
     void registerPathValueTool(
       FabricCore::RTVal pathValue
       );
 
     void unregisterPathValueTool(
-      QString const& itemPath
+      QString const& toolPath
       );
     
     struct DFGPVToolsNotifierPortPaths : public DFGPathValueResolver::DFGPortPaths
@@ -125,6 +68,106 @@ class DFGPVToolsNotifierRegistry : public QObject
       DFGPVToolsNotifierPortPaths dfgPortPath
       );
 
+  signals:
+    void toolUpdated(
+      QString const& toolPath
+      );
+
+    void toolRegistered(
+      QString const& toolPath
+      );
+
+  private:
+    QList<BaseDFGPVToolsNotifier *> m_registeredNotifiers;
+};
+
+class BaseDFGPVToolsNotifier : public QObject
+{
+  Q_OBJECT
+
+  public:
+    BaseDFGPVToolsNotifier( 
+      DFGPVToolsNotifierRegistry *registry,
+      DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPaths
+      );
+
+    ~BaseDFGPVToolsNotifier();
+
+   DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths 
+      getDFGPVToolsNotifierPortPaths() const;
+
+  protected:
+    DFGPVToolsNotifierRegistry *m_registry;
+    QSharedPointer<DFG::DFGNotifier> m_notifier;
+    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths m_dfgPortPaths;
+};
+
+class DFGBindingPVToolsNotifier;
+
+class DFGBindingPVToolsNotifier_NotifProxy : public QObject
+{
+  Q_OBJECT
+
+  public:
+    DFGBindingPVToolsNotifier_NotifProxy(
+      DFGBindingPVToolsNotifier *dst,
+      QObject *parent
+      );
+
+    virtual ~DFGBindingPVToolsNotifier_NotifProxy();
+
+  protected:
+    DFGBindingPVToolsNotifier *m_dst;
+};
+
+class DFGBindingPVToolsNotifier_BindingNotifProxy :
+  public DFGBindingPVToolsNotifier_NotifProxy
+{
+  Q_OBJECT
+
+  public:
+    DFGBindingPVToolsNotifier_BindingNotifProxy(
+      DFGBindingPVToolsNotifier *dst,
+      QObject *parent
+      );
+
+  public slots:
+    void onBindingArgValueChanged(
+      unsigned index,
+      FTL::CStrRef name
+      );
+ 
+    void onBindingArgRenamed(
+      unsigned argIndex,
+      FTL::CStrRef oldArgName,
+      FTL::CStrRef newArgName
+      );
+
+    void onBindingArgRemoved(
+      unsigned index,
+      FTL::CStrRef name
+      );
+
+    void onBindingArgTypeChanged(
+      unsigned index,
+      FTL::CStrRef name,
+      FTL::CStrRef newType
+      );
+};
+
+class DFGBindingPVToolsNotifier : public BaseDFGPVToolsNotifier
+{
+  Q_OBJECT
+
+  public:
+    DFGBindingPVToolsNotifier( 
+      DFGPVToolsNotifierRegistry *registry,
+      DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPaths,
+      FabricCore::DFGBinding binding
+      );
+
+    ~DFGBindingPVToolsNotifier();
+ 
   public slots:
     void onBindingArgValueChanged( 
       unsigned index, 
@@ -148,40 +191,23 @@ class DFGPVToolsNotifierRegistry : public QObject
       FTL::CStrRef newType
       );
 
-  signals:
-    void toolUpdated();
-
-  private slots:
-    void onControllerBindingChanged(
-      FabricCore::DFGBinding const&binding
-      );
-
   private:
-    void setupConnections(
-      FabricUI::DFG::DFGController *dfgController
-      );
-
-    DFG::DFGController *m_dfgContoller;
-    QSharedPointer<DFG::DFGNotifier> m_notifier;
-    QList<DFGPVToolsNotifier *> m_registeredNotifiers;
-    DFGPVToolsNotifierRegistry_NotifProxy *m_notifProxy;
+    DFGBindingPVToolsNotifier_NotifProxy *m_notifProxy;
 };
 
-class DFGPVToolsNotifier : public QObject
+class DFGExecPVToolsNotifier : public BaseDFGPVToolsNotifier
 {
   Q_OBJECT
 
   public:
-    DFGPVToolsNotifier( 
+    DFGExecPVToolsNotifier( 
       DFGPVToolsNotifierRegistry *registry,
-      FabricCore::RTVal pathValue
+      DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths dfgPortPaths,
+      FabricCore::DFGExec exec
       );
 
-    ~DFGPVToolsNotifier();
+    ~DFGExecPVToolsNotifier();
    
-    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths 
-      getDFGPVToolsNotifierPortPaths() const;
-  
   protected slots:
     void onExecNodePortRenamed(
       FTL::CStrRef nodeName,
@@ -254,15 +280,6 @@ class DFGPVToolsNotifier : public QObject
       FTL::CStrRef portName,
       FTL::CStrRef newResolvedTypeName
       );
- 
-  private:
-    void setupConnections(
-      FabricCore::DFGExec exec
-      );
-
-    DFGPVToolsNotifierRegistry *m_registry;
-    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths m_dfgPortPaths;
-    QSharedPointer<DFG::DFGNotifier> m_notifier;
 };
 
 } // namespace DFG

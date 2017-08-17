@@ -56,6 +56,7 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
         QString blockName;
         QString nodeName;
         QString execPath;
+        QString id;
 
         bool isExecBlockPort();
 
@@ -74,6 +75,8 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
       FabricCore::RTVal pathValue, 
       DFGPortPaths &dfgPortPaths
       );
+
+    FabricCore::DFGBinding getDFGBinding() const;
 
   public slots:
     /// Update the binding.

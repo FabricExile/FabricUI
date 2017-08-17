@@ -2834,7 +2834,7 @@ diff -purN FabricUI.orig/fabricui_commands_pathvalueresolverregistry_wrapper.cpp
          if (!PyErr_Occurred()) {
              // getType(FabricCore::RTVal)
 +            std::string errorMessage = "";
-+            QString cppResult = 0;
++            QString cppResult = "";
              PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
 -            QString cppResult = cppSelf->getType(cppArg0);
 +            try
