@@ -1135,7 +1135,6 @@ class CanvasWindow(QtGui.QMainWindow):
         binding = self.dfgWidget.getDFGController().getBinding()
         binding.deallocValues()
 
-
         self.host.flushUndoRedo()
         self.qUndoStack.clear()
         GetCommandManager().clear()
