@@ -65,10 +65,6 @@
       <object-type name="DFGDeletePVToolAction" />
       <object-type name="DFGDeleteAllPVToolsAction" />
       <object-type name="DFGDeleteAllAndCreatePVToolAction" />
-      <object-type name="DFGVEEditorCreatePVToolAction" />
-      <object-type name="DFGVEEditorDeletePVToolAction" />
-      <object-type name="DFGVEEditorDeleteAllPVToolsAction" />
-      <object-type name="DFGVEEditorDeleteAllAndCreatePVToolAction" />
       <object-type name="DFGVEEditorPVToolMenu" />
       </namespace-type>
   </namespace-type>
