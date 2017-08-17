@@ -255,10 +255,11 @@ FabricCore::DFGExec DFGPathValueResolver::getDFGPortPathsAndType(
   DFGPathValueResolver::DFGType &dfgType)
 {
   DFGExec exec;
-
+  QString path;
+  
   try 
   {
-    QString path = getPathWithoutBindingOrSolverID(pathValue);
+    path = getPathWithoutBindingOrSolverID(pathValue);
 
     // Vars
     if(m_binding.getExec().hasVar(path.toUtf8().constData()))
@@ -297,7 +298,7 @@ FabricCore::DFGExec DFGPathValueResolver::getDFGPortPathsAndType(
   {
     FabricException::Throw(
       "DFGPathValueResolver::getDFGPortPathsAndType ",
-      "Invalid PathValue",
+      "Invalid PathValue at " + path,
       e.getDesc_cstr(),
       FabricException::LOG
       );
@@ -309,7 +310,7 @@ FabricCore::DFGExec DFGPathValueResolver::getDFGPortPathsAndType(
   {
     FabricException::Throw(
       "DFGPathValueResolver::getDFGPortPathsAndType ",
-      "Invalid PathValue",
+      "Invalid PathValue at " + path,
       e.what(),
       FabricException::LOG
       );
