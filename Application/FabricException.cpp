@@ -28,7 +28,7 @@ void FabricException::Throw(
   QString cmdError;
 
   if(!method.isEmpty())
-    cmdError += "\n" + method + ", error: " + error;
+    cmdError += "" + method + ", error: " + error;
   
   if(!childError.isEmpty()) 
     cmdError += "\n" + childError;

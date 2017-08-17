@@ -2650,3 +2650,373 @@ diff -purN FabricUI.orig/fabricui_commands_rtvalcommandmanager_wrapper.cpp Fabri
                  pyResult = Shiboken::Conversions::pointerToPython((SbkObjectType*)SbkFabricUITypes[SBK_FABRICUI_COMMANDS_BASECOMMAND_IDX], cppResult);
                  Shiboken::Object::setParent(self, pyResult);
              }
+
+diff -purN FabricUI.orig/fabricui_commands_pathvalueresolverregistry_wrapper.cpp FabricUI/fabricui_commands_pathvalueresolverregistry_wrapper.cpp
+--- FabricUI.ori/fabricui_commands_pathvalueresolverregistry_wrapper.cpp  Thu Jun 29 13:17:05 2017
++++ FabricUI/fabricui_commands_pathvalueresolverregistry_wrapper.cpp  Thu Jun 29 13:12:11 2017
+@@ -415,15 +415,30 @@
+         if (!PyErr_Occurred()) {
+             // PathValueResolverRegistry()
+             void* addr = PySide::nextQObjectMemoryAddr();
++            std::string errorMessage = "";
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            if (addr) {
+-                cptr = new (addr) ::PathValueResolverRegistryWrapper();
+-                PySide::setNextQObjectMemoryAddr(0);
+-            } else {
+-                cptr = new ::PathValueResolverRegistryWrapper();
++            try
++            {
++                if (addr) {
++                    cptr = new (addr) ::PathValueResolverRegistryWrapper();
++                    PySide::setNextQObjectMemoryAddr(0);
++                } else {
++                    cptr = new ::PathValueResolverRegistryWrapper();
++                }
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
+             }
+ 
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return -1;
++            }
+         }
+     }
+ 
+@@ -458,9 +473,25 @@
+ 
+         if (!PyErr_Occurred()) {
+             // clear()
++            std::string errorMessage = "";
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::clear() : cppSelf->clear();
++            try
++            {
++                Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::clear() : cppSelf->clear();
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+         }
+     }
+ 
+@@ -479,9 +510,26 @@
+ 
+         if (!PyErr_Occurred()) {
+             // getRegistry()
++            std::string errorMessage = "";
++            FabricUI::Commands::PathValueResolverRegistry * cppResult = 0;
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            FabricUI::Commands::PathValueResolverRegistry * cppResult = ::FabricUI::Commands::PathValueResolverRegistry::getRegistry();
++            try
++            {
++                cppResult = ::FabricUI::Commands::PathValueResolverRegistry::getRegistry();
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+             pyResult = Shiboken::Conversions::pointerToPython((SbkObjectType*)SbkFabricUITypes[SBK_FABRICUI_COMMANDS_PATHVALUERESOLVERREGISTRY_IDX], cppResult);
+         }
+     }
+@@ -526,9 +574,26 @@
+ 
+             if (!PyErr_Occurred()) {
+                 // getResolver(FabricCore::RTVal)
++                std::string errorMessage = "";
++                FabricUI::Commands::BasePathValueResolver * cppResult = 0;
+                 PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-                FabricUI::Commands::BasePathValueResolver * cppResult = Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::getResolver(cppArg0) : cppSelf->getResolver(cppArg0);
++                try
++                {
++                    cppResult = Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::getResolver(cppArg0) : cppSelf->getResolver(cppArg0);
++                }
++
++                catch( std::exception &e )
++                {
++                    errorMessage = e.what();
++                }
++
+                 PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++                
++                if(!errorMessage.empty())
++                {
++                    PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                    return 0;
++                }
+                 pyResult = Shiboken::Conversions::pointerToPython((SbkObjectType*)SbkFabricUITypes[SBK_FABRICUI_COMMANDS_BASEPATHVALUERESOLVER_IDX], cppResult);
+                 Shiboken::Object::setParent(self, pyResult);
+             }
+@@ -541,9 +606,26 @@
+ 
+             if (!PyErr_Occurred()) {
+                 // getResolver(QString)
++                std::string errorMessage = "";
++                FabricUI::Commands::BasePathValueResolver * cppResult = 0;
+                 PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-                FabricUI::Commands::BasePathValueResolver * cppResult = Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::getResolver(cppArg0) : cppSelf->getResolver(cppArg0);
++                try
++                {
++                    cppResult = Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::getResolver(cppArg0) : cppSelf->getResolver(cppArg0);
++                }
++
++                catch( std::exception &e )
++                {
++                    errorMessage = e.what();
++                }
++
+                 PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++                
++                if(!errorMessage.empty())
++                {
++                    PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                    return 0;
++                }
+                 pyResult = Shiboken::Conversions::pointerToPython((SbkObjectType*)SbkFabricUITypes[SBK_FABRICUI_COMMANDS_BASEPATHVALUERESOLVER_IDX], cppResult);
+                 Shiboken::Object::setParent(self, pyResult);
+             }
+@@ -593,9 +675,26 @@
+ 
+         if (!PyErr_Occurred()) {
+             // getResolverName(FabricUI::Commands::BasePathValueResolver*)
++            std::string errorMessage = "";
++            QString cppResult = "";
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            QString cppResult = cppSelf->getResolverName(cppArg0);
++            try
++            {
++                cppResult = cppSelf->getResolverName(cppArg0);
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+             pyResult = Shiboken::Conversions::copyToPython(SbkPySide_QtCoreTypeConverters[SBK_QSTRING_IDX], &cppResult);
+         }
+     }
+@@ -640,9 +739,26 @@
+ 
+         if (!PyErr_Occurred()) {
+             // getType(FabricCore::RTVal)
++            std::string errorMessage = "";
++            QString cppResult = "";
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            QString cppResult = cppSelf->getType(cppArg0);
++            try
++            {
++                cppResult = cppSelf->getType(cppArg0);
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+             pyResult = Shiboken::Conversions::copyToPython(SbkPySide_QtCoreTypeConverters[SBK_QSTRING_IDX], &cppResult);
+         }
+     }
+@@ -686,9 +802,25 @@
+ 
+         if (!PyErr_Occurred()) {
+             // getValue(FabricCore::RTVal)
++            std::string errorMessage = "";
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            cppSelf->getValue(cppArg0);
++            try
++            {
++                cppSelf->getValue(cppArg0);
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+         }
+     }
+ 
+@@ -731,9 +863,26 @@
+ 
+         if (!PyErr_Occurred()) {
+             // hasResolver(QString)
++            std::string errorMessage = "";
++            bool cppResult = false;
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            bool cppResult = cppSelf->hasResolver(cppArg0);
++            try
++            {
++                cppResult = cppSelf->hasResolver(cppArg0);
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+             pyResult = Shiboken::Conversions::copyToPython(Shiboken::Conversions::PrimitiveTypeConverter<bool>(), &cppResult);
+         }
+     }
+@@ -778,9 +927,26 @@
+ 
+         if (!PyErr_Occurred()) {
+             // knownPath(FabricCore::RTVal)
++            std::string errorMessage = "";
++            bool cppResult = false;
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            bool cppResult = cppSelf->knownPath(cppArg0);
++            try
++            {
++                cppResult = cppSelf->knownPath(cppArg0);
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+             pyResult = Shiboken::Conversions::copyToPython(Shiboken::Conversions::PrimitiveTypeConverter<bool>(), &cppResult);
+         }
+     }
+@@ -839,9 +1005,25 @@
+ 
+         if (!PyErr_Occurred()) {
+             // registerResolver(FabricUI::Commands::BasePathValueResolver*,QString)
++            std::string errorMessage = "";
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::registerResolver(cppArg0, cppArg1) : cppSelf->registerResolver(cppArg0, cppArg1);
++            try
++            {
++                Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::registerResolver(cppArg0, cppArg1) : cppSelf->registerResolver(cppArg0, cppArg1);
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+         }
+     }
+ 
+@@ -883,9 +1065,25 @@
+ 
+         if (!PyErr_Occurred()) {
+             // setValue(FabricCore::RTVal)
++            std::string errorMessage = "";
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            cppSelf->setValue(cppArg0);
++            try
++            {
++                cppSelf->setValue(cppArg0);
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+         }
+     }
+ 
+@@ -927,9 +1125,25 @@
+ 
+         if (!PyErr_Occurred()) {
+             // unregisterFactory(QString)
++            std::string errorMessage = "";
+             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
+-            Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::unregisterFactory(cppArg0) : cppSelf->unregisterFactory(cppArg0);
++            try
++            {
++                Shiboken::Object::hasCppWrapper(reinterpret_cast<SbkObject*>(self)) ? cppSelf->::FabricUI::Commands::PathValueResolverRegistry::unregisterFactory(cppArg0) : cppSelf->unregisterFactory(cppArg0);
++            }
++
++            catch( std::exception &e )
++            {
++                errorMessage = e.what();
++            }
++
+             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
++            
++            if(!errorMessage.empty())
++            {
++                PyErr_SetString( PyExc_Exception, errorMessage.c_str() );
++                return 0;
++            }
+         }
+}
