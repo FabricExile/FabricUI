@@ -1127,11 +1127,14 @@ class CanvasWindow(QtGui.QMainWindow):
         """ Clear the app before loading a new graph.
         """
         manipActive = self.viewport.isManipulationActive()
+        self.toolsDFGPVNotifierRegistry.unregisterAllPathValueTools()
+        
         if manipActive is True:
             self.manipAction.onTriggered()
     
         binding = self.dfgWidget.getDFGController().getBinding()
         binding.deallocValues()
+
 
         self.host.flushUndoRedo()
         self.qUndoStack.clear()
