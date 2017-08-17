@@ -40,6 +40,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSplitter>
+#include <FabricUI/DFG/Tools/DFGPVToolActions.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -721,6 +722,32 @@ QMenu *DFGWidget::portContextMenuCallback(
   result->addAction( new MoveOutputPortsToEndAction( graphWidget, result, editable && exec.getExecPortCount() > 1 && numPortsOut > 0 ) );
 
   result->setFocus( Qt::OtherFocusReason );
+
+  return result;
+}
+
+QMenu *DFGWidget::pinContextMenuCallback(
+  FabricUI::GraphView::Pin* pin,
+  void* userData
+  )
+{
+  DFGWidget * graphWidget = (DFGWidget*)userData;
+ 
+  // FE-8736 : if the current executable is the root
+  // The path has the form '.node.port' or , remove the first '.'
+  QString path = pin->path().data();
+  if(path.mid(0, 1) == ".")
+      path = path.mid(1);
+
+  FabricCore::DFGBinding binding = graphWidget->getUIController()->getBinding();
+  path = QString::number(binding.getBindingID()) + "." + path;
+ 
+  QMenu *result = 0;
+  if(DFGPVToolMenu::canCreate(path))
+  {
+    result = DFGPVToolMenu::createMenu( pin->scene()->views()[0], path );
+    result->setFocus( Qt::OtherFocusReason );
+  }
 
   return result;
 }
@@ -3061,6 +3088,7 @@ void DFGWidget::onExecChanged()
     m_uiGraph->setGraphContextMenuCallback( &graphContextMenuCallback, this );
     m_uiGraph->setNodeContextMenuCallback( &nodeContextMenuCallback, this );
     m_uiGraph->setPortContextMenuCallback( &portContextMenuCallback, this );
+    m_uiGraph->setPinContextMenuCallback( &pinContextMenuCallback, this );
     m_uiGraph->setFixedPortContextMenuCallback( &fixedPortContextMenuCallback, this );
     m_uiGraph->setConnectionContextMenuCallback( &connectionContextMenuCallback, this );
     m_uiGraph->setSidePanelContextMenuCallback( &sidePanelContextMenuCallback, this );

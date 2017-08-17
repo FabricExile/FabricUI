@@ -257,7 +257,7 @@ void PinCircle::mousePressEvent(QGraphicsSceneMouseEvent * event)
   else if(event->button() == Qt::RightButton)
   {
     QMenu * menu = NULL;
-    if(target()->targetType() == TargetType_Pin)
+    if(target()->targetType() == TargetType_Pin || target()->targetType() == TargetType_InstBlockPort)
       menu = target()->graph()->getPinContextMenu( ( Pin* )this->target() );
     else if(target()->targetType() == TargetType_Port)
       menu = target()->graph()->getPortContextMenu( ( Port* )this->target() );
