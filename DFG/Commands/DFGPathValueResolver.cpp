@@ -68,16 +68,21 @@ bool DFGPathValueResolver::knownPath(
   }
   knownBinding = !knownBinding ? m_id.isEmpty() : true;
 
-  DFGPortPaths dfgPortPaths;
-  DFGType dfgType = DFGUnknow;
+  if(knownBinding)
+  {
+    DFGPortPaths dfgPortPaths;
+    DFGType dfgType = DFGUnknow;
 
-  getDFGPortPathsAndType(
-    pathValue,
-    dfgPortPaths,
-    dfgType
-    );
+    getDFGPortPathsAndType(
+      pathValue,
+      dfgPortPaths,
+      dfgType
+      );
 
-  return knownBinding && dfgType != DFGUnknow;
+    return dfgType != DFGUnknow;
+  }
+
+  return false;
 }
 
 QString DFGPathValueResolver::getType(
