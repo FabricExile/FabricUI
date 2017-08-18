@@ -68,7 +68,6 @@ void DFGPVToolsNotifierRegistry::unregisterAllPathValueTools()
 {
   foreach(BaseDFGPVToolsNotifier *notifier, m_registeredNotifiers)
   {
-    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths notDFGPortPaths = notifier->getDFGPVToolsNotifierPortPaths();
     delete notifier;
     notifier = 0;
   }
