@@ -50,6 +50,9 @@ class ToolManager
 			FabricCore::RTVal pathValue
 			);
 
+		/// Deletes all PathValueTool.
+		static void deleteAllPathValueTools();
+
 		/// Deletes a PathValueTool that resolves the path `itemPath`.
 		/// \param itemPath The path to resolves.
 		static void deletePathValueTool(
