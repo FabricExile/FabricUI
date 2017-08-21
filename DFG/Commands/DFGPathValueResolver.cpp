@@ -8,6 +8,7 @@
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Application/FabricApplicationStates.h>
 #include <FabricServices/Persistence/RTValToJSONEncoder.hpp>
+//#include <iostream>
 
 using namespace FabricUI;
 using namespace DFG;
@@ -138,25 +139,36 @@ void DFGPathValueResolver::getValue(
 
   else 
   {
-    if(dfgType == DFGPort)
-      value = subExec.getPortResolvedDefaultValue( 
-        dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
-        subExec.getPortResolvedType(dfgPortPaths.getRelativePortPath().toUtf8().constData())
-        );
+    try
+    {
+      if(dfgType == DFGPort)
+        value = subExec.getPortResolvedDefaultValue( 
+          dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
+          subExec.getPortResolvedType(dfgPortPaths.getRelativePortPath().toUtf8().constData())
+          );
 
-    else if(dfgType == DFGArg)
-      value = m_binding.getArgValue(
-        dfgPortPaths.getRelativePortPath().toUtf8().constData()
+      else if(dfgType == DFGArg)
+        value = m_binding.getArgValue(
+          dfgPortPaths.getRelativePortPath().toUtf8().constData()
+          );
+    }
+
+    catch(FabricCore::Exception &e)
+    {
+      FabricException::Throw(
+        "DFGPathValueResolver::arePathValueAndDFGItemTypeEqual",
+        "The port value at path '" + dfgPortPaths.getAbsolutePortPath() + "' is undefined"
         );
+    }
   }
 
-  QString type = RTValUtil::getType(value);
   
   if(value.isValid())
     pathValue.setMember("value", value);
   
   else
   {
+    QString type = RTValUtil::getType(value);
     QString path = RTValUtil::toRTVal(pathValue).maybeGetMember(
       "path").getStringCString();
 
@@ -183,8 +195,7 @@ inline void arePathValueAndDFGItemTypeEqual(
     FabricException::Throw(
       "DFGPathValueResolver::arePathValueAndDFGItemTypeEqual",
       "Cannot set " + dfgItemType + " at path '" + dfgItemPath + "'",
-      "The type of the PathValue's value '" + pvValueType + "' and " + dfgItemType + " '" + dfgValueType + "' are not equal",
-      FabricException::THROW
+      "The type of the PathValue's value '" + pvValueType + "' and " + dfgItemType + " '" + dfgValueType + "' are not equal"
       );
 }
 

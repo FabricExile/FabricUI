@@ -14,8 +14,8 @@ class FabricLog(CppApplication.FabricLog):
     def log(self, message):
         """ Impl. of CppApplication.FabricLog.
         """
-        super(FabricLog, self).log(message)
-        DFG.DFGLogWidget.log(str(message))
+        super(FabricLog, self).log(message + "\n")
+        DFG.DFGLogWidget.log(str(message) + "\n")
 
 # \internal, store the app-states singleton 
 global s_logSingleton
