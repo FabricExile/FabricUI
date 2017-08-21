@@ -172,19 +172,19 @@ void DFGPathValueResolver::getValue(
   FABRIC_CATCH_END("DFGPathValueResolver::getValue");
 }
 
-inline void areToolTargetAndDFGItemTypeEqual(
+inline void arePathValueAndDFGItemTypeEqual(
   QString const &dfgItemPath,
   QString const &dfgItemType,
-  QString const &targetType, // tool's target type
+  QString const &pvValueType, // PathValue's value type
   QString const &dfgValueType) // From a port, arg or var
 { 
   Client client = FabricApplicationStates::GetAppStates()->getClient();
   
-  if(!client.areTypesEqual(targetType.toUtf8().constData(), dfgValueType.toUtf8().constData()))
+  if(!client.areTypesEqual(pvValueType.toUtf8().constData(), dfgValueType.toUtf8().constData()))
     FabricException::Throw(
-      "DFGPathValueResolver::areToolTargetAndDFGItemTypeEqual",
+      "DFGPathValueResolver::arePathValueAndDFGItemTypeEqual",
       "Cannot set " + dfgItemType + " at path '" + dfgItemPath + "'",
-      "The type of the tool's target '" + targetType + "' and " + dfgItemType + " '" + dfgValueType + "' are not equal"
+      "The type of the PathValue's value '" + pvValueType + "' and " + dfgItemType + " '" + dfgValueType + "' are not equal"
       );
 }
 
@@ -208,7 +208,7 @@ void DFGPathValueResolver::setValue(
     dfgType
     );
 
-  QString valueType = RTValUtil::getType(value).toUtf8().constData();
+  QString pvValueType = RTValUtil::getType(value).toUtf8().constData();
 
   if(dfgType == DFGVar)
   {
@@ -216,10 +216,10 @@ void DFGPathValueResolver::setValue(
       getPathWithoutBindingOrSolverID(pathValue).toUtf8().constData()
       );
       
-    areToolTargetAndDFGItemTypeEqual(
+    arePathValueAndDFGItemTypeEqual(
       dfgPortPaths.getAbsolutePortPath(),
       "variable",
-      valueType,
+      pvValueType,
       RTValUtil::getType(varValue)
       );
 
@@ -236,10 +236,10 @@ void DFGPathValueResolver::setValue(
         dfgPortPaths.getRelativePortPath().toUtf8().constData()
         );
 
-      areToolTargetAndDFGItemTypeEqual(
+      arePathValueAndDFGItemTypeEqual(
         dfgPortPaths.getAbsolutePortPath(),
         "port",
-        valueType,
+        pvValueType,
         portValueType
         );
 
@@ -255,10 +255,10 @@ void DFGPathValueResolver::setValue(
         dfgPortPaths.getRelativePortPath().toUtf8().constData()
         );
 
-      areToolTargetAndDFGItemTypeEqual(
+      arePathValueAndDFGItemTypeEqual(
         dfgPortPaths.getAbsolutePortPath(),
         "argument",
-        valueType,
+        pvValueType,
         RTValUtil::getType(argValue)
         );
          
