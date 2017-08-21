@@ -191,7 +191,7 @@ inline void arePathValueAndDFGItemTypeEqual(
 { 
   Client client = FabricApplicationStates::GetAppStates()->getClient();
  
-  if(!client.areTypesEqual(pvValueType.toUtf8().constData(), dfgValueType.toUtf8().constData()))
+  if(pvValueType != "None" && !client.areTypesEqual(pvValueType.toUtf8().constData(), dfgValueType.toUtf8().constData()))
     FabricException::Throw(
       "DFGPathValueResolver::arePathValueAndDFGItemTypeEqual",
       "Cannot set " + dfgItemType + " at path '" + dfgItemPath + "'",
