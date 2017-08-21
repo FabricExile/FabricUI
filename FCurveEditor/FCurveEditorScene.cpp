@@ -110,10 +110,16 @@ void FCurveEditorScene::addKeyAtPos( QPointF scenePos )
   Key h; h.pos = scenePos;
   h.tanIn = QPointF( 1, 0 ); h.tanOut = h.tanIn;
   h.tanInType = 0; h.tanOutType = 0;
+  const size_t previousKeyCount = m_curveItem->curve()->getKeyCount();
   m_curveItem->curve()->addKey( h, true );
-  size_t index = m_curveItem->curve()->getKeyCount() - 1;
   m_curveItem->curve()->update();
-  m_curveItem->addKeyToSelection( index );
+  const size_t newKeyCount = m_curveItem->curve()->getKeyCount();
+  // checking that the key has been correctly added
+  if( newKeyCount > previousKeyCount )
+  {
+    size_t index = m_curveItem->curve()->getKeyCount() - 1;
+    m_curveItem->addKeyToSelection( index );
+  }
 }
 
 void FCurveEditorScene::mousePressEvent( QGraphicsSceneMouseEvent * e )
