@@ -16,7 +16,13 @@ using namespace FTL;
 #include <QFont>
 
 #ifdef NO_FABRIC_CORE // HACK
-namespace FabricCore { inline char const * GetFabricUserDir() { return ""; } }
+namespace FabricCore
+{
+  inline char const * GetFabricUserDir() { return ""; }
+  inline uint8_t GetVersionMaj() { return 0; }
+  inline uint8_t GetVersionMin() { return 0; }
+  inline uint8_t GetVersionRev() { return 0; }
+}
 #else
 #include <FabricCore.h>
 #endif
