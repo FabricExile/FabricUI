@@ -22,7 +22,7 @@ class FabricLog
   public:
     FabricLog();
 
-    ~FabricLog();
+    virtual ~FabricLog();
 
     /// Gets the FabricLog states singleton.
     /// Throws an error if the singleton has not been crated.
