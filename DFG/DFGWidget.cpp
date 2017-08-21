@@ -727,8 +727,16 @@ QMenu *DFGWidget::portContextMenuCallback(
   if(path.mid(0, 1) == ".")
     path = path.mid(1);
 
+  QString execPath = graphWidget->getUIController()->getExecPath().data();
+  if(!execPath.isEmpty())
+  {
+    if(execPath.mid(0, 1) == ".")
+      execPath = execPath.mid(1);
+    path = execPath + "." + path;
+  }
+
   FabricCore::DFGBinding binding = graphWidget->getUIController()->getBinding();
-  path = QString::number(binding.getBindingID()) + "." + path;
+  path = QString::number(binding.getBindingID()) + "."+ path;
  
   if(DFGPVToolMenu::canCreate(path))
   {
@@ -754,11 +762,19 @@ QMenu *DFGWidget::pinContextMenuCallback(
   // The path has the form '.node.port' or , remove the first '.'
   QString path = pin->path().data();
   if(path.mid(0, 1) == ".")
-      path = path.mid(1);
+    path = path.mid(1);
+
+  QString execPath = graphWidget->getUIController()->getExecPath().data();
+  if(!execPath.isEmpty())
+  {
+    if(execPath.mid(0, 1) == ".")
+      execPath = execPath.mid(1);
+    path = execPath + "." + path;
+  }
 
   FabricCore::DFGBinding binding = graphWidget->getUIController()->getBinding();
-  path = QString::number(binding.getBindingID()) + "." + path;
- 
+  path = QString::number(binding.getBindingID()) + "."+ path;
+
   QMenu *result = 0;
   if(DFGPVToolMenu::canCreate(path))
   {
