@@ -161,6 +161,19 @@ RTVal ToolManager::getPathValueTool(
   return pathValueTool;
 }
 
+void ToolManager::deleteAllPathValueTools()
+{
+  FABRIC_CATCH_BEGIN();
+ 
+  getKLToolManager().callMethod(
+    "", 
+    "deleteAllPathValueTools", 
+    0, 
+    0);
+  
+  FABRIC_CATCH_END("ToolManager::deleteAllPathValueTools");
+}
+
 void ToolManager::deletePathValueTool(
   QString const& toolPath)
 {

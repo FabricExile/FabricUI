@@ -721,6 +721,23 @@ QMenu *DFGWidget::portContextMenuCallback(
   result->addAction( new MoveInputPortsToEndAction ( graphWidget, result, editable && exec.getExecPortCount() > 1 && numPortsIn  > 0 ) );
   result->addAction( new MoveOutputPortsToEndAction( graphWidget, result, editable && exec.getExecPortCount() > 1 && numPortsOut > 0 ) );
 
+  // FE-8736 : if the current executable is the root
+  // The path has the form '.node.port' or , remove the first '.'
+  QString path = port->path().data();
+  if(path.mid(0, 1) == ".")
+    path = path.mid(1);
+
+  FabricCore::DFGBinding binding = graphWidget->getUIController()->getBinding();
+  path = QString::number(binding.getBindingID()) + "." + path;
+ 
+  if(DFGPVToolMenu::canCreate(path))
+  {
+    result->addSeparator();
+    QAction *action;
+    foreach(action, DFGPVToolMenu::createActions( port->scene()->views()[0], path ))
+      result->addAction(action);
+  }
+
   result->setFocus( Qt::OtherFocusReason );
 
   return result;

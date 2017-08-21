@@ -46,7 +46,7 @@ void DFGPVToolsNotifierRegistry::registerPathValueTool(
     dfgPortPaths.oldPortName = dfgPortPaths.portName;
     dfgPortPaths.oldBlockName = dfgPortPaths.blockName;
     dfgPortPaths.oldNodeName = dfgPortPaths.nodeName;
-
+ 
     BaseDFGPVToolsNotifier *notifier = 0;
     if(dfgPortPaths.isExecArg())
       notifier = new DFGBindingPVToolsNotifier(this, dfgPortPaths, resolver->getDFGBinding());
@@ -68,16 +68,14 @@ void DFGPVToolsNotifierRegistry::unregisterAllPathValueTools()
 {
   foreach(BaseDFGPVToolsNotifier *notifier, m_registeredNotifiers)
   {
-    DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths notDFGPortPaths = notifier->getDFGPVToolsNotifierPortPaths();
-
-    ToolManager::deletePathValueTool(
-      notDFGPortPaths.getAbsolutePortPath()
-      );  
-
-    m_registeredNotifiers.removeAll(notifier);
     delete notifier;
     notifier = 0;
   }
+
+  m_registeredNotifiers.clear();
+
+  ToolManager::deleteAllPathValueTools(
+    );  
 
   emit toolUpdated("");
 }
