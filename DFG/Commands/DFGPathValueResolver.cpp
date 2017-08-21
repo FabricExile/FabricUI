@@ -182,6 +182,20 @@ void DFGPathValueResolver::setValue(
   if( !value.isValid() )
     return; // no value specified
 
+  if( ( value.isObject() || value.isInterface() ) && !value.isNullObject() ) {
+    // Get the most specialized type.
+    // In particular, port values must be persisted, and loading a graph
+    // will first create an object of the type of the port.
+    // For this to work well, it must be the actual specialized Object type
+    // that is set as the default value.
+    RTVal specializedTypeName = value.invokeMethod( "type", 0, 0 ).getDesc();
+    RTVal specializedValue = RTVal::Create(
+                  value.getContext(),
+                  specializedTypeName.getStringCString(),
+                  1, &value );
+    value = specializedValue;
+  }
+
   DFGPortPaths dfgPortPaths;
   DFGType dfgType = DFGUnknow;
 
