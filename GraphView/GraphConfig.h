@@ -34,6 +34,10 @@ namespace FabricUI
       int mainPanelGridSpan;
       bool mainPanelGridSnap;
       int mainPanelGridSnapSize;
+      bool mainPanelNodeSnap;
+      int mainPanelNodeSnapDistance;
+      bool mainPanelPortSnap;
+      int mainPanelPortSnapDistance;
       QPen mainPanelGridPen;
       bool mainPanelBackGroundPanFixed;
 

@@ -23,14 +23,12 @@ class RTRGLViewportWidget : public ViewportWidget {
 
   public:
     RTRGLViewportWidget(
-      FabricCore::Client &client,
       SceneHub::SHGLRenderer *shGLRenderer,
       SceneHub::SHGLScene *shGLScene,
       int,
       QGLContext*,
       QWidget *parent = 0,
-      QGLWidget *shared = 0,
-      QSettings *settings = 0 );
+      QGLWidget *shared = 0 );
 
     virtual ~RTRGLViewportWidget();
     
@@ -107,6 +105,7 @@ class RTRGLViewportWidget : public ViewportWidget {
     uint32_t m_samples;
     SceneHub::SHGLRenderer *m_shGLRenderer;
     SceneHub::SHGLScene *m_shGLScene;
+    FabricCore::RTVal m_viewport;
 };
 
 } // namespace Viewports

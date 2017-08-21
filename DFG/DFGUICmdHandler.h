@@ -345,6 +345,25 @@ public:
     QString extDep,
     QString metaData
     ) = 0;
+
+  virtual QString dfgDoAddNLSPort(
+    FabricCore::DFGBinding const &binding,
+    QString execPath,
+    FabricCore::DFGExec const &exec,
+    QString desiredPortName,
+    QString typeSpec,
+    QString portToConnect,
+    QString extDep,
+    QString metaData
+    ) = 0;
+
+  virtual void dfgDoReorderNLSPorts(
+    FabricCore::DFGBinding const &binding,
+    QString execPath,
+    FabricCore::DFGExec const &exec,
+    QString itemPath,
+    QList<int> indices
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

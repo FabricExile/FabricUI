@@ -16,6 +16,25 @@ namespace FabricUI {
 //
 QPixmap LoadPixmap( QString filename );
 
-}
+namespace Util {
+
+class LoadIcon {
+	public:
+		LoadIcon() 
+		{
+		}
+
+		static QPixmap load(
+			QString filename)
+		{
+			return FabricUI::LoadPixmap(
+				filename
+				);
+		}
+};
+
+} // namespace Util
+
+} // namespace FabricUI
 
 #endif // FABRICUI_UTIL_LOADPIXMAP_H

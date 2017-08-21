@@ -473,99 +473,42 @@ void MouseGrabber::paint(QPainter * painter, const QStyleOptionGraphicsItem * op
 
 void MouseGrabber::invokeConnect(ConnectionTarget * source, ConnectionTarget * target)
 {
-  if(source->targetType() == TargetType_ProxyPort && target->targetType() == TargetType_Pin)
+  // graph()->connect() handles all cases except the "node header" ones,
+  // so if the function returns false we take care of the header cases here.
+  if (!graph()->connect(source, target))
   {
-    Pin *pinToConnectWith = static_cast<Pin *>( target );
-    FTL::CStrRef pinName = pinToConnectWith->name();
-    FTL::CStrRef dataType = pinToConnectWith->dataType();
-    std::string metaData = graph()->controller()->gvcEncodeMetadaToPersistValue();
-    graph()->controller()->gvcDoAddPort(
-      QString::fromUtf8( pinName.data(), pinName.size() ),
-      PortType_Output,
-      QString::fromUtf8( dataType.data(), dataType.size() ),
-      pinToConnectWith,
-      QString(),
-      QString::fromUtf8( metaData.data(), metaData.size() )
-      );
-  }
-  else if(target->targetType() == TargetType_ProxyPort && source->targetType() == TargetType_Pin)
-  {
-    Pin *pinToConnectWith = static_cast<Pin *>( source );
-    FTL::CStrRef pinName = pinToConnectWith->name();
-    FTL::CStrRef dataType = pinToConnectWith->dataType();
-    graph()->controller()->gvcDoAddPort(
-      QString::fromUtf8( pinName.data(), pinName.size() ),
-      PortType_Input,
-      QString::fromUtf8( dataType.data(), dataType.size() ),
-      pinToConnectWith
-      );
-  }
-  else if(source->targetType() == TargetType_ProxyPort && target->targetType() == TargetType_InstBlockPort)
-  {
-    InstBlockPort *instBlockPortToConnectWith = static_cast<InstBlockPort *>( target );
-    FTL::CStrRef instBlockPortName = instBlockPortToConnectWith->name();
-    FTL::CStrRef dataType = instBlockPortToConnectWith->dataType();
-    std::string metaData = graph()->controller()->gvcEncodeMetadaToPersistValue();
-    graph()->controller()->gvcDoAddPort(
-      QString::fromUtf8( instBlockPortName.data(), instBlockPortName.size() ),
-      PortType_Output,
-      QString::fromUtf8( dataType.data(), dataType.size() ),
-      instBlockPortToConnectWith,
-      QString(),
-      QString::fromUtf8( metaData.data(), metaData.size() )
-      );
-  }
-  else if(target->targetType() == TargetType_ProxyPort && source->targetType() == TargetType_InstBlockPort)
-  {
-    InstBlockPort *instBlockPortToConnectWith = static_cast<InstBlockPort *>( source );
-    FTL::CStrRef instBlockPortName = instBlockPortToConnectWith->name();
-    FTL::CStrRef dataType = instBlockPortToConnectWith->dataType();
-    graph()->controller()->gvcDoAddPort(
-      QString::fromUtf8( instBlockPortName.data(), instBlockPortName.size() ),
-      PortType_Input,
-      QString::fromUtf8( dataType.data(), dataType.size() ),
-      instBlockPortToConnectWith
-      );
-  }
-  else if(source->targetType() == TargetType_NodeHeader)
-  {
-    NodeHeader * header = static_cast<NodeHeader *>( source );
-    Node * node = header->node();
+    if (source->targetType() == TargetType_NodeHeader)
+    {
+      NodeHeader * header = static_cast<NodeHeader *>(source);
+      Node * node = header->node();
 
-    QPoint globalPos = QCursor::pos();
-    invokeNodeHeaderMenu(node, target, PortType_Input, globalPos);
-  }
-  else if(target->targetType() == TargetType_NodeHeader)
-  {
-    NodeHeader * header = static_cast<NodeHeader *>( target );
-    Node * node = header->node();
+      QPoint globalPos = QCursor::pos();
+      invokeNodeHeaderMenu(node, target, PortType_Input, globalPos);
+    }
+    else if (target->targetType() == TargetType_NodeHeader)
+    {
+      NodeHeader * header = static_cast<NodeHeader *>(target);
+      Node * node = header->node();
 
-    QPoint globalPos = QCursor::pos();
-    invokeNodeHeaderMenu(node, source, PortType_Output, globalPos);
-  }
-  else if(source->targetType() == TargetType_InstBlockHeader)
-  {
-    InstBlockHeader * header = static_cast<InstBlockHeader *>( source );
-    InstBlock * instBlock = header->instBlock();
+      QPoint globalPos = QCursor::pos();
+      invokeNodeHeaderMenu(node, source, PortType_Output, globalPos);
+    }
+    else if (source->targetType() == TargetType_InstBlockHeader)
+    {
+      InstBlockHeader * header = static_cast<InstBlockHeader *>(source);
+      InstBlock * instBlock = header->instBlock();
 
-    QPoint globalPos = QCursor::pos();
-    invokeInstBlockHeaderMenu(instBlock, target, PortType_Input, globalPos);
-  }
-  else if(target->targetType() == TargetType_InstBlockHeader)
-  {
-    InstBlockHeader * header = static_cast<InstBlockHeader *>( target );
-    InstBlock * instBlock = header->instBlock();
+      QPoint globalPos = QCursor::pos();
+      invokeInstBlockHeaderMenu(instBlock, target, PortType_Input, globalPos);
+    }
+    else if (target->targetType() == TargetType_InstBlockHeader)
+    {
+      InstBlockHeader * header = static_cast<InstBlockHeader *>(target);
+      InstBlock * instBlock = header->instBlock();
 
-    QPoint globalPos = QCursor::pos();
-    invokeInstBlockHeaderMenu(instBlock, source, PortType_Output, globalPos);
-  }
-  else
-  {
-    std::vector<ConnectionTarget  *> sources;
-    std::vector<ConnectionTarget  *> targets;
-    sources.push_back(source);
-    targets.push_back(target);
-    graph()->controller()->gvcDoAddConnections(sources, targets);
+      QPoint globalPos = QCursor::pos();
+      invokeInstBlockHeaderMenu(instBlock, source, PortType_Output, globalPos);
+    }
   }
 }
 

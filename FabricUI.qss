@@ -110,6 +110,42 @@ QMainWindow > QDockWidget::title
 }
 
 /****************************************************************************
+ * Status Bar
+ ***************************************************************************/
+QMainWindow QStatusBar {
+  font-family: "Roboto";
+  font-size: 8pt;
+  border-top: 1px solid #484848;
+  background: #363636;
+}
+
+QMainWindow QStatusBar::item {
+  border: 0;
+}
+
+QMainWindow QStatusBar QPushButton#logWidget_button
+{
+  border: 0;
+  border-style: none;
+  padding: 0px;
+  width: 22px;
+  height: 22px;
+  background-image: url(${FABRIC_DIR}/Resources/Icons/log-widget-button.png);
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+QMainWindow QStatusBar QPushButton#logWidget_button:hover
+{
+  background-image: url(${FABRIC_DIR}/Resources/Icons/log-widget-button-hover.png);
+}
+
+QMainWindow QStatusBar QPushButton#logWidget_button:pressed
+{
+  background-image: url(${FABRIC_DIR}/Resources/Icons/log-widget-button-pressed.png);
+}
+
+/****************************************************************************
  * Shared
  ***************************************************************************/
 
@@ -765,13 +801,14 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 
 #DFGExecHeaderWidget QLineEdit
 {
+  color: #CBCBCB;
   background-color: #333;
 }
 
-#DFGExecHeaderWidget QLineEdit
+#DFGExecHeaderWidget QLineEdit:focus,
+#DFGExecHeaderWidget QLineEdit:hover
 {
-  color: #cbcbcb;
-  background-color: #333;
+  background-color: #242424;
 }
 
 #DFGExecHeaderWidget #DFGPresetSplitWidget
@@ -1368,6 +1405,28 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 {
   margin-left: 0px;
   margin-right: 0px;
+}
+
+#ValueEditor #FCurveEditor
+{
+  margin-bottom: 10px;
+}
+
+#ValueEditor #ExpandedDialog #FCurveEditor
+{
+  margin-bottom: 0px;
+}
+
+#ValueEditor #FCurveEditor QPushButton#expand
+{
+  border: 0;
+  border-style: none;
+  padding: 0px;
+  width: 32px;
+  height: 32px;
+  background-image: url(${FABRIC_DIR}/Resources/Icons/expand.png);
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #ValueEditor QComboBox::drop-down
@@ -1999,10 +2058,6 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 }
 
 #ToggleDetailsPanelButton[toggled="true"] #Handle
-{
-  background-color: #50626E;
-}
-
 #ToggleDetailsPanelButton[toggled="true"][hovered="true"] #Handle
 {
   background-color: #637987;
@@ -2136,4 +2191,285 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
   background-color: #50626e;
   border: 2px solid #333333;
   border-bottom: 0px;
+}
+
+/****************************************************************************
+ * HotkeyEditorDialog
+ ***************************************************************************/
+
+#HotkeyEditorDialog QToolBar {
+  border: 0;
+}
+
+#HotkeyEditorDialog QLabel
+{
+  padding-left: 4px;
+  color: #FFFFFF;
+}
+
+#HotkeyEditorDialog QToolButton
+{
+  color: #FFFFFF;
+  border: 0;
+  border-radius: 3px;
+  padding: 4px;
+  margin: 4px;
+  background-color: #2F2F2F;
+}
+
+#HotkeyEditorDialog QToolButton::disabled
+{
+  background-color: #444;
+  color: #6D6D6D;
+}
+
+#HotkeyEditorDialog QToolButton::checked
+{
+  background-color: #176580;
+}
+
+#HotkeyEditorDialog QToolButton::checked:hover
+{
+  background-color: #1C7A99;
+}
+
+#HotkeyEditorDialog QToolButton:hover
+{
+  background-color: #50626E;
+}
+
+#HotkeyEditorDialog QToolButton::pressed
+{
+  border-style: inset;
+  margin-top: 6px;
+  margin-left: 6px;
+
+  background-color: #50626E;
+}
+
+#HotkeyEditorDialog QTableWidget
+{
+  border: 0;
+  border-radius: 3px;
+  background: #333333;
+  color: white;
+  font: 10pt "Roboto";
+  font-weight: normal;  
+}
+
+#HotkeyEditorDialog QTableWidget::item
+{
+  padding: 2px;
+}
+
+#HotkeyEditorDialog QTableWidget::item:hover
+{
+  padding: 0;
+  background-color: #596D7A;
+}
+
+/****************************************************************************
+ * FCurveEditor
+ ***************************************************************************/
+
+#FCurveEditor
+{
+  background-color: #222222;
+  border: 4px solid #333333;
+  border-radius: 8px;
+}
+
+#FCurveEditor *
+{
+  border: none;
+}
+
+#FCurveEditor #ToolBar
+{
+  background-color: #333333;
+  border-right: 1px solid #2B2B2B;
+  border-bottom: 1px solid #2B2B2B;
+}
+
+#FCurveEditor #ToolBar QPushButton
+{
+  background-color: #333333;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#FCurveEditor #ToolBar QPushButton:checked
+{
+  border: 1px solid #F50;
+}
+
+#FCurveEditor #ToolBar #Select
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/select-button.png);
+  border: none;
+}
+
+#FCurveEditor #ToolBar #Select:hover
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/select-button-hover.png);
+}
+
+#FCurveEditor #ToolBar #Select:pressed
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/select-button-pressed.png);
+}
+
+#FCurveEditor #ToolBar #Select:checked
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/select-button-checked.png);
+}
+
+#FCurveEditor #ToolBar #Select:checked:hover
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/select-button-checked-hover.png);
+}
+
+#FCurveEditor #ToolBar #Select:checked:pressed
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/select-button-pressed.png);
+}
+
+
+#FCurveEditor #ToolBar #Add
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-add-button.png);
+  border: none;
+}
+
+#FCurveEditor #ToolBar #Add:hover
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-add-button-hover.png);
+}
+
+#FCurveEditor #ToolBar #Add:pressed
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-add-button-pressed.png);
+}
+
+#FCurveEditor #ToolBar #Add:checked
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-add-button-checked.png);
+}
+
+#FCurveEditor #ToolBar #Add:checked:hover
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-add-button-checked-hover.png);
+}
+
+#FCurveEditor #ToolBar #Add:checked:pressed
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-add-button-pressed.png);
+}
+
+#FCurveEditor #ToolBar #Remove
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-remove-button.png);
+  border: none;
+}
+
+#FCurveEditor #ToolBar #Remove:hover
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-remove-button-hover.png);
+}
+
+#FCurveEditor #ToolBar #Remove:pressed
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-remove-button-pressed.png);
+}
+
+#FCurveEditor #ToolBar #Remove:checked
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-remove-button-pressed.png);
+}
+
+#FCurveEditor #ToolBar #Remove:checked:hover
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-remove-button-checked-hover.png);
+}
+
+#FCurveEditor #ToolBar #Remove:checked:pressed
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/key-remove-button-pressed.png);
+}
+
+#FCurveEditor #ToolBar #SnapToCurve
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/snap-to-curve-button.png);
+  border: none;
+}
+
+#FCurveEditor #ToolBar #SnapToCurve:hover
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/snap-to-curve-button-hover.png);
+}
+
+#FCurveEditor #ToolBar #SnapToCurve:pressed
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/snap-to-curve-button-pressed.png);
+}
+
+#FCurveEditor #ToolBar #SnapToCurve:checked
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/snap-to-curve-button-pressed.png);
+}
+
+#FCurveEditor #ToolBar #SnapToCurve:checked:hover
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/snap-to-curve-button-checked-hover.png);
+}
+
+#FCurveEditor #ToolBar #SnapToCurve:checked:pressed
+{ 
+  background-image: url(${FABRIC_DIR}/Resources/Icons/snap-to-curve-button-pressed.png);
+}
+
+#FCurveEditor #RuledGraphicsView
+{
+  qproperty-rulersSize: 12;
+  qproperty-topToBottomY: false;
+  qproperty-gridColor: rgba(44, 44, 44, 255);
+  qproperty-gridMaxSpacing: 200;
+  qproperty-gridMinSpacing: 20;
+  qproperty-gridThickness: 2;
+  qproperty-gridThicknessSquarred: false;
+}
+
+#FCurveEditor #RuledGraphicsView QGraphicsView
+{
+  background-color: #3A3A3A;
+}
+
+#FCurveEditor #RuledGraphicsView #Ruler
+{
+  qproperty-penColor: #5e686e;
+  qproperty-majGradToBreadthRatio: 1.0;
+  qproperty-minGradToBreadthRatio: 0.3;
+  qproperty-majorGradsPixelSpacing: 600;
+  font-size: 10px;
+}
+
+#FCurveEditor #KeyValueEditor
+{
+  background-color: rgba(32,32,32,128);
+  border-radius: 4px;
+}
+
+#FCurveEditor #KeyValueEditor *
+{
+  color: #FFF;
+  font-size: 16px;
+}
+
+#FCurveEditor #KeyValueEditor #FloatEditor QLineEdit,
+#FCurveEditor #KeyValueEditor #TangentTypeEditor,
+#FCurveEditor #KeyValueEditor #TangentTypeEditor > * > *
+{
+  color: #FFF;
+  font-size: 16px;
+  background-color: rgba(32,32,32);
 }

@@ -9,6 +9,8 @@
 #include <QMessageBox>
 #include <QTimer>
 
+#include <iostream>
+
 #include <FTL/JSONEnc.h>
 #include <FTL/JSONDec.h>
 #include <FTL/Str.h>
@@ -34,6 +36,7 @@
 #include <FabricUI/DFG/DFGUIUtil.h>
 #include <FabricUI/DFG/DFGWidget.h>
 #include <FabricUI/DFG/DFGBindingUtils.h>
+
 #include <FabricServices/Persistence/RTValToJSONEncoder.hpp>
 #include <FabricUI/DFG/DFGMetaDataHelpers.h>
 #include <FabricUI/DFG/Dialogs/DFGEditPortDialog.h>
@@ -125,7 +128,7 @@ void DFGController::setBindingExec(
     m_bindingNotifier.clear();
 
   m_binding = binding;
-
+  
   if ( m_binding.isValid() )
   {
     m_bindingNotifier = DFGBindingNotifier::Create( m_binding );
@@ -208,7 +211,7 @@ void DFGController::setExec(
   m_execPath = execPath;
   m_exec = exec;
   m_execBlockName = execBlockName;
-
+ 
   m_presetDictsUpToDate = false;
 
   if ( m_binding.isValid()
@@ -2016,6 +2019,171 @@ QList<QString> DFGController::cmdExplodeNode(
     );
 }
 
+void DFGController::gvcDoMoveNode(
+  GraphView::Node const *node,
+  QPointF const &nodeOriginalPos,
+  QSizeF const &nodeOriginalSize,
+  QPointF delta,
+  float gridSnapSize,
+  std::vector<QPointF> const &nodeSnapPositions,
+  qreal nodeSnapDistance,
+  std::vector<qreal> const &portSnapPositionsSrcY,
+  std::vector<qreal> const &portSnapPositionsDstY,
+  qreal portSnapDistance,
+  bool allowUndo
+  )
+{
+  if (!node)
+    return;
+
+  FTL::CStrRef nodeName = node->name();
+
+  QPointF finalPos = nodeOriginalPos + delta;
+
+  // snap to grid/node/port.
+  if (    gridSnapSize > 0
+      || (nodeSnapPositions.size() && nodeSnapDistance > 0)
+      || (portSnapPositionsSrcY.size() && portSnapPositionsDstY.size() && portSnapDistance > 0)
+     )
+  {
+    QPointF nodeSize = QPointF(nodeOriginalSize.width(), nodeOriginalSize.height());
+    
+    // snap to grid and/nodes.
+    qreal smallestYdelta = 10e+10;
+    if (    gridSnapSize > 0
+        || (nodeSnapPositions.size() && nodeSnapDistance > 0)
+        || (portSnapPositionsSrcY.size() && portSnapPositionsDstY.size() && portSnapDistance > 0)
+       )
+    {
+      std::vector<QPointF> newPos;
+      std::vector<QPointF> newPosOffset;
+      std::vector<QPointF> newPosSnapped;
+      std::vector<QPointF> newPosDelta;
+    
+      // add topleft, center and bottomright positions to newPos/newPosOffset.
+      newPosOffset.push_back(0.0 * nodeSize);
+      newPosOffset.push_back(0.5 * nodeSize);
+      newPosOffset.push_back(1.0 * nodeSize);
+      for (size_t i=0;i<newPosOffset.size();i++)
+        newPos.push_back(finalPos + newPosOffset[i]);
+
+      // calculate snapped positions and delta to the previous position.
+      for (size_t i = 0; i<newPos.size(); i++)
+      {
+        // grid.
+        if (gridSnapSize > 0)
+        {
+          newPosSnapped.push_back(snapToGrid(newPos[i], gridSnapSize));
+          newPosDelta.push_back(newPos[i] - newPosSnapped[i]);
+          newPosDelta[i].setX(fabs(newPosDelta[i].x()));
+          newPosDelta[i].setY(fabs(newPosDelta[i].y()));
+        }
+        else
+        {
+          newPosSnapped.push_back(newPos[i]);
+          newPosDelta.push_back(QPointF(10e+10, 10e+10));
+        }
+
+        // node.
+        if (nodeSnapDistance > 0)
+        {
+          for (size_t j = 0; j<nodeSnapPositions.size(); j++)
+          {
+            qreal dx = fabs(newPos[i].x() - nodeSnapPositions[j].x());
+            qreal dy = fabs(newPos[i].y() - nodeSnapPositions[j].y());
+            if (dx < nodeSnapDistance && dx < newPosDelta[i].x())
+            {
+              newPosSnapped[i].setX(nodeSnapPositions[j].x());
+              newPosDelta[i].setX(dx);
+            }
+            if (dy < nodeSnapDistance && dy < newPosDelta[i].y())
+            {
+              newPosSnapped[i].setY(nodeSnapPositions[j].y());
+              newPosDelta[i].setY(dy);
+            }
+          }
+        }
+      }
+
+      // get index of closest X and Y snapping position.
+      int closestXindex = 0;
+      int closestYindex = 0;
+     for (size_t i = 0; i<newPosDelta.size(); i++)
+     {
+        if (newPosDelta[i].x() < newPosDelta[closestXindex].x())  closestXindex = i;
+        if (newPosDelta[i].y() < newPosDelta[closestYindex].y())  closestYindex = i;
+     }
+    
+     // set final position from closest snapping position.
+     finalPos.setX(newPosSnapped[closestXindex].x() - newPosOffset[closestXindex].x());
+     finalPos.setY(newPosSnapped[closestYindex].y() - newPosOffset[closestYindex].y());
+    }
+
+    // snap to ports (note: this only affects the y position).
+    if (   portSnapPositionsSrcY.size()
+        && portSnapPositionsDstY.size()
+        && portSnapDistance > 0
+        && smallestYdelta > 0
+       )
+    {
+      int closestSrcYindex = -1;
+      int closestDstYindex = -1;
+      for (size_t i = 0; i<portSnapPositionsSrcY.size() && smallestYdelta > 0; i++)
+      {
+        for (size_t j = 0; j<portSnapPositionsDstY.size() && smallestYdelta > 0; j++)
+        {
+          qreal dy = fabs(portSnapPositionsSrcY[i] + delta.y() - portSnapPositionsDstY[j]);
+          if (dy < portSnapDistance && dy < smallestYdelta)
+          {
+            smallestYdelta = dy;
+            closestSrcYindex = i;
+            closestDstYindex = j;
+          }
+        }
+      }
+      if (closestDstYindex >= 0)
+      {
+        finalPos.setY(nodeOriginalPos.y() + (portSnapPositionsDstY[closestDstYindex] - portSnapPositionsSrcY[closestSrcYindex]));
+      }
+    }
+  }
+
+
+  if ( allowUndo )
+  {
+    QStringList nodeNames;
+    nodeNames.push_back(QString::fromUtf8(nodeName.data(), nodeName.size()));
+
+    QList<QPointF> newTopLeftPoss;
+    newTopLeftPoss.append(finalPos);
+
+    cmdMoveNodes(nodeNames, newTopLeftPoss);
+  }
+  else
+  {
+    std::string newPosJSON;
+    {
+      FTL::JSONEnc<> enc(newPosJSON);
+      FTL::JSONObjectEnc<> objEnc(enc);
+      {
+        FTL::JSONEnc<> xEnc(objEnc, FTL_STR("x"));
+        FTL::JSONFloat64Enc<> xS32Enc(xEnc, finalPos.x());
+      }
+      {
+        FTL::JSONEnc<> yEnc(objEnc, FTL_STR("y"));
+        FTL::JSONFloat64Enc<> yS32Enc(yEnc, finalPos.y());
+      }
+    }
+    getExec().setItemMetadata(
+      nodeName.c_str(),
+      "uiGraphPos",
+      newPosJSON.c_str(),
+      false,
+      false
+      );
+  }
+}
+
 void DFGController::gvcDoMoveNodes(
   std::vector<GraphView::Node *> const &nodes,
   std::vector<QPointF> const &nodesOriginalPos,
@@ -2028,16 +2196,12 @@ void DFGController::gvcDoMoveNodes(
       || nodes.size() != nodesOriginalPos.size() )
     return;
 
-  if (nodes.size() > 1 && gridSnapSize > 0)
-  {
-    // if two or more nodes are being moved
-    // then we apply the grid snapping to the
-    // delta instead of applying it to each
-    // node.
-    delta.setX( gridSnapSize * qRound(delta.rx() / gridSnapSize) );
-    delta.setY( gridSnapSize * qRound(delta.ry() / gridSnapSize) );
-    gridSnapSize = 0;
-  }
+  // apply the grid snapping to the delta only.
+  // Note: this function is designed to move several nodes.
+  // For more advanced grid and port snapping use
+  // the function void gvcDoMoveNode().
+  if (gridSnapSize > 0)
+    delta = snapToGrid(delta, gridSnapSize);
 
   if ( allowUndo )
   {
@@ -2053,11 +2217,6 @@ void DFGController::gvcDoMoveNodes(
       FTL::CStrRef nodeName = node->name();
       nodeNames.append( QString::fromUtf8( nodeName.data(), nodeName.size() ) );
       QPointF newPos = nodesOriginalPos[i] + delta;
-      if (gridSnapSize > 0)
-      {
-        newPos.setX( gridSnapSize * qRound(newPos.rx() / gridSnapSize) );
-        newPos.setY( gridSnapSize * qRound(newPos.ry() / gridSnapSize) );
-      }
       newTopLeftPoss.append( newPos );
     }
     
@@ -2072,11 +2231,6 @@ void DFGController::gvcDoMoveNodes(
       GraphView::Node *node = *it;
       FTL::CStrRef nodeName = node->name();
       QPointF newPos = nodesOriginalPos[i] + delta;
-      if (gridSnapSize > 0)
-      {
-        newPos.setX( gridSnapSize * qRound(newPos.rx() / gridSnapSize) );
-        newPos.setY( gridSnapSize * qRound(newPos.ry() / gridSnapSize) );
-      }
       std::string newPosJSON;
       {
         FTL::JSONEnc<> enc( newPosJSON );
@@ -2106,9 +2260,30 @@ void DFGController::gvcDoResizeBackDropNode(
   GraphView::BackDropNode *backDropNode,
   QPointF newTopLeftPos,
   QSizeF newSize,
+  float gridSnapSize,
+  bool gridSnapTop,
+  bool gridSnapBottom,
+  bool gridSnapLeft,
+  bool gridSnapRight,
   bool allowUndo
   )
 {
+  if (gridSnapSize > 0)
+    if (gridSnapTop || gridSnapBottom || gridSnapLeft || gridSnapRight)
+    {
+      QPointF newBottomRightPos = newTopLeftPos + QPointF(newSize.width(), newSize.height());
+      if (gridSnapTop)
+        newTopLeftPos.setY(gridSnapSize * qRound(newTopLeftPos.ry() / gridSnapSize));
+      if (gridSnapBottom)
+        newBottomRightPos.setY(gridSnapSize * qRound(newBottomRightPos.ry() / gridSnapSize));
+      if (gridSnapLeft)
+        newTopLeftPos.setX(gridSnapSize * qRound(newTopLeftPos.rx() / gridSnapSize));
+      if (gridSnapRight)
+        newBottomRightPos.setX(gridSnapSize * qRound(newBottomRightPos.rx() / gridSnapSize));
+      newSize.setWidth(newBottomRightPos.x() - newTopLeftPos.x());
+      newSize.setHeight(newBottomRightPos.y() - newTopLeftPos.y());
+    }
+
   if ( allowUndo )
   {
     cmdResizeBackDropNode(

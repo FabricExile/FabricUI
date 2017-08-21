@@ -809,4 +809,49 @@ QString DFGUICmdHandler_QUndo::dfgDoAddBlockPort(
   return cmd->getActualPortName();
 }
 
+QString DFGUICmdHandler_QUndo::dfgDoAddNLSPort(
+  FabricCore::DFGBinding const &binding,
+  QString execPath,
+  FabricCore::DFGExec const &exec,
+  QString desiredPortName,
+  QString typeSpec,
+  QString portToConnect,
+  QString extDep,
+  QString metaData
+  )
+{
+  DFGUICmd_AddNLSPort *cmd =
+    new DFGUICmd_AddNLSPort(
+      binding,
+      execPath,
+      exec,
+      desiredPortName,
+      typeSpec,
+      portToConnect,
+      extDep,
+      metaData
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+  return cmd->getActualPortName();
+}
+
+void DFGUICmdHandler_QUndo::dfgDoReorderNLSPorts(
+  FabricCore::DFGBinding const &binding,
+  QString execPath,
+  FabricCore::DFGExec const &exec,
+  QString itemPath,
+  QList<int> indices
+  )
+{
+  DFGUICmd_ReorderNLSPorts *cmd =
+    new DFGUICmd_ReorderNLSPorts(
+      binding,
+      execPath,
+      exec,
+      itemPath,
+      indices
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

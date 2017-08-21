@@ -12,7 +12,6 @@
         <rejection field-name="s_rtval_commands"/>
       </object-type>
 	  <object-type name="ManipulationTool" copyable="false"/>
-    <object-type name="ViewportOptionsEditor" copyable="false"/>
     </namespace-type>
   </namespace-type>
 </typesystem>

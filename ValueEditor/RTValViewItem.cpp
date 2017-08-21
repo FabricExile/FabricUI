@@ -5,6 +5,8 @@
 #include "RTValViewItem.h"
 #include "ViewItemFactory.h"
 #include "QVariantRTVal.h"
+#include "BaseModelItem.h"
+#include <QHBoxLayout>
 
 #include <assert.h>
 #include <QLabel>
@@ -16,10 +18,10 @@ RTValViewItem::RTValViewItem( QString name,
                               ItemMetadata* metadata )
   : BaseComplexViewItem( name, metadata )
   , m_val(value)
-  , m_widget(new QLabel())
+  , m_label(new QLabel())
+  , m_widget(new QWidget())
 {
   m_widget->setObjectName( "RTValItem" );
-
 
   // We cannot leave arbitrary classes open to
   // editing, as we don't know what effect this
@@ -35,10 +37,43 @@ RTValViewItem::RTValViewItem( QString name,
                       strcmp( typeName, "Quat" ) == 0 ||
                       strcmp( typeName, "Xfo" ) == 0 ||
                       strcmp( typeName, "Complex" ) == 0);
+
   // Do not change state if editable (we inherit our
   // parents editable status)
   if (!m_isEditableType)
     m_metadata.setSInt32( "uiReadOnly", 1 );
+}
+
+void RTValViewItem::setBaseModelItem( BaseModelItem* item ) 
+{
+  BaseViewItem::setBaseModelItem( item );
+
+  QHBoxLayout *layout = new QHBoxLayout();
+  layout->addWidget(m_label);
+
+/*  if( m_isEditableType && 
+      ( 
+        strcmp( m_val.getTypeNameCStr(), "Xfo" ) == 0 //||
+        //strcmp( m_val.getTypeNameCStr(), "Vec3" ) == 0 
+      )
+    )
+  {
+    //TODO: uncomment this when the widget is not created right away
+    
+    QCheckBox *checkbox = m_appTool->createKLWidget( 
+      m_val.callMethod("Type", "type", 0, 0)
+      );
+
+    if(checkbox)
+    {
+      layout->addWidget(checkbox);
+      layout->addStretch(2);
+
+      m_appTool->valueChanged(m_val);
+    }
+  }
+*/
+  m_widget->setLayout(layout);
 
   UpdateWidget();
 }
@@ -145,7 +180,7 @@ void RTValViewItem::UpdateWidget()
   //{
   //  str += ": null";
   //}
-  m_widget->setText( str );
+  m_label->setText( str );
 }
 
 //////////////////////////////////////////////////////////

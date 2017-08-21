@@ -14,6 +14,7 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_ImportNodeFromJSON.h> 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddInstBlockPort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddInstPort.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddNLSPort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddPort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddSet.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddVar.h>
@@ -32,6 +33,7 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_EditNode.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_RenamePort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_ReorderPorts.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmd_ReorderNLSPorts.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_ResizeBackDrop.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetArgValue.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetCode.h>

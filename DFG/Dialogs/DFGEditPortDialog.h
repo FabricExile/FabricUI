@@ -78,6 +78,8 @@ namespace FabricUI
       void setHasFileTypeFilter(bool value);
       QString fileTypeFilter() const;
       void setFileTypeFilter(QString value);
+      bool isOpenFile() const;
+      void setIsOpenFile(bool value);
 
       virtual void showEvent(QShowEvent * event);
 
@@ -117,6 +119,7 @@ namespace FabricUI
       QLineEdit * m_combo;
       QCheckBox * m_hasFileTypeFilter;
       QLineEdit * m_fileTypeFilter;
+      QCheckBox * m_isOpenFile;
 
     };
 

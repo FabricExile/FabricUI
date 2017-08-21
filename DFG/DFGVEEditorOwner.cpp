@@ -20,7 +20,8 @@
 #include <FabricUI/ValueEditor/ItemMetadata.h>
 #include <FabricUI/ValueEditor/VETreeWidget.h>
 #include <FabricUI/ValueEditor/VETreeWidgetItem.h>
-
+#include <FabricUI/DFG/DFGVEEditorContextualMenu.h>
+#include <iostream>
 using namespace FabricUI;
 using namespace DFG;
 using namespace ModelItems;
@@ -30,6 +31,15 @@ DFGVEEditorOwner::DFGVEEditorOwner( DFGWidget * dfgWidget )
   , m_setGraph( NULL )
   , m_notifProxy( NULL )
 {
+  m_valueEditor->setContextMenuPolicy(Qt::CustomContextMenu);
+  m_valueEditor->setMouseTracking(true);
+
+  connect(
+    m_valueEditor,
+    SIGNAL(itemOveredChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
+    this,
+    SLOT(onItemOveredChanged(QTreeWidgetItem*, QTreeWidgetItem*))
+    );
 }
 
 DFGVEEditorOwner::~DFGVEEditorOwner()
@@ -63,6 +73,13 @@ void DFGVEEditorOwner::initConnections()
 
   connect( getDfgWidget(), SIGNAL( onGraphSet( FabricUI::GraphView::Graph* ) ),
                     this, SLOT( onGraphSet( FabricUI::GraphView::Graph* ) ) );
+
+  connect(
+    m_valueEditor, 
+    SIGNAL(customContextMenuRequested(const QPoint &)), 
+    this, 
+    SLOT(onCustomContextMenu(const QPoint &))
+    );
 
   onGraphSet( getDfgWidget()->getUIGraph() );
 }
@@ -1086,6 +1103,42 @@ void DFGVEEditorOwner::onGraphSet( FabricUI::GraphView::Graph * graph )
 
     m_setGraph = graph;
   }
+}
+
+void DFGVEEditorOwner::onCustomContextMenu(const QPoint &point)
+{
+  QTreeWidgetItem *qTreeItem = m_valueEditor->itemAt(point);
+  if(qTreeItem)
+  {
+    ValueEditor::VETreeWidgetItem *veTreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(qTreeItem);
+    if(veTreeItem)
+      DFGVEEditorContextualMenu::create(
+        m_valueEditor, 
+        point,
+        veTreeItem);
+  }
+}
+
+void DFGVEEditorOwner::onItemOveredChanged( QTreeWidgetItem * oldItem, QTreeWidgetItem * newItem ) {
+
+  /// To indicate if an item can be edited from a contextual menu action.
+  // if(newItem != 0)
+  // {
+  //   ValueEditor::VETreeWidgetItem *newVETreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(newItem);
+  //   if(newVETreeItem && DFGVEEditorContextualMenu::canCreate(newVETreeItem))
+  //   {
+  //     // std::cout << "DFGVEEditorOwner::onItemOvered " << "Add New " << std::endl;
+  //   }
+  // }
+
+  // if(oldItem != 0)
+  // {
+  //   ValueEditor::VETreeWidgetItem *oldVETreeItem = static_cast<ValueEditor::VETreeWidgetItem *>(oldItem);
+  //   if(oldVETreeItem && DFGVEEditorContextualMenu::canCreate(oldVETreeItem))
+  //   {
+  //     //std::cout << "DFGVEEditorOwner::onItemOvered " << "Remove old " << std::endl;
+  //   }
+  // }
 }
 
 void DFGVEEditorOwner_BindingNotifProxy::onBindingArgValueChanged(

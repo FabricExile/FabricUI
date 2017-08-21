@@ -47,6 +47,7 @@ namespace FabricUI
       virtual void mouseDoubleClickEvent(QMouseEvent * event);
       virtual void mousePressEvent(QMouseEvent * event);
       virtual void mouseReleaseEvent(QMouseEvent * event);
+      virtual void wheelEvent(QWheelEvent *event);
       virtual void contextMenuEvent(QContextMenuEvent *event);
       virtual void paintEvent(QPaintEvent * event);
 
@@ -54,6 +55,9 @@ namespace FabricUI
 
       virtual void highlightLocation(const FabricServices::ASTWrapper::KLLocation * location);
       virtual void clearHighlightedLocations();
+
+      void initFontPointSizeMembers();
+      void applyFontPointSize();
 
     protected:
 
@@ -73,6 +77,7 @@ namespace FabricUI
     signals:
 
       void documentScrolled(unsigned int);
+      void fontPointSizeChanged(qreal newfontPointSize);
       void openKLFileRequested(KLDeclPtr);
       void newUnsavedChanged();
       void fileSaved();
@@ -90,6 +95,8 @@ namespace FabricUI
       const FabricServices::ASTWrapper::KLDecl * m_contextMenuDecl;
       bool m_hasUnsavedChanges;
       bool m_isHighlighting;
+      qreal m_fontPointSizeOriginal;
+      qreal m_fontPointSizeCurrent;
       QString m_lastCode;
       CodeCompletionPopup * m_popup;
       FabricCore::DFGExec *m_dfgExec;

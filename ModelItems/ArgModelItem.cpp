@@ -56,6 +56,8 @@ void ArgModelItem::onRenamed(
 {
   assert( m_argName == oldName );
   m_argName = newName;
+  m_metadata->computeDFGPath();
+  emit this->metadataChanged();
 }
 
 QVariant ArgModelItem::getValue()

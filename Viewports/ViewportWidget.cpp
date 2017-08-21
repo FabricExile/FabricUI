@@ -2,48 +2,110 @@
  *  Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
  */
 
-#include <FabricUI/Viewports/ViewportWidget.h>
+#include <FabricCore.h>
+#include "ViewportWidget.h"
+#include <FabricUI/Application/FabricApplicationStates.h>
 
-using namespace FabricUI::Viewports;
+using namespace FabricUI;
+using namespace Viewports;
+using namespace FabricCore;
+using namespace Application;
 
-void ViewportWidget::init(FabricCore::Client &client, QColor bgColor, QSettings *settings) { 
-  m_settings = settings;
-  m_client = client;
-  m_bgColor = bgColor;
- 
-  m_hasCommercialLicense = m_client.hasCommercialLicense();
-  setFocusPolicy(Qt::StrongFocus);
- 
+void ViewportWidget::init() 
+{  
+  m_manipTool = new ManipulationTool();
+  m_eventFilter = new ViewportEventFilter(this);
+  installEventFilter(m_eventFilter);
+
   m_fps = 0.0;
-  for(int i=0;i<16;i++) m_fpsStack[i] = 0.0;
+  for(int i=0;i<16;i++) 
+    m_fpsStack[i] = 0.0;
 }
 
 ViewportWidget::ViewportWidget(
-  FabricCore::Client &client, 
-  QColor bgColor, 
   QGLContext *qglContext, 
   QWidget *parent, 
-  QGLWidget *share,
-  QSettings *settings)
+  QGLWidget *share)
   : QGLWidget(qglContext, parent, share)
 { 
-  init(client, bgColor, settings);
+  init();
 }
 
 ViewportWidget::ViewportWidget(
-  FabricCore::Client &client, 
-  QColor bgColor, 
   QGLFormat format, 
-  QWidget *parent, 
-  QSettings *settings)
+  QWidget *parent)
   : QGLWidget(format, parent)
 {	
-  init(client, bgColor, settings);
+  init();
   setAutoBufferSwap(false);
 }
  
-void ViewportWidget::computeFPS() {
-   
+ViewportWidget::~ViewportWidget() 
+{
+  delete(m_eventFilter);
+  delete(m_manipTool);
+}
+
+bool ViewportWidget::isManipulationActive() 
+{
+  return m_manipTool->isActive();
+}
+
+void ViewportWidget::setManipulationActive(
+  bool state)
+{
+  if(state == m_manipTool->isActive())
+    return;
+ 
+  m_manipTool->setActive(state);
+  setMouseTracking(state);
+  redraw();
+}
+
+ManipulationTool* ViewportWidget::getManipTool() 
+{ 
+  return m_manipTool; 
+}
+
+double ViewportWidget::fps() 
+{ 
+  return m_fps; 
+}
+
+void ViewportWidget::clear() 
+{
+}
+
+void ViewportWidget::enterEvent(
+  QEvent * event) 
+{
+  setFocus();
+}
+
+void ViewportWidget::leaveEvent(
+  QEvent * event) 
+{
+  clearFocus();
+}
+
+bool ViewportWidget::onEvent(
+  QEvent *event) 
+{
+  return false;
+}
+
+void ViewportWidget::redraw() 
+{ 
+  update(); 
+} 
+
+void ViewportWidget::toggleManipulation() 
+{ 
+  setManipulationActive(!isManipulationActive()); 
+}
+
+void ViewportWidget::computeFPS() 
+{   
   // compute the fps
   double ms = m_fpsTimer.elapsed();
   m_fps = (ms == 0.0) ? 0.0 : 1000.0 / ms;
@@ -57,24 +119,4 @@ void ViewportWidget::computeFPS() {
   averageFps /= 16.0;
   m_fps = averageFps;
   m_fpsTimer.start();
-}
-
-void ViewportWidget::keyPressEvent(QKeyEvent * event) {
-  QGLWidget::keyPressEvent(event);
-}
-
-void ViewportWidget::mousePressEvent(QMouseEvent *event) {
-  QGLWidget::mousePressEvent(event);
-}
-
-void ViewportWidget::mouseMoveEvent(QMouseEvent *event) {
-  QGLWidget::mouseMoveEvent(event);
-}
-
-void ViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
-  QGLWidget::mouseReleaseEvent(event);
-}
-
-void ViewportWidget::wheelEvent(QWheelEvent *event) {
-  QGLWidget::wheelEvent(event);
 }

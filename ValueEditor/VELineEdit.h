@@ -7,7 +7,7 @@
 
 #include <QLineEdit>
 #include <QIntValidator>
-#include <FabricUI/Util/StringUtils.h>
+#include <FabricUI/Util/StringUtil.h>
 
 namespace FabricUI {
 namespace ValueEditor {

@@ -8,6 +8,8 @@
 #include <FabricUI/ModelItems/ItemPortModelItem.h>
 #include <FabricUI/ModelItems/RootModelItem.h>
 #include <QStringList>
+#include <FabricUI/Util/RTValUtil.h>
+#include <FabricUI/Application/FabricApplicationStates.h>
 
 namespace FabricUI {
 namespace ModelItems {
@@ -27,7 +29,7 @@ ItemPortModelItem::ItemPortModelItem(
   , m_exec( exec )
   , m_itemPath( itemPath )
   , m_portName( portName )
-  , m_metadata( 0 )
+  , m_metadata( NULL )
 {
   updatePortPath();
 }
@@ -42,6 +44,11 @@ void ItemPortModelItem::updatePortPath()
   m_portPath = m_itemPath;
   m_portPath += '.';
   m_portPath += m_portName;
+  if( m_metadata != NULL )
+  {
+    m_metadata->computeDFGPath();
+    emit this->metadataChanged();
+  }
 }
 
 FabricUI::ValueEditor::ItemMetadata* ItemPortModelItem::getMetadata()
@@ -156,6 +163,75 @@ void ItemPortModelItem::setValue(
   {
     reportFabricCoreException( e );
   }
+}
+
+QString ItemPortModelItem::getCommandName() 
+{
+  return "setPortDefaultValue";
+}
+
+FabricCore::RTVal ItemPortModelItem::getCommandArgs() 
+{
+  FabricCore::RTVal cmdArgs;
+
+  try
+  {    
+    FabricCore::Client client =  Application::FabricApplicationStates::GetAppStates()->getClient();
+  
+    cmdArgs = FabricCore::RTVal::ConstructDict(
+      client, 
+      "String",
+      "RTVal"
+    );
+
+    cmdArgs.setDictElement(
+      FabricCore::RTVal::ConstructString(
+        client, 
+        "execPath"
+        ), 
+      Util::RTValUtil::toKLRTVal(
+        FabricCore::RTVal::ConstructString(
+          client, 
+          getExecPath().c_str()
+          )
+        )
+      );
+
+    cmdArgs.setDictElement(
+      FabricCore::RTVal::ConstructString(
+        client, 
+        "nodeName"
+        ), 
+      Util::RTValUtil::toKLRTVal(
+        FabricCore::RTVal::ConstructString(
+          client, 
+          getItemPath().c_str()
+          )
+        )
+      );
+
+    cmdArgs.setDictElement(
+      FabricCore::RTVal::ConstructString(
+        client, 
+        "portName"
+        ), 
+      Util::RTValUtil::toKLRTVal(
+        FabricCore::RTVal::ConstructString(
+          client, 
+          getPortName().c_str()
+          )
+        )
+      );
+  }
+  
+  catch(FabricCore::Exception &e)
+  {
+    printf(
+      "ItemPortModelItem::getCommandArgs: exception: %s\n", 
+      e.getDesc_cstr());
+  }
+
+  return cmdArgs;
 }
 
 void ItemPortModelItem::onItemRenamed(

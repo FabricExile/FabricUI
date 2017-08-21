@@ -11,6 +11,7 @@
   <load-typesystem name="fabricui_core.xml" generate="yes"/>
 
   <namespace-type name="FabricUI" generate="no">
+    <load-typesystem name="fabricui_commands.xml" generate="yes"/>
     <load-typesystem name="fabricui_dfg.xml" generate="yes"/>
     <load-typesystem name="fabricui_viewports.xml" generate="yes"/>
     <load-typesystem name="fabricui_timeline.xml" generate="yes"/>
@@ -25,11 +26,11 @@
       </object-type>
     </namespace-type>
 
-    <namespace-type name="Application" generate="yes">
-      <object-type name="FabricApplication" />
-    </namespace-type>
-  
+    <load-typesystem name="fabricui_application.xml" generate="yes"/>
+    <load-typesystem name="fabricui_style.xml" generate="yes"/>
     <load-typesystem name="fabricui_menus.xml" generate="yes"/>
+    <load-typesystem name="fabricui_dialog.xml" generate="yes"/>
+    <load-typesystem name="fabricui_tools.xml" generate="yes"/>
     <load-typesystem name="fabricui_actions.xml" generate="yes"/>
     <load-typesystem name="fabricui_modelitems.xml" generate="yes"/>
     <load-typesystem name="fabricui_valueeditor.xml" generate="yes"/>

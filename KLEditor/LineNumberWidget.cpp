@@ -14,19 +14,15 @@ LineNumberWidget::LineNumberWidget(QWidget * parent, const EditorConfig & config
 : QWidget(parent)
 {
   m_config = config;
-  m_metrics = new QFontMetrics(m_config.lineNumberFont);
   m_lineOffset = 0;
-
-  int maxWidth = m_metrics->width("0000") + 6;
-  setMinimumWidth(maxWidth);
-  setMaximumWidth(maxWidth);
+  m_fontPointSize = -1;
+  setFontPointSize(0);
 
   setContentsMargins(0, 0, 0, 0);
 }
 
 LineNumberWidget::~LineNumberWidget()
 {
-  delete(m_metrics);
 }
 
 unsigned int LineNumberWidget::lineOffset() const
@@ -43,16 +39,38 @@ void LineNumberWidget::setLineOffset(unsigned int offset)
   }
 }
 
+void LineNumberWidget::setFontPointSize(qreal fontPointSize)
+{
+  if (fontPointSize != m_fontPointSize)
+  {
+    m_fontPointSize = fontPointSize;
+    QFont font = m_config.lineNumberFont;
+    if (m_fontPointSize > 0)
+      font.setPointSizeF(m_fontPointSize);
+    int maxWidth = QFontMetrics(font).width("0000") + 6;
+    setMinimumWidth(maxWidth);
+    setMaximumWidth(maxWidth);
+    update();
+  }
+}
+
 void LineNumberWidget::paintEvent(QPaintEvent * event)
 {
   QPainter painter(this);
   
   painter.fillRect(event->rect(), m_config.lineNumberBackgroundColor);
 
+  QFont font = m_config.lineNumberFont;
+  if (m_fontPointSize > 0)
+    font.setPointSizeF(m_fontPointSize);
+  painter.setFont(font);
+  painter.setPen(m_config.lineNumberFontColor);
+  QFontMetrics fontMetrics(font);
+
   int width = event->rect().width();
   int height = event->rect().height();
 
-  int offset = m_metrics->lineSpacing();
+  int offset = fontMetrics.lineSpacing();
   int extraOffset = 0;
 
 #if defined(FABRIC_OS_DARWIN)
@@ -73,13 +91,6 @@ void LineNumberWidget::paintEvent(QPaintEvent * event)
   }
 #endif
 
-  painter.setFont(m_config.lineNumberFont);
-  painter.setPen(m_config.lineNumberFontColor);
-
-  // std::string tempText;
-  // tempText = "0001";
-  // painter.drawText(QPoint(width - 2 - lineWidth, m_metrics->lineSpacing()), tempText.c_str()); // debug
-
   int line = m_lineOffset + 1;
   char buffer[128];
   while(offset < height)
@@ -94,9 +105,9 @@ void LineNumberWidget::paintEvent(QPaintEvent * event)
     while(paddingNumber.length() < 4)
       paddingNumber = " " + paddingNumber;
 
-    int lineWidth = m_metrics->width(paddingNumber.c_str());
+    int lineWidth = fontMetrics.width(paddingNumber.c_str());
     painter.drawText(QPoint(width - 2 - lineWidth, offset), paddingNumber.c_str());
-    offset += m_metrics->lineSpacing() + extraOffset;
+    offset += fontMetrics.lineSpacing() + extraOffset;
     line++;
   }
 

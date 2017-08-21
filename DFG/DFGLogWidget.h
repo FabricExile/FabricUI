@@ -15,6 +15,67 @@ namespace FabricUI
   namespace DFG
   {
 
+    class DFGLogWidgetPlainTextEdit : public QPlainTextEdit
+    {
+      Q_OBJECT
+
+    public:
+
+      DFGLogWidgetPlainTextEdit(QWidget * parent)
+      : QPlainTextEdit(parent)
+      {}
+
+      void initFontPointSizeMembers()
+      {
+        m_fontPointSizeOriginal = this->font().pointSizeF();
+        m_fontPointSizeCurrent = m_fontPointSizeOriginal;
+      }
+
+      void applyFontPointSize()
+      {
+        m_fontPointSizeCurrent = std::max(1.0, std::min(32.0, m_fontPointSizeCurrent));
+        char styleSheet[128];
+        sprintf(styleSheet, "font-size: %gpt;", m_fontPointSizeCurrent);
+        setStyleSheet(styleSheet);
+      }
+
+      virtual void keyPressEvent(QKeyEvent * event)
+      {
+        if (event->modifiers().testFlag(Qt::ControlModifier))
+        {
+          if (   event->key() == Qt::Key_Plus
+              || event->key() == Qt::Key_Minus
+              || event->key() == Qt::Key_0)
+          {
+            if      (event->key() == Qt::Key_Plus)  m_fontPointSizeCurrent++;
+            else if (event->key() == Qt::Key_Minus) m_fontPointSizeCurrent--;
+            else                                    m_fontPointSizeCurrent = m_fontPointSizeOriginal;
+            applyFontPointSize();
+          }
+          event->accept();
+        }
+        else
+          QPlainTextEdit::keyPressEvent(event);
+      }
+
+      virtual void wheelEvent(QWheelEvent *event)
+      {
+        if (event->modifiers().testFlag(Qt::ControlModifier))
+        {
+          m_fontPointSizeCurrent += 0.0125 * event->delta();
+          applyFontPointSize();
+          event->accept();
+        }
+        else
+          QPlainTextEdit::wheelEvent(event);
+      }
+
+    private:
+
+      qreal m_fontPointSizeOriginal;
+      qreal m_fontPointSizeCurrent;
+    };
+
     class DFGLogWidget : public QWidget
     {
       Q_OBJECT
@@ -48,7 +109,7 @@ namespace FabricUI
 
     private:
 
-      QPlainTextEdit * m_text;
+      DFGLogWidgetPlainTextEdit * m_text;
       DFGConfig m_config;
 
       static DFGController::LogFunc s_logFunc;

@@ -602,6 +602,34 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("blockName") )
         );
     }
+    else if( descStr == FTL_STR("nlsPortInserted") )
+    {
+      // TODO
+    }
+    else if( descStr == FTL_STR("nlsPortMetadataChanged") )
+    {
+      // TODO
+    }
+    else if( descStr == FTL_STR("nlsPortRemoved") )
+    {
+      // TODO
+    }
+    else if( descStr == FTL_STR("nlsPortRenamed") )
+    {
+      // TODO
+    }
+    else if( descStr == FTL_STR("nlsPortResolvedTypeChanged") )
+    {
+      // TODO
+    }
+    else if( descStr == FTL_STR("nlsPortTypeSpecChanged") )
+    {
+      // TODO
+    }
+    else if( descStr == FTL_STR("nlsPortsReordered") )
+    {
+      // TODO
+    }
     else
     {
       printf(

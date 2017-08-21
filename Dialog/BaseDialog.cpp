@@ -1,18 +1,19 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 
-#include <FabricUI/Util/LoadFabricStyleSheet.h>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include "BaseDialog.h"
+#include <FabricUI/Util/LoadFabricStyleSheet.h>
 
-using namespace FabricUI::Dialog;
+using namespace FabricUI;
+using namespace Dialog;
 
-BaseDialog::BaseDialog(QWidget *parent)
+BaseDialog::BaseDialog(
+  QWidget *parent)
 : QDialog(parent)
 {
-
   setMinimumHeight(10);
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
 

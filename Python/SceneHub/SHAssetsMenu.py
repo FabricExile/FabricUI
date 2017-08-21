@@ -44,7 +44,7 @@ class SHAssetsMenu(SceneHub.SHBaseSceneMenu):
         dialog.setFileMode(QtGui.QFileDialog.ExistingFiles)
         dialog.setNameFilter("Files (*.abc *.fbx)")
         if dialog.exec_():
-            pathList = Util.StringUtils.ProcessPathQStringForOsX(dialog.selectedFiles())
+            pathList = Util.StringUtil.ProcessPathQStringForOsX(dialog.selectedFiles())
             self.m_shGLScene.addExternalFileList(pathList, self.sender().text() != "Add Asset")
       
     def exportToAlembic(self):   
@@ -62,6 +62,6 @@ class SHAssetsMenu(SceneHub.SHBaseSceneMenu):
 
         pathList = []
         pathList.append(fileName)
-        pathList = Util.StringUtils.ProcessPathQStringForOsX(pathList)
+        pathList = Util.StringUtil.ProcessPathQStringForOsX(pathList)
         self.m_shGLScene.exportToAlembic(pathList[0])
       

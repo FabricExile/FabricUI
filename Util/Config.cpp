@@ -9,6 +9,8 @@
 using namespace FTL;
 
 #include <fstream>
+#include <ctime>
+#include <limits>
 
 #include <QColor>
 #include <QFont>
@@ -69,6 +71,58 @@ void Config::open( const FTL::StrRef fileName )
   m_json = new JSONObject();
 }
 
+const char* VerKey_Maj = "Major";
+const char* VerKey_Min = "Minor";
+const char* VerKey_Rev = "Revision";
+const char* VerKey_CSt = "ConfigStamp";
+const char* VerKey_RtSt = "RunTimeStamp";
+
+struct ConfigVersion
+{
+  uint8_t m_major, m_minor, m_revision, m_configStamp;
+  int32_t m_runTimeStamp;
+public:
+  ConfigVersion()
+    : m_major( FabricCore::GetVersionMaj() )
+    , m_minor( FabricCore::GetVersionMin() )
+    , m_revision( FabricCore::GetVersionRev() )
+    , m_configStamp( 0 ) // Hardcoded value : modify if necessary
+    , m_runTimeStamp( std::min<time_t>( std::time( NULL ), std::numeric_limits<int32_t>::max() ) )
+  {}
+  ConfigVersion( const FTL::JSONObject* o )
+    : m_major( o->getSInt32OrDefault( VerKey_Maj, 0 ) )
+    , m_minor( o->getSInt32OrDefault( VerKey_Min, 0 ) )
+    , m_revision( o->getSInt32OrDefault( VerKey_Rev, 0 ) )
+    , m_configStamp( o->getSInt32OrDefault( VerKey_CSt, 0 ) )
+    , m_runTimeStamp( o->getSInt32OrDefault( VerKey_RtSt, 0 ) )
+  {
+  }
+  inline bool operator<( const ConfigVersion& o ) const
+  {
+    return 
+      ( this->m_major < o.m_major ) || ( ( this->m_major == o.m_major ) &&
+        ( ( this->m_minor < o.m_minor ) || ( ( this->m_minor == o.m_minor ) &&
+          ( ( this->m_revision < o.m_revision ) || ( ( this->m_revision < o.m_revision ) &&
+            ( ( this->m_configStamp < o.m_configStamp ) || ( ( this->m_configStamp == o.m_configStamp ) &&
+              ( this->m_runTimeStamp < o.m_runTimeStamp )
+            ) )
+          ) )
+        ) )
+      )
+    ;
+  }
+  FTL::JSONObject* write() const
+  {
+    FTL::JSONObject* o = new FTL::JSONObject();
+    o->insert( VerKey_Maj, new FTL::JSONSInt32( this->m_major ) );
+    o->insert( VerKey_Min, new FTL::JSONSInt32( this->m_minor ) );
+    o->insert( VerKey_Rev, new FTL::JSONSInt32( this->m_revision ) );
+    o->insert( VerKey_CSt, new FTL::JSONSInt32( this->m_configStamp ) );
+    o->insert( VerKey_RtSt, new FTL::JSONSInt32( this->m_runTimeStamp ) );
+    return o;
+  }
+};
+
 Config::Config()
   : ConfigSection()
 {
@@ -85,17 +139,51 @@ Config::Config()
   this->setAccess( ReadOnly );
   std::string userConfigPath = FTL::PathJoin( FabricCore::GetFabricUserDir(), "user.config.json" );
 
-  // [FE-7891] Creating a sample file if none exists
-  if ( !std::ifstream( userConfigPath.data() ).is_open() )
-  {
-    std::ofstream file( userConfigPath.data() );
-    // TODO : instead of writing the sample file like this, we could read it
-    // from the disk (see how it's done in Config::open above)
-    file << "// This file will override the default settings that are located in " << defaultConfigPath << std::endl;
-    file << "{" << std::endl;
-    file << "}" << std::endl;
-  }
   this->open( userConfigPath );
+
+  const char* VersionKeyStr = "ConfigVersion";
+
+  // Retro-compatibility
+  if( !m_json->has( VersionKeyStr ) )
+  {
+    // Detecting a previous file that we automatically wrote in Fabric 2.5.0
+    // with default values that have changed since then (so we ignore these values)
+    if( m_json->size() == 1 && m_json->has( "GraphView" ) )
+    {
+      FTL::JSONValue* gv = m_json->get( "GraphView" );
+      if( gv->isObject() )
+      {
+        FTL::JSONObject* gvo = gv->cast<FTL::JSONObject>();
+        if( gvo->size() == 1 && gvo->has( "mainPanelBackgroundColor" ) )
+          gvo->clear();
+      }
+    }
+  }
+
+  // Writing the latest version to that ReadOnly file (this
+  // is the only thing we change; aside from the malformed entries
+  // that will be removed)
+  {
+    const char* highestVerKey = "latest";
+    ConfigVersion highestVersion;
+    ConfigVersion currentVersion;
+    if( m_json->has( VersionKeyStr ) && m_json->get( VersionKeyStr )->isObject() )
+    {
+      const FTL::JSONObject* versions = m_json->getObject( VersionKeyStr );
+      if( versions->has( highestVerKey ) && versions->get( highestVerKey )->isObject() )
+        highestVersion = ConfigVersion( versions->getObject( highestVerKey ) );
+    }
+    highestVersion = std::max( highestVersion, currentVersion );
+
+    FTL::JSONObject* versions = new FTL::JSONObject();
+    versions->insert( highestVerKey, highestVersion.write() );
+    versions->insert( "lastEdit", currentVersion.write() );
+    m_json->replace( VersionKeyStr, versions );
+
+    m_json->replace( "DefaultConfigPath", new FTL::JSONString( defaultConfigPath ) );
+    std::ofstream file( m_fileName.data() );
+    file << m_json->encode();
+  }
 }
 
 Config::~Config()

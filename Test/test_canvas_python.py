@@ -1,36 +1,30 @@
 import platform
 import pytest
 import os
+import fabric_test_ui
+from PySide import QtCore, QtGui
+from PySide.QtTest import QTest
+from FabricEngine import Core
+from FabricEngine.FabricUI import Application
+from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 
 # [andrew 20160330] FE-6364
 pytestmark = pytest.mark.skipif(
-        (platform.system() == 'Linux' and not os.environ.has_key('DISPLAY')) or \
-            platform.system() == 'Darwin',
-        reason = "missing display")
+    fabric_test_ui.is_missing_display(),
+    reason="missing display",
+    )
 
-@pytest.fixture(scope="module")
-def canvas_win():
-    from FabricEngine.FabricUI import Application
-    from FabricEngine.Canvas.CanvasWindow import CanvasWindow
-    from PySide import QtCore, QtGui
-    from PySide.QtTest import QTest
+@pytest.yield_fixture(scope="module")
+def canvas_app():
+    app = fabric_test_ui.create_canvas_app()
+    yield app
+    fabric_test_ui.cleanup_canvas_app(app)
 
-    if not QtGui.QApplication.instance():
-        global app
-        app = Application.FabricApplication()
-        app.setOrganizationName('Fabric Software Inc')
-        app.setApplicationName('Fabric Canvas Standalone')
-
-    settings = QtCore.QSettings()
-    unguarded = False
-    noopt = True
-    main_win = CanvasWindow(settings, unguarded, noopt)
-    main_win.show()
-
-    # https://doc.qt.io/qt-4.8/qttest-module.html
-    QTest.qWaitForWindowShown(main_win)
-
-    return main_win
+@pytest.yield_fixture(scope="module")
+def canvas_win(canvas_app):
+    win = fabric_test_ui.create_canvas_win(canvas_app)
+    yield win
+    fabric_test_ui.cleanup_canvas_win(win)
 
 def test_fe5730(canvas_win):
     dfg_controller = canvas_win.dfgWidget.getDFGController()

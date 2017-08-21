@@ -12,11 +12,17 @@ namespace ModelItems {
 //////////////////////////////////////////////////////////////////////////
 BindingModelItem::BindingModelItem(
   DFG::DFGUICmdHandler *dfgUICmdHandler,
-  FabricCore::DFGBinding binding
+  FabricCore::DFGBinding binding,
+  bool showInputs,
+  bool showOutputs,
+  bool showIO
   )
   : m_dfgUICmdHandler( dfgUICmdHandler )
   , m_binding( binding )
   , m_rootExec( binding.getExec() )
+  , m_showInputs(showInputs)
+  , m_showOutputs(showOutputs)
+  , m_showIO(showIO)
 {
   assert( m_binding.isValid() );
   assert( m_rootExec.isValid() );
@@ -29,12 +35,38 @@ BindingModelItem::~BindingModelItem()
 
 int BindingModelItem::getNumChildren()
 {
-  return m_rootExec.getExecPortCount();
+  int count = 0;
+  for(unsigned int j=0;j<m_rootExec.getExecPortCount();j++)
+  {
+    FabricCore::DFGPortType portType = m_rootExec.getExecPortType(j);
+    if((portType == FabricCore::DFGPortType_In) && !m_showInputs)
+      continue;
+    if((portType == FabricCore::DFGPortType_Out) && !m_showOutputs)
+      continue;
+    if((portType == FabricCore::DFGPortType_IO) && !m_showIO)
+      continue;
+    count++;
+  }
+  return count;
 }
 
 FTL::CStrRef BindingModelItem::getChildName( int i )
 {
-  return m_rootExec.getExecPortName( i );
+  int index = 0;
+  for(unsigned int j=0;j<m_rootExec.getExecPortCount();j++)
+  {
+    FabricCore::DFGPortType portType = m_rootExec.getExecPortType(j);
+    if((portType == FabricCore::DFGPortType_In) && !m_showInputs)
+      continue;
+    if((portType == FabricCore::DFGPortType_Out) && !m_showOutputs)
+      continue;
+    if((portType == FabricCore::DFGPortType_IO) && !m_showIO)
+      continue;
+    if(index == i)
+      return m_rootExec.getExecPortName(j);
+    index++;
+  }
+  return FTL::CStrRef();
 }
 
 FabricUI::ValueEditor::BaseModelItem *

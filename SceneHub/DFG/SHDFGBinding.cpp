@@ -175,8 +175,8 @@ void SHDFGBinding::onDriveNodeInputPorts(RTVal event) {
         DFGExec subExecParent = exec.getSubExec(subExecParentPath.toUtf8().constData());
  
         RTVal toolVal = exec.getVarValue(toolPath.toUtf8().constData());
-        RTVal target = toolVal.callMethod("DFGToolTarget", "getTarget", 0, 0);
-        RTVal toolData = target.callMethod("DFGToolData", "getToolData", 0, 0);
+        RTVal target = toolVal.callMethod("LegacyDFGToolTarget", "getTarget", 0, 0);
+        RTVal toolData = target.callMethod("LegacyDFGToolData", "getToolData", 0, 0);
 
         bool bakeValue = toolData.callMethod("Boolean", "bakeValue", 0, 0).getBoolean();  
         int portCount = toolData.callMethod("UInt32", "getPortCount", 0, 0).getUInt32();

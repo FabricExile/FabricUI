@@ -83,6 +83,9 @@ void DFGUICmd_Exec::moveNodes(
   for ( size_t i = 0; i < itemNames.size(); ++i )
   {
     FTL::CStrRef itemName = itemNames[i];
+    if(newTopLeftPoss.size() == i)
+      break;
+    
     QPointF newTopLeftPos = newTopLeftPoss[i];
 
     std::string json;

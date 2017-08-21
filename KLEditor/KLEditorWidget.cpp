@@ -25,6 +25,8 @@ KLEditorWidget::KLEditorWidget(
 
   QObject::connect(m_sourceCodeWidget, SIGNAL(documentScrolled(unsigned int)), m_lineNumbers, SLOT(setLineOffset(unsigned int)));
 
+  QObject::connect(m_sourceCodeWidget, SIGNAL(fontPointSizeChanged(qreal)), m_lineNumbers, SLOT(setFontPointSize(qreal)));
+
   QHBoxLayout * layout = new QHBoxLayout();
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);

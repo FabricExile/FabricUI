@@ -9,6 +9,7 @@
 #include <FabricCore.h>
 
 class QLabel;
+#include <QWidget>
 
 
 namespace FabricUI {
@@ -21,7 +22,8 @@ class RTValViewItem : public BaseComplexViewItem
 	FabricCore::RTVal m_val; 
 
   // A composite widget to represent any/all values in UI
-	QLabel *m_widget;
+	QLabel *m_label;
+  QWidget *m_widget;
 
   bool m_isEditableType;
 
@@ -41,6 +43,7 @@ public:
 
   virtual bool hasChildren() const /*override*/;
 
+  virtual void setBaseModelItem( BaseModelItem* item ); /*override*/;
 
   virtual QWidget *getWidget() /*override*/;
 
@@ -56,7 +59,6 @@ public:
   void deleteMe() { delete this; }
 
 private:
-
   void UpdateWidget();
 };
 

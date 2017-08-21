@@ -3,7 +3,6 @@
 //
 
 #include "DFGExecNotifier.h"
-
 #include <FTL/JSONValue.h>
 #include <stdio.h>
 
@@ -47,6 +46,7 @@ DFGExecNotifier::HandlerMap const &DFGExecNotifier::GetHandlerMap()
     handlerMap[FTL_STR("execTitleChanged")] = &DFGExecNotifier::handler_execTitleChanged;
     handlerMap[FTL_STR("execWillDetachPreset")] = &DFGExecNotifier::handler_execWillDetachPreset;
     handlerMap[FTL_STR("extDepsChanged")] = &DFGExecNotifier::handler_extDepsChanged;
+    handlerMap[FTL_STR("extDepAdded")] = &DFGExecNotifier::handler_extDepAdded;
     handlerMap[FTL_STR("funcCodeChanged")] = &DFGExecNotifier::handler_funcCodeChanged;
     handlerMap[FTL_STR("instBlockExecEditWouldSplitFromPresetMayHaveChanged")] = &DFGExecNotifier::handler_instBlockExecEditWouldSplitFromPresetMayHaveChanged;
     handlerMap[FTL_STR("instBlockInserted")] = &DFGExecNotifier::handler_instBlockInserted;
@@ -77,6 +77,13 @@ DFGExecNotifier::HandlerMap const &DFGExecNotifier::GetHandlerMap()
     handlerMap[FTL_STR("portsDisconnected")] = &DFGExecNotifier::handler_portsDisconnected;
     handlerMap[FTL_STR("refVarPathChanged")] = &DFGExecNotifier::handler_refVarPathChanged;
     handlerMap[FTL_STR("removedFromOwner")] = &DFGExecNotifier::handler_removedFromOwner;
+    handlerMap[FTL_STR("nlsPortInserted")] = &DFGExecNotifier::handler_nlsPortInserted;
+    handlerMap[FTL_STR("nlsPortMetadataChanged")] = &DFGExecNotifier::handler_nlsPortMetadataChanged;
+    handlerMap[FTL_STR("nlsPortRemoved")] = &DFGExecNotifier::handler_nlsPortRemoved;
+    handlerMap[FTL_STR("nlsPortRenamed")] = &DFGExecNotifier::handler_nlsPortRenamed;
+    handlerMap[FTL_STR("nlsPortResolvedTypeChanged")] = &DFGExecNotifier::handler_nlsPortResolvedTypeChanged;
+    handlerMap[FTL_STR("nlsPortTypeSpecChanged")] = &DFGExecNotifier::handler_nlsPortTypeSpecChanged;
+    handlerMap[FTL_STR("nlsPortsReordered")] = &DFGExecNotifier::handler_nlsPortsReordered;
   }
   return handlerMap;
 }
@@ -737,6 +744,79 @@ void DFGExecNotifier::handler_extDepsChanged( FTL::JSONObject const *jsonObject 
   FTL::CStrRef extDeps = jsonObject->getString( FTL_STR("extDeps") );
 
   emit extDepsChanged( extDeps );
+}
+
+void DFGExecNotifier::handler_extDepAdded( FTL::JSONObject const *jsonObject )
+{
+  // TODO
+}
+
+void DFGExecNotifier::handler_nlsPortInserted( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("portName") );
+  unsigned portIndex = unsigned( jsonObject->getSInt32( FTL_STR("portIndex") ) );
+  FTL::JSONObject const *portDesc =
+    jsonObject->getObject( FTL_STR("portDesc") );
+
+  emit nlsPortInserted( portIndex, portName, portDesc );
+}
+
+void DFGExecNotifier::handler_nlsPortRenamed( FTL::JSONObject const *jsonObject )
+{
+  unsigned portIndex = unsigned( jsonObject->getSInt32( FTL_STR("portIndex") ) );
+  FTL::CStrRef oldPortName = jsonObject->getString( FTL_STR("oldPortName") );
+  FTL::CStrRef newPortName = jsonObject->getString( FTL_STR("portName") );
+
+  emit nlsPortRenamed( portIndex, oldPortName, newPortName );
+}
+
+void DFGExecNotifier::handler_nlsPortRemoved( FTL::JSONObject const *jsonObject )
+{
+  unsigned portIndex = unsigned( jsonObject->getSInt32( FTL_STR("portIndex") ) );
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("portName") );
+
+  emit nlsPortRemoved( portIndex, portName );
+}
+
+void DFGExecNotifier::handler_nlsPortTypeSpecChanged( FTL::JSONObject const *jsonObject )
+{
+  unsigned portIndex = unsigned( jsonObject->getSInt32( FTL_STR("portIndex") ) );
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("portName") );
+  FTL::CStrRef newTypeSpec = jsonObject->getString( FTL_STR("newTypeSpec") );
+
+  emit nlsPortTypeSpecChanged( portIndex, portName, newTypeSpec );
+}
+
+void DFGExecNotifier::handler_nlsPortsReordered( FTL::JSONObject const *jsonObject )
+{
+  FTL::JSONArray const *newOrderJSONArray =
+    jsonObject->getArray( FTL_STR("newOrder") );
+  size_t newOrderSize = newOrderJSONArray->size();
+  unsigned *newOrderData =
+    (unsigned *)alloca( newOrderSize * sizeof( unsigned ) );
+  for ( size_t i = 0; i < newOrderSize; ++i )
+    newOrderData[i] = unsigned( newOrderJSONArray->getSInt32( i ) );
+
+  emit nlsPortsReordered(
+    FTL::ArrayRef<unsigned>( newOrderData, newOrderSize )
+    );
+}
+
+void DFGExecNotifier::handler_nlsPortResolvedTypeChanged( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("portName") );
+  FTL::CStrRef newResolvedTypeName = jsonObject->getStringOrEmpty( FTL_STR("newResolvedType") );
+
+  emit nlsPortResolvedTypeChanged( portName, newResolvedTypeName );
+}
+
+void DFGExecNotifier::handler_nlsPortMetadataChanged( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("portName") );
+  FTL::CStrRef key = jsonObject->getString( FTL_STR("key") );
+  FTL::CStrRef value = jsonObject->getString( FTL_STR("value") );
+
+  emit nlsPortMetadataChanged( portName, key, value );
 }
 
 } // namespace DFG

@@ -89,13 +89,17 @@ GraphConfig::GraphConfig()
 
   GET_PARAMETER( mainPanelBackgroundColor, QColor(58, 58, 58, 255) );
 
-  GET_PARAMETER( mainPanelHotkeyZoomBackgroundColor, QColor(56, 56, 56, 255) );
+  GET_PARAMETER( mainPanelHotkeyZoomBackgroundColor, QColor(45, 45, 45, 255) );
   GET_PARAMETER( mainPanelHotkeyZoomBorderColor, QColor(255, 255, 255, 160) );
 
   GET_PARAMETER( mainPanelDrawGrid, true );
   GET_PARAMETER( mainPanelGridSpan, 30 );
-  GET_PARAMETER( mainPanelGridSnap, false );
+  GET_PARAMETER( mainPanelGridSnap, true);
   GET_PARAMETER( mainPanelGridSnapSize, 10 );
+  GET_PARAMETER( mainPanelNodeSnap, true );
+  GET_PARAMETER( mainPanelNodeSnapDistance, 20 );
+  GET_PARAMETER( mainPanelPortSnap, true );
+  GET_PARAMETER( mainPanelPortSnapDistance, 20 );
   GET_PARAMETER( mainPanelGridPen, QPen(QColor(44, 44, 44, 255), 1.0) );
 
   GET_PARAMETER( mainPanelBackGroundPanFixed, true );
@@ -119,8 +123,8 @@ GraphConfig::GraphConfig()
   GET_PARAMETER( nodeFontHighlightColor, QColor(195, 195, 195, 255) );
   GET_PARAMETER( nodeDefaultPen, QPen(nodeFontColor, 1.0) );
   GET_PARAMETER( nodeDefaultPenUsesNodeColor, false );
-  GET_PARAMETER( nodeInspectedOutlineColor, QColor(223, 94, 39, 125) );
-  GET_PARAMETER( nodeInspectedSelectedOutlineColor, QColor(223, 94, 39, 255) );
+  GET_PARAMETER( nodeInspectedOutlineColor, QColor(33, 191, 198, 175) );
+  GET_PARAMETER( nodeInspectedSelectedOutlineColor, QColor(33, 191, 198, 255) );
 
   nodeSelectedPen = QPen(Qt::SolidLine);
   nodeSelectedPen.setColor(nodeFontHighlightColor);

@@ -72,16 +72,21 @@ FTL::CStrRef DFGUICmd_EditPort::invoke(
     newPortPath = oldPortPath;
     newPortName = oldPortPath.rsplit('.').second;
   }
-  bool isExecPort = newPortPath.find('.') == newPortPath.npos;
 
-  FabricCore::DFGPortType oldPortType =
-    exec.getOutsidePortType( newPortPath.c_str() );
-  if ( portType != oldPortType )
+  bool isOneLevelPath = newPortPath.find('.') == newPortPath.npos;
+  bool isExecPort = isOneLevelPath && exec.isExecPort( newPortPath.c_str() );
+
+  if ( isExecPort || !isOneLevelPath )
   {
-    exec.setOutsidePortType( newPortPath.c_str(), portType );
-    ++coreUndoCount;
+    FabricCore::DFGPortType oldPortType =
+      exec.getOutsidePortType( newPortPath.c_str() );
+    if ( portType != oldPortType )
+    {
+      exec.setOutsidePortType( newPortPath.c_str(), portType );
+      ++coreUndoCount;
+    }
   }
-
+  
   // Only set type & value if the type is different (else we loose the value even if the type didn't change!)
   FTL::CStrRef oldTypeSpec = exec.getPortTypeSpec( newPortPath.c_str() );
   if ( !typeSpec.empty() && oldTypeSpec != typeSpec )

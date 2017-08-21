@@ -30,11 +30,12 @@ namespace FabricUI
 
     public slots:
       void setLineOffset(unsigned int offset);
+      void setFontPointSize(qreal fontPointSize);
 
     private:
       EditorConfig m_config;
-      QFontMetrics * m_metrics;
       unsigned int m_lineOffset;
+      qreal m_fontPointSize;
     };
 
   };

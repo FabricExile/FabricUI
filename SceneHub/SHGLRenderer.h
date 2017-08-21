@@ -141,7 +141,7 @@ class SHGLRenderer : public QObject {
     /// \param dragging If true when dragging an asset or texture in the scene.
     bool onEvent(unsigned int viewportID, QEvent *event, bool dragging);
 
-    /// Returns a reference to the RootDispatcher.
+    /// Returns a reference to the LegacyRootDispatcher.
     FabricCore::RTVal getRootDispatcher();
 
     /// Gets the names and the keys of the registered tools.

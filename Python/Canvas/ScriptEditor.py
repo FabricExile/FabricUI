@@ -14,6 +14,8 @@ from FabricEngine.Canvas.LogWidget import LogWidget
 from FabricEngine.Canvas.LoadFabricStyleSheet import LoadFabricStyleSheet
 from FabricEngine.Canvas.PythonHighlighter import PythonHighlighter
 from FabricEngine.FabricUI import DFG, Actions
+from FabricEngine.Canvas.Commands.CommandRegistry import *
+from FabricEngine.Canvas.Commands.CommandManager import *
 
 class LogStd:
 
@@ -337,7 +339,8 @@ class ScriptEditor(QtGui.QWidget):
         self.__undoStackIndex = qUndoStack.index()
         qUndoStack.indexChanged.connect(self.undoStackIndexChanged)
         self.__qUndoStack = qUndoStack
-        self.__echoStackIndexChanges = True
+        self._echoStackIndexChanges = True
+        self._isExecuting = False
 
         self.eval_globals = {
             "binding": BindingWrapper(client, binding, qUndoStack),
@@ -345,6 +348,7 @@ class ScriptEditor(QtGui.QWidget):
             "newScript": self.newScript,
             "loadScript": self.loadScript,
             "bindingUtils": DFG.DFGBindingUtils(),
+            "Commands" : sys.modules["Commands"]
             }
          
         self.dfgLogWidget = dfgLogWidget
@@ -424,7 +428,7 @@ class ScriptEditor(QtGui.QWidget):
         self.cmd.setTextCursor(textCursor)
 
     def undoStackIndexChanged(self, index):
-        if self.__echoStackIndexChanges and self.echoCommandsAction.isChecked():
+        if self._echoStackIndexChanges and self.echoCommandsAction.isChecked():
             if index < self.__undoStackIndex:
                 for i in range(self.__undoStackIndex-1, index-1, -1):
                     s = self.__qUndoStack.text(i)
@@ -536,13 +540,28 @@ class ScriptEditor(QtGui.QWidget):
             code = self.cmd.textCursor().selectedText().replace(u"\u2029", "\n")
         else:
             code = self.cmd.toPlainText()
+
+        # Synchronize the KL-C++ registry so KL commands 
+        # can be created with 'named-arg' syntax. 
+        try:
+            GetCommandRegistry().synchronizeKL();
+        except Exception as e:    
+            print str(e)
+
         self.exec_(code)
 
-    def eval(self, code):
+        # Synchronize the KL-C++ registry so KL commands 
+        # can be created with 'named-arg' syntax. 
+        try:
+            GetCommandManager().synchronizeKL();
+        except Exception as e:    
+            print str(e)
+
+    def eval(self, code, replace = False):
         if self.echoCommandsAction.isChecked():
-            self.log.appendCommand(code + "\n")
-        oldEchoStackIndexChanges = self.__echoStackIndexChanges
-        self.__echoStackIndexChanges = False
+            self.log.appendCommand(code + "\n", replace)
+        oldEchoStackIndexChanges = self._echoStackIndexChanges
+        self._echoStackIndexChanges = False
         old_stdout = sys.stdout
         old_stderr = sys.stderr
         sys.stdout = self.stdout
@@ -550,7 +569,7 @@ class ScriptEditor(QtGui.QWidget):
         try:
             result = eval(code, self.eval_globals)
             if self.echoCommandsAction.isChecked() and result is not None:
-                self.log.appendCommand("# Result: %s\n" % str(result))
+                self.log.appendCommand("Result: %s\n" % str(result), replace)
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             sys.stderr.writelines(
@@ -559,14 +578,15 @@ class ScriptEditor(QtGui.QWidget):
             result = None
         sys.stderr = old_stderr
         sys.stdout = old_stdout
-        self.__echoStackIndexChanges = oldEchoStackIndexChanges
+        self._echoStackIndexChanges = oldEchoStackIndexChanges
         return result
 
-    def exec_(self, code):
+    def exec_(self, code, replace = False):
+        self._isExecuting = True
         if self.echoCommandsAction.isChecked():
-            self.log.appendCommand(code + "\n")
-        oldEchoStackIndexChanges = self.__echoStackIndexChanges
-        self.__echoStackIndexChanges = False
+            self.log.appendCommand(code + "\n", replace)
+        oldEchoStackIndexChanges = self._echoStackIndexChanges
+        self._echoStackIndexChanges = False
         old_stdout = sys.stdout
         old_stderr = sys.stderr
         sys.stdout = self.stdout
@@ -578,10 +598,18 @@ class ScriptEditor(QtGui.QWidget):
             sys.stderr.writelines(
                 traceback.format_exception(exc_type, exc_value, exc_traceback)
                 )
-        sys.stderr = old_stderr
-        sys.stdout = old_stdout
-        self.__echoStackIndexChanges = oldEchoStackIndexChanges
+            sys.stderr = old_stderr
+            sys.stdout = old_stdout
+        self._echoStackIndexChanges = oldEchoStackIndexChanges
+        self._isExecuting = False
 
+    def logCommand(self, text, replace = False):
+        if self.echoCommandsAction.isChecked() and not self._isExecuting:
+            self.log.appendCommand(text + "\n", replace)
+    
+    def clear(self):
+        self.log.clear()
+        
 class BaseScriptEditorAction(Actions.BaseAction):
  
     def __init__(self,
@@ -589,11 +617,10 @@ class BaseScriptEditorAction(Actions.BaseAction):
         name, 
         text, 
         shortcut, 
-        context = QtCore.Qt.ApplicationShortcut, 
+        context = QtCore.Qt.WidgetWithChildrenShortcut, 
         enable = True):
 
         self.scriptEditor = scriptEditor
-
         super(BaseScriptEditorAction, self).__init__(
             scriptEditor, 
             name, 
@@ -601,6 +628,7 @@ class BaseScriptEditorAction(Actions.BaseAction):
             shortcut, 
             context, 
             enable)
+        self.scriptEditor.addAction(self)
  
 class NewScriptAction(BaseScriptEditorAction):
  

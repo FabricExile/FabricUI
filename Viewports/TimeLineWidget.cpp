@@ -2,21 +2,96 @@
  *  Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
  */
 
-#include "TimeLineWidget.h"
-#include <FabricUI/Util/LoadFabricStyleSheet.h>
-#include <FabricUI/Dialog/BaseDialog.h>
-
+#include <math.h>
+#include <QLabel>
 #include <QDialog>
 #include <QHBoxLayout>
-#include <QInputDialog>
-#include <QLabel>
-#include <QPushButton>
+#include "TimeLineWidget.h"
+#include <FabricUI/Dialog/BaseDialog.h>
+#include <FabricUI/Util/LoadFabricStyleSheet.h>
 
-#include <math.h>
+using namespace FabricUI;
+using namespace Dialog;
+using namespace TimeLine;
 
+FrameSlider::FrameSlider( 
+  QWidget * parent)
+  : QSlider(parent)
+{
+}
 
-using namespace FabricUI::TimeLine;
-using namespace FabricUI::Dialog;
+FrameSlider::~FrameSlider() 
+{
+}
+
+void FrameSlider::mousePressEvent( 
+  QMouseEvent *event)  
+{
+  // taken from FabricUI::ValueEditor::DoubleSlider::mousePressEvent().
+  QStyleOptionSlider opt;
+  initStyleOption( &opt);
+  QRect sr = style()->subControlRect( QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
+
+  if (event->button() == Qt::LeftButton &&
+        sr.contains( event->pos()) == false)
+  {
+    int max = maximum();
+
+    int newVal = 0;
+    if ( orientation() == Qt::Vertical)
+    {
+      int h = height();
+      if ( h > 1)
+      {
+        --h;
+        newVal += (max * (h - event->y()) + h/2) / h;
+      }
+    }
+    else
+    {
+      int w = width();
+      if ( w > 1)
+      {
+        --w;
+        newVal += (max * event->x() + w/2) / w;
+      }
+    }
+
+    if ( invertedAppearance())
+      setValue( max - newVal);
+    else
+      setValue( newVal);
+
+    event->accept();
+  }
+  QSlider::mousePressEvent( event);
+}
+
+void FrameSlider::resizeEvent(
+  QResizeEvent * event)
+{
+  QSlider::resizeEvent( event);
+
+  if ( int width = this->width())
+  {
+    int min = minimum();
+    int max = maximum();
+    int frames = max - min + 1;
+    int tickInterval = 1;
+    double pixelsPerTicks = double( width) / double( frames);
+    while ( pixelsPerTicks < 6)
+    {
+      tickInterval *= 2;
+      pixelsPerTicks *= 2;
+      if ( pixelsPerTicks < 6)
+      {
+        tickInterval *= 5;
+        pixelsPerTicks *= 5;
+      }
+    }
+    setTickInterval( tickInterval);
+  }
+}
 
 TimeLineWidget::TimeLineWidget()
 {
@@ -196,7 +271,12 @@ TimeLineWidget::TimeLineWidget()
   setFrameRate(60.0f);
 }
 
-void TimeLineWidget::setTime(int time)
+TimeLineWidget::~TimeLineWidget() 
+{
+}
+
+void TimeLineWidget::setTime(
+  int time)
 {
   if(m_settingTime)
     return;
@@ -238,8 +318,9 @@ void TimeLineWidget::setTime(int time)
   emit frameChanged(time);
 }
 
-/// update the internal time and also emit the signals
-void TimeLineWidget::updateTime(int frame, bool onLoadingScene)
+void TimeLineWidget::updateTime(
+  int frame, 
+  bool onLoadingScene)
 {
   if(onLoadingScene)
     m_lastSteppedFrame = UINT_MAX;
@@ -261,12 +342,14 @@ int TimeLineWidget::getRangeEnd()
   return static_cast<int>( m_endSpinBox->value() );
 }
 
-void TimeLineWidget::sliderChanged(int frame)
+void TimeLineWidget::sliderChanged(
+  int frame)
 {
   setTime( frame );
 }
 
-void TimeLineWidget::frameChangedBy(int frame)
+void TimeLineWidget::frameChangedBy(
+  int frame)
 {
   setTime( static_cast<int>(  m_currentFrameSpinBox->value()+frame ) );
 }
@@ -276,7 +359,9 @@ void TimeLineWidget::currentFrameChanged()
   setTime( static_cast<int>(  m_currentFrameSpinBox->value() ) );
 }
 
-void TimeLineWidget::setTimeRange(int start, int end)
+void TimeLineWidget::setTimeRange(
+  int start, 
+  int end)
 {
   m_startSpinBox->blockSignals(true);
   m_startSpinBox->setValue( static_cast<int>( start ) );
@@ -300,7 +385,8 @@ void TimeLineWidget::setTimeRange(int start, int end)
     setTime(start);
 }
 
-void TimeLineWidget::setFrameRate(float framesPerSecond) {
+void TimeLineWidget::setFrameRate(
+  float framesPerSecond) {
   // For now just clamp to existing options
   int index = 0; // max fps
   if( framesPerSecond <= 15 )
@@ -315,16 +401,33 @@ void TimeLineWidget::setFrameRate(float framesPerSecond) {
   updateTargetFrameRate( index );
 }
 
-void TimeLineWidget::setLoopMode(int mode)
+int TimeLineWidget::loopMode() const 
+{ 
+  return m_loopMode; 
+}
+
+void TimeLineWidget::setLoopMode(
+  int mode)
 {
   m_loopModeComBox->setCurrentIndex(mode);
   loopModeChanged(mode);
 }
 
-void TimeLineWidget::setSimulationMode(int mode)
+int TimeLineWidget::simulationMode() const 
+{ 
+  return m_simMode; 
+}
+
+void TimeLineWidget::setSimulationMode(
+  int mode)
 {
   m_simModeComBox->setCurrentIndex(mode);
   simModeChanged(mode);
+}
+
+QTimer *TimeLineWidget::getTimer()  
+{ 
+  return m_timer; 
 }
 
 double TimeLineWidget::getFps() const
@@ -332,7 +435,8 @@ double TimeLineWidget::getFps() const
   return m_fps;
 }
 
-void TimeLineWidget::setTimerFromFps(double fps)
+void TimeLineWidget::setTimerFromFps(
+  double fps)
 {
   if (fps >= 200.0)
   {
@@ -368,6 +472,16 @@ double TimeLineWidget::getFrameRateFromComboBox()
   else                      return 0;
 }
 
+float TimeLineWidget::framerate() const 
+{ 
+  return float(m_fps); 
+}
+
+bool TimeLineWidget::isPlaying() const 
+{ 
+  return m_timer->isActive(); 
+}
+
 void TimeLineWidget::updateFrameRange()
 {
   m_currentFrameSpinBox->setMinimum( m_startSpinBox->value() );
@@ -382,7 +496,8 @@ void TimeLineWidget::updateFrameRange()
   emit rangeChanged( getRangeStart(), getRangeEnd() );
 }
 
-void TimeLineWidget::onPlayButtonToggled( bool checked )
+void TimeLineWidget::onPlayButtonToggled( 
+  bool checked)
 {
   if ( !checked && m_timer->isActive() )
   {
@@ -514,7 +629,8 @@ void TimeLineWidget::timerUpdate()
   }
 }
 
-void TimeLineWidget::updateTargetFrameRate(int index)
+void TimeLineWidget::updateTargetFrameRate(
+  int index)
 {
   m_fps = m_frameRateComboBox->itemData(index).toDouble();
   if(m_fps == 0.0) // max fps
@@ -556,14 +672,16 @@ void TimeLineWidget::updateTargetFrameRate(int index)
   emit targetFrameRateChanged( framerate() );
 }
 
-void TimeLineWidget::loopModeChanged(int index)
+void TimeLineWidget::loopModeChanged(
+  int index)
 {
   m_loopMode = index;
   if (index != 2)
     m_direction = 1;
 }
 
-void TimeLineWidget::simModeChanged(int index)
+void TimeLineWidget::simModeChanged(
+  int index)
 {
   m_simMode = index;
 }

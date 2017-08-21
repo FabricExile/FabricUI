@@ -10,12 +10,24 @@ class AppendingTextWidget(QtGui.QTextEdit):
         QtGui.QTextEdit.__init__(self)
 
         self.setReadOnly(True)
-
+        self.prevCursorPos = 0
+        
     def append(self, text, color):
         self.setTextColor(color)
         charFormat = self.currentCharFormat()
         textCursor = self.textCursor()
         textCursor.movePosition(QtGui.QTextCursor.End)
+        self.prevCursorPos = textCursor.position()
+        textCursor.insertText(text, charFormat)
+        self.setTextCursor(textCursor)
+        self.ensureCursorVisible()
+
+    def replace(self, text, color):
+        self.setTextColor(color)
+        charFormat = self.currentCharFormat()
+        textCursor = self.textCursor();
+        textCursor.setPosition(self.prevCursorPos, QtGui.QTextCursor.KeepAnchor);
+        self.moveCursor(QtGui.QTextCursor.End, QtGui.QTextCursor.KeepAnchor);
         textCursor.insertText(text, charFormat)
         self.setTextCursor(textCursor)
         self.ensureCursorVisible()
@@ -38,14 +50,23 @@ class LogWidget(AppendingTextWidget):
     def clearAction(self, desc):
         return ClearLogAction(self, desc)
 
-    def appendCommand(self, text):
-        self.append(text, self.commandColor)
+    def appendCommand(self, text, replace = False):
+        if replace is True:
+            self.replace(text, self.commandColor)
+        else:
+            self.append(text, self.commandColor)
 
-    def appendComment(self, text):
-        self.append(text, self.commentColor)
+    def appendComment(self, text, replace = False):
+        if replace is True:
+            self.replace(text, self.commentColor)
+        else:
+            self.append(text, self.commentColor)
 
-    def appendException(self, text):
-        self.append(text, self.exceptionColor)
+    def appendException(self, text, replace = False):
+        if replace is True:
+            self.replace(text, self.exceptionColor)
+        else:
+            self.append(text, self.exceptionColor)
 
     def contextMenuEvent(self, event):
         menu = QtGui.QMenu(self)
@@ -61,7 +82,7 @@ class BaseLogWidgetAction(Actions.BaseAction):
         name, 
         text, 
         shortcut = QtGui.QKeySequence(), 
-        context = QtCore.Qt.ApplicationShortcut):
+        context = QtCore.Qt.WidgetShortcut):
 
         self.logWidget = logWidget
 
@@ -71,6 +92,7 @@ class BaseLogWidgetAction(Actions.BaseAction):
             text, 
             shortcut, 
             context)
+        self.logWidget.addAction(self)
 
 class CopyLogAction(BaseLogWidgetAction):
  
@@ -81,7 +103,7 @@ class CopyLogAction(BaseLogWidgetAction):
             "LogWidget.CopyLogAction", 
             "Copy", 
             QtGui.QKeySequence.Copy)
- 
+        
         self.setEnabled(self.logWidget.textCursor().hasSelection())
 
     def onTriggered(self):
@@ -95,6 +117,6 @@ class ClearLogAction(BaseLogWidgetAction):
             logWidget, 
             "LogWidget.clearAction", 
             desc)
- 
+
     def onTriggered(self):
         self.logWidget.clear()

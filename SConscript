@@ -63,12 +63,12 @@ if buildOS == 'Darwin':
   frameworkPath = os.path.join(
     os.path.split(
       subprocess.Popen(
-        'xcodebuild -version -sdk macosx10.8 Path',
+        'xcodebuild -version -sdk macosx10.9 Path',
         shell=True,
         stdout=subprocess.PIPE
         ).stdout.read()
       )[0],
-    'MacOSX10.7.sdk',
+    'MacOSX10.9.sdk',
     )
   env.Append(CCFLAGS = ["-isysroot", frameworkPath])
   env.Append(FRAMEWORKS = ['OpenGL', 'Cocoa', 'Foundation'])
@@ -125,6 +125,8 @@ dirs = [
   'Actions',
   'Dialog',
   'Style',
+  'Commands',
+  'Tools',
   'Viewports',
   'KLEditor',
   'Menus',
@@ -133,13 +135,20 @@ dirs = [
   'ValueEditor_Legacy',
   'ValueEditor',
   'OptionsEditor',
+  'OptionsEditor/Commands',
   'GraphView',
   'GraphView/Commands',
   'DFG',
+  'DFG/Commands',
   'DFG/DFGUICmd',
   'DFG/Dialogs',
   'DFG/PortEditor',
   'DFG/TabSearch',
+  'DFG/Tools',
+  'FCurveEditor',
+  'FCurveEditor/Models/AnimXKL',
+  'FCurveEditor/Models/DFG',
+  'FCurveEditor/ValueEditor',
  
   'SceneHub',
   'SceneHub/TreeView',
@@ -152,6 +161,7 @@ dirs = [
   'Licensing',
   'ModelItems',
   'Test',
+  'SplashScreens',
 ]
 
 installedHeaders = []
@@ -217,6 +227,7 @@ if uiLibPrefix == 'ui':
     stageDir.srcnode().Dir('Resources').Dir('Icons'),
     [
       Glob(os.path.join(env.Dir('GraphView').Dir('images').srcnode().abspath, '*.png')),
+      Glob(os.path.join(env.Dir('Icons').srcnode().abspath, '*.png')),
       Glob(os.path.join(env.Dir('DFG').Dir('Icons').srcnode().abspath, '*.png')),
       # Glob(os.path.join(env.Dir('ValueEditor').Dir('images').srcnode().abspath, '*.png')),
       ]
@@ -324,8 +335,13 @@ if uiLibPrefix == 'ui':
         diffFile,
         shibokenDir.File('fabricui.xml'),
         shibokenDir.File('fabricui_core.xml'),
+        shibokenDir.File('fabricui_style.xml'),
+        shibokenDir.File('fabricui_application.xml'),
+        shibokenDir.File('fabricui_tools.xml'),
         shibokenDir.File('fabricui_actions.xml'),
+        shibokenDir.File('fabricui_commands.xml'),
         shibokenDir.File('fabricui_optionseditor.xml'),
+        shibokenDir.File('fabricui_dialog.xml'),
         shibokenDir.File('fabricui_dfg.xml'),
         shibokenDir.File('fabricui_viewports.xml'),
         shibokenDir.File('fabricui_util.xml'),
@@ -365,10 +381,17 @@ if uiLibPrefix == 'ui':
 
     pysideEnv.Append(CPPPATH = [
         pysideEnv.Dir('Util').srcnode(),
+        pysideEnv.Dir('Commands').srcnode(),
         pysideEnv.Dir('Menus').srcnode(),
+        pysideEnv.Dir('Dialog').srcnode(),
+        pysideEnv.Dir('Style').srcnode(),
+        pysideEnv.Dir('Tools').srcnode(),
         pysideEnv.Dir('Actions').srcnode(),
         pysideEnv.Dir('OptionsEditor').srcnode(),
+        pysideEnv.Dir('OptionsEditor/Commands').srcnode(),
         pysideEnv.Dir('DFG').srcnode(),
+        pysideEnv.Dir('DFG/Commands').srcnode(),
+        pysideEnv.Dir('DFG/Tools').srcnode(),
         pysideEnv.Dir('DFG/DFGUICmd').srcnode(),
         pysideEnv.Dir('GraphView').srcnode(),
         pysideEnv.Dir('Licensing').srcnode(),
@@ -527,12 +550,22 @@ if uiLibPrefix == 'ui':
         Glob(os.path.join(pysideModuleSrcDir.abspath, '*'))
         )
       )
-    installedPySideLibs.append(
-      pysideEnv.Install(
-        pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine').Dir('Canvas'),
-        Glob(os.path.join(pysideEnv.Dir('Python').Dir('Canvas').abspath, '*'))
+
+    pythonDir = [
+      'Canvas',
+      'Canvas/Application',
+      'Canvas/HotkeyEditor',
+      'Canvas/Commands'
+    ]
+
+    for dir_ in pythonDir:
+      installedPySideLibs.append(
+        pysideEnv.Install(
+          pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine').Dir(dir_),
+          Glob(os.path.join(pysideEnv.Dir('Python').Dir(dir_).abspath, '*.py'))
+          )
         )
-      )
+
     installedPySideLibs.append(
       pysideEnv.Install(
         pysideEnv['STAGE_DIR'].Dir('bin'),

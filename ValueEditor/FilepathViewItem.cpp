@@ -26,6 +26,7 @@ FilepathViewItem::FilepathViewItem(
   )
   : BaseViewItem( name, metadata )
   , m_val(value.value<FabricCore::RTVal>())
+  , m_isOpenFile(true)
 {
   m_edit = new VELineEdit;
   m_edit->setObjectName( "VELeft" );
@@ -73,6 +74,14 @@ void FilepathViewItem::metadataChanged()
     m_filter = m_metadata.getString( "uiFileTypeFilter" );
   else
     m_filter = QString();
+
+  if (m_metadata.has( "uiIsOpenFile" ))
+  {
+    QString uiIsOpenFile = m_metadata.getString( "uiIsOpenFile" );
+    m_isOpenFile = (uiIsOpenFile == "true");
+  }
+  else
+    m_isOpenFile = true;
 }
 
 void FilepathViewItem::onModelValueChanged( QVariant const &v )
@@ -84,10 +93,21 @@ QString FilepathViewItem::m_lastFolder = QString();
 
 void FilepathViewItem::doBrowse()
 {
-  QString fileName = QFileDialog::getOpenFileName( m_widget,
+  QString fileName;
+  if(m_isOpenFile)
+  {
+    fileName = QFileDialog::getOpenFileName( m_widget,
                                            tr( "Open File" ), 
                                            m_lastFolder, 
                                            m_filter);
+  }
+  else
+  {
+    fileName = QFileDialog::getSaveFileName( m_widget,
+                                           tr( "Save File" ), 
+                                           m_lastFolder, 
+                                           m_filter);
+  }
   if (!fileName.isEmpty())
   {
     m_lastFolder = fileName;

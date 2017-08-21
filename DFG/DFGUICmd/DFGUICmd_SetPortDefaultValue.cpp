@@ -3,6 +3,7 @@
 //
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetPortDefaultValue.h>
+#include <iostream>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 

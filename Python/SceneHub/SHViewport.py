@@ -219,7 +219,7 @@ SHContextualMenu
             if len(pathList) == 0: return
            
             pos = self.shGLRenderer.get3DScenePosFrom2DScreenPos(self.viewportIndex, event.pos())
-            pathList = Util.StringUtils.ProcessPathQStringForOsX(pathList)
+            pathList = Util.StringUtil.ProcessPathQStringForOsX(pathList)
             shGLScene.addExternalFileList(
                 pathList, 
                 event.keyboardModifiers() & QtCore.Qt.ControlModifier, 

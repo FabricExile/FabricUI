@@ -105,6 +105,11 @@ void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
   {
     m_dragging = 3 + corner;
     m_dragButton = event->button();
+
+    m_mouseDownPos = event->scenePos();
+    m_resizeOriginalPos = topLeftGraphPos();
+    m_resizeOriginalSize = m_mainWidget->minimumSize();
+
     event->accept();
     return;
   }
@@ -114,141 +119,150 @@ void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
 void BackDropNode::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 {
-  QPointF delta = event->scenePos() - event->lastScenePos();
-  delta *= 1.0f / graph()->mainPanel()->canvasZoom();
-
-  QPointF pos;
-  QSizeF size;
-
-  if(m_dragging == 3) // topleft
+  if (m_dragging >= 3 && m_dragging <= 6)
   {
-    pos = topLeftGraphPos() + delta;
-    size = m_mainWidget->minimumSize() + QSizeF( -delta.x(), -delta.y() );
-  }
+    QPointF delta = event->scenePos() - m_mouseDownPos;
+    delta *= 1.0f / graph()->mainPanel()->canvasZoom();
+
+    float gridSnapSize = (graph()->config().mainPanelGridSnap ? graph()->config().mainPanelGridSnapSize : 0);
+
+    QPointF pos;
+    QSizeF size;
+
+    if(m_dragging == 3) // topleft
+    {
+      pos = m_resizeOriginalPos + delta;
+      size = m_resizeOriginalSize + QSizeF( -delta.x(), -delta.y() );
+    }
   
-  if(m_dragging == 4) // topright
-  {
-    pos = topLeftGraphPos() + QPointF( 0, delta.y() );
-    size = m_mainWidget->minimumSize() + QSizeF( +delta.x(), -delta.y() );
-  }
+    if(m_dragging == 4) // topright
+    {
+      pos = m_resizeOriginalPos + QPointF( 0, delta.y() );
+      size = m_resizeOriginalSize + QSizeF( +delta.x(), -delta.y() );
+    }
   
-  if(m_dragging == 5) // bottomleft
-  {
-    pos = topLeftGraphPos() + QPointF( delta.x(), 0 );
-    size = m_mainWidget->minimumSize() + QSizeF( -delta.x(), +delta.y() );
-  }
+    if(m_dragging == 5) // bottomleft
+    {
+      pos = m_resizeOriginalPos + QPointF( delta.x(), 0 );
+      size = m_resizeOriginalSize + QSizeF( -delta.x(), +delta.y() );
+    }
   
-  if(m_dragging == 6) // bottomright
-  {
-    pos = topLeftGraphPos() + QPointF( 0, 0 );
-    size = m_mainWidget->minimumSize() + QSizeF( +delta.x(), +delta.y() );
-  }
+    if(m_dragging == 6) // bottomright
+    {
+      pos = m_resizeOriginalPos + QPointF( 0, 0 );
+      size = m_resizeOriginalSize + QSizeF( +delta.x(), +delta.y() );
+    }
 
-  // clamp to avoid negative scaling
-  if(size.width() < m_minSize.width())
-  {
-    pos.setX(topLeftGraphPos().x());
-    size.setWidth(m_minSize.width());
-  }
-  if(size.height() < m_minSize.height())
-  {
-    pos.setY(topLeftGraphPos().y());
-    size.setHeight(m_minSize.height());
-  }
+    // handle case when size smaller than allowed
+    if (size.width() < m_minSize.width())
+    {
+      if (m_dragging == 3 || m_dragging == 5)
+        pos.setX(pos.x() - (m_minSize.width() - size.width()));
+      size.setWidth(m_minSize.width());
+    }
+    if (size.height() < m_minSize.height())
+    {
+      if (m_dragging == 3 || m_dragging == 4)
+        pos.setY(pos.y() - (m_minSize.height() - size.height()));
+      size.setHeight(m_minSize.height());
+    }
 
-  if(m_dragging > 2)
-  {
+    // resize
     graph()->controller()->gvcDoResizeBackDropNode(
       this,
       pos,
       size,
+      gridSnapSize,
+      m_dragging == 3 || m_dragging == 4,
+      m_dragging == 5 || m_dragging == 6,
+      m_dragging == 3 || m_dragging == 5,
+      m_dragging == 4 || m_dragging == 6,
       false
       );
+
     event->accept();
     return;
   }
+
   Node::mouseMoveEvent(event);
 }
 
 void BackDropNode::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 {
-  QPointF preDelta =
-    event->buttonDownScenePos( m_dragButton ) - event->lastScenePos();
-  QPointF delta =
-    event->scenePos() - event->buttonDownScenePos( m_dragButton );
+  if (m_dragging >= 3 && m_dragging <= 6)
+  {
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      m_resizeOriginalPos,
+      m_resizeOriginalSize,
+      0,
+      false,
+      false,
+      false,
+      false,
+      false
+    );
 
-  if(m_dragging == 3) // topleft
-  {
-    m_dragging = 0;
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + preDelta,
-      m_mainWidget->minimumSize() + QSizeF( -preDelta.x(), -preDelta.y() ),
-      false
-      );
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + delta,
-      m_mainWidget->minimumSize() + QSizeF( -delta.x(), -delta.y() ),
-      true
-      );
-    event->accept();
-    return;
-  }
+    QPointF delta = event->scenePos() - m_mouseDownPos;
+    delta *= 1.0f / graph()->mainPanel()->canvasZoom();
+
+    float gridSnapSize = (graph()->config().mainPanelGridSnap ? graph()->config().mainPanelGridSnapSize : 0);
+
+    QPointF pos;
+    QSizeF size;
+
+    if(m_dragging == 3) // topleft
+    {
+      pos = m_resizeOriginalPos + delta;
+      size = m_resizeOriginalSize + QSizeF( -delta.x(), -delta.y() );
+    }
   
-  if(m_dragging == 4) // topright
-  {
-    m_dragging = 0;
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + QPointF( 0, preDelta.y() ),
-      m_mainWidget->minimumSize() + QSizeF( +preDelta.x(), -preDelta.y() ),
-      false
-      );
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + QPointF( 0, delta.y() ),
-      m_mainWidget->minimumSize() + QSizeF( +delta.x(), -delta.y() ),
-      true
-      );
-    event->accept();
-    return;
-  }
+    if(m_dragging == 4) // topright
+    {
+      pos = m_resizeOriginalPos + QPointF( 0, delta.y() );
+      size = m_resizeOriginalSize + QSizeF( +delta.x(), -delta.y() );
+    }
   
-  if(m_dragging == 5) // bottomleft
-  {
-    m_dragging = 0;
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + QPointF( preDelta.x(), 0 ),
-      m_mainWidget->minimumSize() + QSizeF( -preDelta.x(), +preDelta.y() ),
-      false
-      );
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + QPointF( delta.x(), 0 ),
-      m_mainWidget->minimumSize() + QSizeF( -delta.x(), +delta.y() ),
-      true
-      );
-    event->accept();
-    return;
-  }
+    if(m_dragging == 5) // bottomleft
+    {
+      pos = m_resizeOriginalPos + QPointF( delta.x(), 0 );
+      size = m_resizeOriginalSize + QSizeF( -delta.x(), +delta.y() );
+    }
   
-  if(m_dragging == 6) // bottomright
-  {
-    m_dragging = 0;
+    if(m_dragging == 6) // bottomright
+    {
+      pos = m_resizeOriginalPos + QPointF( 0, 0 );
+      size = m_resizeOriginalSize + QSizeF( +delta.x(), +delta.y() );
+    }
+    // handle case when size smaller than allowed
+    if (size.width() < m_minSize.width())
+    {
+      if (m_dragging == 3 || m_dragging == 5)
+        pos.setX(pos.x() - (m_minSize.width() - size.width()));
+      size.setWidth(m_minSize.width());
+    }
+    if (size.height() < m_minSize.height())
+    {
+      if (m_dragging == 3 || m_dragging == 4)
+        pos.setY(pos.y() - (m_minSize.height() - size.height()));
+      size.setHeight(m_minSize.height());
+    }
+
+    // resize
     graph()->controller()->gvcDoResizeBackDropNode(
       this,
-      topLeftGraphPos() + QPointF( 0, 0 ),
-      m_mainWidget->minimumSize() + QSizeF( +preDelta.x(), +preDelta.y() ),
-      false
-      );
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + QPointF( 0, 0 ),
-      m_mainWidget->minimumSize() + QSizeF( +delta.x(), +delta.y() ),
+      pos,
+      size,
+      gridSnapSize,
+      m_dragging == 3 || m_dragging == 4,
+      m_dragging == 5 || m_dragging == 6,
+      m_dragging == 3 || m_dragging == 5,
+      m_dragging == 4 || m_dragging == 6,
       true
       );
+
+    m_dragging = 0;
+
     event->accept();
     return;
   }

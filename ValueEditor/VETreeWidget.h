@@ -56,6 +56,10 @@ public slots:
 
   virtual void keyPressEvent(QKeyEvent *event) /*override*/;
 
+  virtual void mouseMoveEvent(QMouseEvent *event) /*override*/;
+
+  void emitToggleManipulation(bool toggle);
+
 protected slots:
 
   void onTreeWidgetItemExpanded( QTreeWidgetItem *_treeWidgetItem );
@@ -65,6 +69,29 @@ protected slots:
   void prepareMenu( const QPoint& pt );
 
   void resetItem();
+  
+  void emitRefreshViewport();
+
+signals:
+  // Refreshes the viewport, if a klWidget
+  // has been activated-deactivated.
+  void refreshViewport();
+
+  void toggleManipulation(bool);
+
+  /// Emmitted when the item overed changed.
+  /// Enabled is QWidget::hasMouseTracking if true (QWidget::setMouseTracking)
+  void itemOveredChanged(
+    QTreeWidgetItem *oldItem,
+    QTreeWidgetItem *newItem
+    );
+
+protected:
+  void setViewItemConnections(BaseViewItem* item);
+  
+  bool m_manipulationToggled;
+
+  QTreeWidgetItem *m_currentOveredItem;
 };
 
 } // namespace FabricUI 

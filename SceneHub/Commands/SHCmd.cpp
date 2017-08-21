@@ -46,8 +46,8 @@ void SHCmd::undo() {
   try 
   {
     m_state = State_Undone;
-    FabricCore::RTVal cmdManager = RTVal::Create(m_client, "CmdManager", 0, 0);
-    cmdManager = cmdManager.callMethod("CmdManager", "getOrCreateCmdManager", 0, 0);
+    FabricCore::RTVal cmdManager = RTVal::Create(m_client, "LegacyCmdManager", 0, 0);
+    cmdManager = cmdManager.callMethod("LegacyCmdManager", "getOrCreateLegacyCmdManager", 0, 0);
     
     for(unsigned i=0; i<m_coreUndoCount; ++i)
       cmdManager.callMethod("Boolean", "undo", 0, 0);
@@ -63,8 +63,8 @@ void SHCmd::redo() {
   try 
   {
     m_state = State_Redone;
-    FabricCore::RTVal cmdManager = RTVal::Create(m_client, "CmdManager", 0, 0);
-    cmdManager = cmdManager.callMethod("CmdManager", "getOrCreateCmdManager", 0, 0);
+    FabricCore::RTVal cmdManager = RTVal::Create(m_client, "LegacyCmdManager", 0, 0);
+    cmdManager = cmdManager.callMethod("LegacyCmdManager", "getOrCreateLegacyCmdManager", 0, 0);
     
     for(unsigned i=0; i<m_coreUndoCount; ++i)
       cmdManager.callMethod("Boolean", "redo", 0, 0);

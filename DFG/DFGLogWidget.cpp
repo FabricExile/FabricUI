@@ -27,8 +27,9 @@ DFGLogWidget::DFGLogWidget( const DFGConfig & config )
   setContentsMargins(0, 0, 0, 0);
   layout->setContentsMargins(0, 0, 0, 0);
 
-  m_text = new QPlainTextEdit(this);
+  m_text = new DFGLogWidgetPlainTextEdit(this);
   m_text->setFont( m_config.fixedFont );
+  m_text->initFontPointSizeMembers();
   m_text->setReadOnly(true);
   m_text->setContextMenuPolicy( Qt::CustomContextMenu );
   connect(
@@ -207,7 +208,8 @@ void DFGLogWidget::callback(
     printf("%s\n", stringData);
 }
 
-void DFGLogWidget::keyPressEvent(QKeyEvent * event) {
+void DFGLogWidget::keyPressEvent(QKeyEvent * event)
+{
   event->accept();
 }
 

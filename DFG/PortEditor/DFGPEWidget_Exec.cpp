@@ -7,6 +7,7 @@
 #include <FabricUI/DFG/PortEditor/DFGPEModel_ExecBlockPorts.h>
 #include <FabricUI/DFG/PortEditor/DFGPEModel_ExecBlocks.h>
 #include <FabricUI/DFG/PortEditor/DFGPEModel_ExecPorts.h>
+#include <FabricUI/DFG/PortEditor/DFGPEModel_NLSPorts.h>
 #include <FabricUI/DFG/PortEditor/DFGPEWidget_Elements.h>
 #include <FabricUI/DFG/PortEditor/DFGPEWidget_Exec.h>
 #include <FabricUI/Util/LoadPixmap.h>
@@ -78,6 +79,21 @@ void DFGPEWidget_Exec::setExec(
       execPortsModel
       );
   m_tabWidget->addTab( execPortsWidget, "Ports" );
+
+  DFGPEModel *nlsPortsModel =
+    new DFGPEModel_NLSPorts(
+      m_dfgWidget->getDFGController()->getCmdHandler(),
+      binding,
+      m_execPath,
+      exec,
+      m_execNotifier
+      );
+  DFGPEWidget_Elements *nlsPortsWidget =
+    new DFGPEWidget_Elements(
+      m_dfgWidget,
+      nlsPortsModel
+      );
+  m_tabWidget->addTab( nlsPortsWidget, "Locals" );
 
   if ( exec.allowsBlocks() )
   {

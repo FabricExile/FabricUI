@@ -2,9 +2,13 @@
 <typesystem package="FabricUI">
   <namespace-type name="FabricUI" generate="no">
     <namespace-type name="Util" generate="yes">
-      <object-type name="StringUtils" copyable="false"/>
+      <object-type name="QtUtil" copyable="false"/>
+      <object-type name="RTValUtil" copyable="false"/>
+			<object-type name="StringUtil" copyable="false"/>
+      <object-type name="BaseFactoryRegistry" copyable="false"/>
+      <object-type name="LoadIcon" copyable="false"/>
       <object-type name="ConfigSection" >
-	<enum-type name="Access" />
+				<enum-type name="Access" />
       </object-type>
       <object-type name="Config" />
     </namespace-type>

@@ -6,7 +6,7 @@
 #define FABRICUI_UTIL_VELINEEDIT_H
 
 #include <QLineEdit>
-#include <FabricUI/Util/StringUtils.h>
+#include <FabricUI/Util/StringUtil.h>
 
 namespace FabricUI {
 namespace Util {

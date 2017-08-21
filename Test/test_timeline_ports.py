@@ -1,20 +1,35 @@
+import os, pytest
+import fabric_test_ui
+from PySide import QtCore
+from FabricEngine import Core
+from FabricEngine.FabricUI import Application
+from FabricEngine.Canvas.CanvasWindow import CanvasWindow
+
+# [andrew 20160330] FE-6364
+pytestmark = pytest.mark.skipif(
+    fabric_test_ui.is_missing_display(),
+    reason="missing display",
+    )
+
+@pytest.yield_fixture(scope="module")
+def canvas_app():
+    app = fabric_test_ui.create_canvas_app()
+    yield app
+    fabric_test_ui.cleanup_canvas_app(app)
+
+@pytest.yield_fixture(scope="module")
+def canvas_win(canvas_app):
+    win = fabric_test_ui.create_canvas_win(
+      canvas_app,
+      report_line_mapper=lambda line: line + "\n",
+      )
+    yield win
+    fabric_test_ui.cleanup_canvas_win(win)
+
 # Returns the output of the test
-def main() :
+def main(canvas) :
   from PySide import QtCore
   from FabricEngine import Core
-  from FabricEngine.Canvas.CanvasWindow import CanvasWindow
-  from FabricEngine.FabricUI import Application
-
-  class CanvasTestWindow( CanvasWindow ) :
-    storedOutput = ""
-    def _reportCallback(self, source, level, line):
-      prefix = "[FABRIC:MT] "
-      if len(line) >= len(prefix) and line[:len(prefix)] == prefix :
-        line = line[len(prefix):]
-      self.storedOutput += line + '\n'
-
-  app = Application.FabricApplication()
-  canvas = CanvasTestWindow( QtCore.QSettings(), False, False )
   binding = canvas.dfgWidget.getDFGController().getBinding()
   ex = binding.getExec()
 
@@ -47,7 +62,7 @@ def main() :
   ex.connectTo( funcName + '.exec', 'exec' )
 
   #print("TEST_START");
-  canvas.storedOutput = ""
+  canvas.test_output = ""
 
 
   # Default values
@@ -66,9 +81,9 @@ def main() :
   canvas.onNewGraph(True)
 
   #print("TEST_END");
-  return canvas.storedOutput
+  return canvas.test_output
 
-def test_timeline_ports():
+def test_timeline_ports(canvas_win):
 
   import os
 
@@ -81,7 +96,7 @@ def test_timeline_ports():
     pytest.skip("Skip")
 
   # TODO: some of the output from the DFGController is not caught
-  testOutput = main()
+  testOutput = main(canvas_win)
 
   if testOutput != refOutput :
     import difflib

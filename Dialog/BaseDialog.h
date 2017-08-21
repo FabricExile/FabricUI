@@ -1,36 +1,32 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 
-#ifndef __UI_BaseDialog__
-#define __UI_BaseDialog__
+#ifndef __UI_BASE_DIALOG__
+#define __UI_BASE_DIALOG__
 
 #include <QDialog>
 #include <QVBoxLayout>
 
-namespace FabricUI
+namespace FabricUI {
+namespace Dialog {
+
+class BaseDialog : public QDialog 
 {
-  namespace Dialog
-  {
+  Q_OBJECT
 
-    class BaseDialog : public QDialog 
-    {
-      Q_OBJECT
+  public:
+    BaseDialog(
+      QWidget* parent
+      );
 
-    public:
+    virtual ~BaseDialog();      
 
-      BaseDialog(QWidget * parent);
-      virtual ~BaseDialog();      
+    virtual QVBoxLayout* inputsLayout();
 
-      virtual QVBoxLayout * inputsLayout();
-
-    protected:
-
-      QVBoxLayout * m_inputsLayout;
-
-    };
-
-  };
-
+  protected:
+    QVBoxLayout * m_inputsLayout;
 };
 
+} // namespace Dialog
+} // namespace FabricUI
 
-#endif // __UI_BaseDialog__
+#endif // __UI_BASE_DIALOG__

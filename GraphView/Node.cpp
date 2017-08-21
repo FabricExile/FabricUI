@@ -16,6 +16,7 @@
 #include <FabricUI/GraphView/Connection.h>
 #include <FabricUI/GraphView/MainPanel.h>
 #include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/PinCircle.h>
 
 #include <QDebug>
 #include <QApplication>
@@ -698,6 +699,13 @@ void Node::selectUpStreamNodes()
 
 void Node::updateNodesToMove( bool backdrops, bool onlyUpstreamNodes )
 {
+  m_nodesToMove.clear();
+  m_nodesToMoveOriginalPos.clear();
+  m_nodesToMoveOriginalSize.clear();
+  m_nodeSnapPositions.clear();
+  m_portSnapPositionsSrcY.clear();
+  m_portSnapPositionsDstY.clear();
+
   if (onlyUpstreamNodes)
   {
     m_nodesToMove = getUpStreamNodes();
@@ -730,8 +738,99 @@ void Node::updateNodesToMove( bool backdrops, bool onlyUpstreamNodes )
   }
 
   m_nodesToMoveOriginalPos.resize(m_nodesToMove.size());
+  m_nodesToMoveOriginalSize.resize(m_nodesToMove.size());
   for (size_t i=0;i<m_nodesToMove.size();i++)
+  {
     m_nodesToMoveOriginalPos[i] = m_nodesToMove[i]->topLeftGraphPos();
+    if (m_nodesToMove[i]->isBackDropNode())
+      m_nodesToMoveOriginalSize[i] = m_nodesToMove[i]->m_mainWidget->minimumSize();
+    else
+      m_nodesToMoveOriginalSize[i] = m_nodesToMove[i]->m_mainWidget->boundingRect().size();
+  }
+
+  // special case: only a single node will be moved.
+  if (m_nodesToMove.size() == 1)
+  {
+    // for  "snap to node": add the topleft, bottomright and centers
+    // of all other nodes to the m_additionalSnapPositionsXY arrays, so that
+    // the node will snap to the centers & co of the other nodes.
+    if (graph()->config().mainPanelNodeSnap)
+    {
+      std::vector<Node *> nodes = graph()->nodes();
+      for (size_t i=0;i<nodes.size();i++)
+      {
+        if (nodes[i] == m_nodesToMove[0])
+          continue;
+        QPointF nodePos = nodes[i]->topLeftGraphPos();
+        QPointF nodeSize;
+        if (nodes[i]->isBackDropNode())
+          nodeSize = QPointF(nodes[i]->m_mainWidget->minimumSize().width(),
+                             nodes[i]->m_mainWidget->minimumSize().height());
+        else
+          nodeSize = QPointF(nodes[i]->m_mainWidget->boundingRect().size().width(),
+                             nodes[i]->m_mainWidget->boundingRect().size().height());
+        m_nodeSnapPositions.push_back(nodePos);
+        m_nodeSnapPositions.push_back(nodePos + 0.5 * nodeSize);
+        m_nodeSnapPositions.push_back(nodePos + nodeSize);
+      }
+    }
+
+    // for "snap to port".
+    if (graph()->config().mainPanelPortSnap)
+    {
+      qreal zoomInv = 1.0f / graph()->mainPanel()->canvasZoom();
+
+      // src
+      {
+        Node *node = m_nodesToMove[0];
+        NodeHeader *header = node->header();
+
+        if (header)
+        {
+          if (header->inCircle() && header->inCircle()->isVisible())
+            m_portSnapPositionsSrcY.push_back(zoomInv * header->inCircle()->scenePos().y());
+          else if (header->outCircle() && header->outCircle()->isVisible())
+            m_portSnapPositionsSrcY.push_back(zoomInv * header->outCircle()->scenePos().y());
+        }
+
+        for (size_t j = 0; j<node->m_pins.size(); j++)
+        {
+          Pin *pin = node->m_pins[j];
+          if (pin->inCircle() && pin->inCircle()->isVisible())
+            m_portSnapPositionsSrcY.push_back(zoomInv * pin->inCircle()->scenePos().y());
+          else if (pin->outCircle() && pin->outCircle()->isVisible())
+            m_portSnapPositionsSrcY.push_back(zoomInv * pin->outCircle()->scenePos().y());
+        }
+      }
+
+      // dst
+      std::vector<Node *> nodes = graph()->nodes();
+      for (size_t i = 0; i<nodes.size(); i++)
+      {
+        Node *node = nodes[i];
+        if (node == m_nodesToMove[0])
+          continue;
+        const NodeHeader *header = node->header();
+
+        if (header)
+        {
+          if (header->inCircle() && header->inCircle()->isVisible())
+            m_portSnapPositionsDstY.push_back(zoomInv * header->inCircle()->scenePos().y());
+          else if (header->outCircle() && header->outCircle()->isVisible())
+            m_portSnapPositionsDstY.push_back(zoomInv * header->outCircle()->scenePos().y());
+        }
+
+        for (size_t j = 0; j<node->m_pins.size(); j++)
+        {
+          Pin *pin = node->m_pins[j];
+          if (pin->inCircle() && pin->inCircle()->isVisible())
+            m_portSnapPositionsDstY.push_back(zoomInv * pin->inCircle()->scenePos().y());
+          else if (pin->outCircle() && pin->outCircle()->isVisible())
+            m_portSnapPositionsDstY.push_back(zoomInv * pin->outCircle()->scenePos().y());
+        }
+      }
+    }
+  }
 }
 
 void Node::storeCurrentSelection()
@@ -890,13 +989,34 @@ bool Node::onMouseMove( const QGraphicsSceneMouseEvent *event )
     QPointF delta = event->scenePos() - m_mouseDownPos;
     delta *= 1.0f / graph()->mainPanel()->canvasZoom();
     float gridSnapSize = (graph()->config().mainPanelGridSnap ? graph()->config().mainPanelGridSnapSize : 0);
-    graph()->controller()->gvcDoMoveNodes(
-      m_nodesToMove,
-      m_nodesToMoveOriginalPos,
-      delta,
-      gridSnapSize,
-      false // allowUndo
+    if (   m_nodesToMove.size() == 1
+        && m_nodesToMoveOriginalPos.size() == 1
+        && m_nodesToMoveOriginalSize.size() == 1)
+    {
+      graph()->controller()->gvcDoMoveNode(
+        m_nodesToMove[0],
+        m_nodesToMoveOriginalPos[0],
+        m_nodesToMoveOriginalSize[0],
+        delta,
+        gridSnapSize,
+        m_nodeSnapPositions,
+        graph()->config().mainPanelNodeSnapDistance,
+        m_portSnapPositionsSrcY,
+        m_portSnapPositionsDstY,
+        graph()->config().mainPanelPortSnapDistance,
+        false // allowUndo
       );
+    }
+    else
+    {
+      graph()->controller()->gvcDoMoveNodes(
+        m_nodesToMove,
+        m_nodesToMoveOriginalPos,
+        delta,
+        gridSnapSize,
+        false // allowUndo
+      );
+    }
 
     return true;
   }
@@ -927,18 +1047,43 @@ bool Node::onMouseRelease( const QGraphicsSceneMouseEvent *event )
       delta = event->scenePos() - m_mouseDownPos;
       delta *= 1.0f / graph()->mainPanel()->canvasZoom();
       float gridSnapSize = (graph()->config().mainPanelGridSnap ? graph()->config().mainPanelGridSnapSize : 0);
-      graph()->controller()->gvcDoMoveNodes(
-        m_nodesToMove,
-        m_nodesToMoveOriginalPos,
-        delta,
-        gridSnapSize,
-        true // allowUndo
+      if (   m_nodesToMove.size() == 1
+          && m_nodesToMoveOriginalPos.size() == 1
+          && m_nodesToMoveOriginalSize.size() == 1)
+      {
+        graph()->controller()->gvcDoMoveNode(
+          m_nodesToMove[0],
+          m_nodesToMoveOriginalPos[0],
+          m_nodesToMoveOriginalSize[0],
+          delta,
+          gridSnapSize,
+          m_nodeSnapPositions,
+          graph()->config().mainPanelNodeSnapDistance,
+          m_portSnapPositionsSrcY,
+          m_portSnapPositionsDstY,
+          graph()->config().mainPanelPortSnapDistance,
+          true // allowUndo
         );
+      }
+      else
+      {
+        graph()->controller()->gvcDoMoveNodes(
+          m_nodesToMove,
+          m_nodesToMoveOriginalPos,
+          delta,
+          gridSnapSize,
+          true // allowUndo
+        );
+      }
     }
 
     m_dragging = 0;
     m_nodesToMove.clear();
     m_nodesToMoveOriginalPos.clear();
+    m_nodesToMoveOriginalSize.clear();
+    m_nodeSnapPositions.clear();
+    m_portSnapPositionsSrcY.clear();
+    m_portSnapPositionsDstY.clear();
 
     return true;
   }

@@ -37,7 +37,7 @@ void ActionRegistry::registerAction(
 }
 
 void ActionRegistry::registerAction(
-  const QString &actionName,
+  QString const&actionName,
   QAction *action)
 {
   QObject::connect(
@@ -72,13 +72,13 @@ void ActionRegistry::onUnregisterAction(
 }
 
 bool ActionRegistry::isActionRegistered(
-  const QString &actionName) const
+  QString const&actionName) const
 {
   return m_registeredActions.count(actionName) > 0;
 }
 
 int ActionRegistry::getRegistrationCount(
-  const QString &actionName) const
+  QString const&actionName) const
 {
   if(!isActionRegistered(actionName))
     return 0;
@@ -86,8 +86,15 @@ int ActionRegistry::getRegistrationCount(
   return m_registeredActions[actionName].count();
 }
 
+inline QAction *GetFirstAction(
+  QMapIterator<QString, QSet< QAction * > > &ite) 
+{
+  QSetIterator<  QAction * > i(ite.value());
+  return i.next();
+}
+
 QList<QAction*> ActionRegistry::isShortcutUsed(
-  QKeySequence shortcut) const
+  QKeySequence const&shortcut) const
 {
   QList<QAction*> res;
 
@@ -96,8 +103,8 @@ QList<QAction*> ActionRegistry::isShortcutUsed(
   {
     ite.next();
     // Only check the first action, they all share the same shorcut.
-    QSetIterator<  QAction * > i(ite.value());
-    QAction *action = i.next();
+    // QSetIterator<  QAction * > i(ite.value());
+    QAction *action = GetFirstAction(ite);
     if(action->shortcut() == shortcut)
       res.append(action);
   }
@@ -106,7 +113,7 @@ QList<QAction*> ActionRegistry::isShortcutUsed(
 }
 
 QList<QAction*> ActionRegistry::isShortcutUsed(
-  const QList<QKeySequence> &shortcuts) const
+  QList<QKeySequence> const&shortcuts) const
 {
   QList<QAction*> res;
 
@@ -114,9 +121,7 @@ QList<QAction*> ActionRegistry::isShortcutUsed(
   while (ite.hasNext()) 
   {
     ite.next();
-    
-    QSetIterator<  QAction * > i(ite.value());
-    QAction *action = i.next();
+    QAction *action = GetFirstAction(ite);
     if(action->shortcuts() == shortcuts)
       res.append(action);
   }
@@ -125,8 +130,8 @@ QList<QAction*> ActionRegistry::isShortcutUsed(
 }
 
 void ActionRegistry::setShortcut(
-  const QString &actionName,
-  QKeySequence shortcut) const
+  QString const&actionName,
+  QKeySequence const&shortcut) const
 {
   if(!isActionRegistered(actionName))
     return;
@@ -136,8 +141,8 @@ void ActionRegistry::setShortcut(
 }
 
 void ActionRegistry::setShortcuts(
-  const QString &actionName,
-  const QList<QKeySequence> &shortcuts) const
+  QString const&actionName,
+  QList<QKeySequence> const&shortcuts) const
 {
   if(!isActionRegistered(actionName))
     return;
@@ -147,7 +152,7 @@ void ActionRegistry::setShortcuts(
 }
  
 QKeySequence ActionRegistry::getShortcut(
-  const QString &actionName) const
+  QString const&actionName) const
 {
   return isActionRegistered(actionName)
     ? getAction(actionName)->shortcut()
@@ -155,7 +160,7 @@ QKeySequence ActionRegistry::getShortcut(
 }
 
 QList<QKeySequence> ActionRegistry::getShortcuts(
-  const QString &actionName) const
+  QString const&actionName) const
 {
   QList<QKeySequence> dum;
   return isActionRegistered(actionName)
@@ -164,11 +169,11 @@ QList<QKeySequence> ActionRegistry::getShortcuts(
 }
 
 QAction* ActionRegistry::getAction(
-  const QString &actionName) const
+  QString const&actionName) const
 {
   if(!isActionRegistered(actionName))
     return 0;
-  
+    
   QSetIterator<  QAction * > i(m_registeredActions[actionName]);
   QAction *action = i.next();
   return action;
@@ -206,8 +211,7 @@ QString ActionRegistry::getContent() const
   while (ite.hasNext()) 
   {
     ite.next();
-    QSetIterator<  QAction * > i(ite.value());
-    QAction *action = i.next();
+    QAction *action = GetFirstAction(ite);
     QList<QKeySequence> shortcutsList = action->shortcuts();
 
     res += ite.key();
@@ -222,3 +226,16 @@ QString ActionRegistry::getContent() const
   }
   return res;
 }
+
+bool ActionRegistry::isActionContextGlobal(
+  QString const&actionName) const
+{
+  if(isActionRegistered(actionName))
+  {
+    QAction *action = getAction(actionName);
+    return action->shortcutContext() == Qt::WindowShortcut ||  
+      action->shortcutContext() == Qt::ApplicationShortcut;
+  }
+  return false;
+}
+

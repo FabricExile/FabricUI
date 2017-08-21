@@ -33,7 +33,7 @@ inline void GetBasicInfo(
   isEnabled = description.maybeGetMember("isEnabled").getBoolean();
 }
 
-inline QString GetHandlerExclusivity(RTVal description) {
+inline QString GetLegacyHandlerExclusivity(RTVal description) {
   unsigned int type(description.maybeGetMember("handlerExclusivity").getUInt32());
   return  type == 0 ? "Disable None" : 
           type == 1 ? "Disable Others" : "Disable All";
@@ -77,7 +77,7 @@ inline void ConstructToolDescriptionMenu(
 
     bool isEnabled; QString name, key;
     GetBasicInfo(description, name, key, isEnabled);
-    //QString typeStr = GetHandlerExclusivity(description);
+    //QString typeStr = GetLegacyHandlerExclusivity(description);
 
     RTVal toolModes = description.maybeGetMember("modes");
     if(!toolModes.isValid() || (toolModes.isValid() && toolModes.getArraySize() == 0))
@@ -122,7 +122,7 @@ inline void ConstructToolDescriptionMenu(
   }
 }
 
-inline void ConstructDispatcherDescriptionMenu(
+inline void ConstructLegacyDispatcherDescriptionMenu(
   RTVal descriptionIn, 
   Client client,
   QString delimiter,
@@ -163,8 +163,8 @@ inline void ConstructDispatcherDescriptionMenu(
           shToolsMenu,
           toolMenu);
 
-      else if (type == "DispatcherDescription")
-        ConstructDispatcherDescriptionMenu(
+      else if (type == "LegacyDispatcherDescription")
+        ConstructLegacyDispatcherDescriptionMenu(
           descr, 
           client, 
           delimiter,
@@ -192,7 +192,7 @@ void SHToolsMenu::constructMenu() {
 
     RTVal description = m_shGLRenderer->getDescription();
     if(description.isValid())
-      ConstructDispatcherDescriptionMenu(
+      ConstructLegacyDispatcherDescriptionMenu(
         description, 
         m_client, 
         m_delimiter,

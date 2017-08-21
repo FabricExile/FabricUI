@@ -773,3 +773,43 @@ class UICmdHandler(DFG.DFGUICmdHandler_Python):
                 UICmdHandler.encodeString(metaData),
                 ]
             )
+
+    def dfgDoAddNLSPort(
+        self,
+        binding,
+        execPath,
+        exec_,
+        desiredPortName,
+        typeSpec,
+        portToConnect,
+        extDep,
+        metaData,
+        ):
+        return self.evalCmdWithArgs(
+            "addLocal",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(desiredPortName),
+                UICmdHandler.encodeString(typeSpec),
+                UICmdHandler.encodeString(portToConnect),
+                UICmdHandler.encodeString(extDep),
+                UICmdHandler.encodeString(metaData),
+                ]
+            )
+
+    def dfgDoReorderNLSPorts(
+        self,
+        binding,
+        execPath,
+        exec_,
+        itemPath,
+        indices,
+        ):
+        return self.evalCmdWithArgs(
+            "reorderLocals",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(itemPath),
+                UICmdHandler.encodeInts(indices),
+                ]
+            )

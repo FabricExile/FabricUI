@@ -300,6 +300,10 @@ namespace FabricUI
       std::set<Node *> m_previousSelectedNodes;
       std::vector<Node *> m_nodesToMove;
       std::vector<QPointF> m_nodesToMoveOriginalPos;
+      std::vector<QSizeF> m_nodesToMoveOriginalSize;
+      std::vector<QPointF> m_nodeSnapPositions;
+      std::vector<qreal> m_portSnapPositionsSrcY;
+      std::vector<qreal> m_portSnapPositionsDstY;
 
       std::vector<Pin*> m_pins;
       int m_row;

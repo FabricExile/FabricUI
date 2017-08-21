@@ -2,9 +2,9 @@
 <typesystem package="FabricUI">
   <namespace-type name="FabricUI"  generate="no">
     <namespace-type name="OptionsEditor"  generate="yes">
-      <object-type name="OptionsModel" copyable="false"/>
-      <object-type name="OptionsDictModel" copyable="false"/>
-      <object-type name="BaseOptionsEditor" copyable="false"/>
-	</namespace-type>
+  	  <object-type name="BaseRTValOptionsEditor" copyable="false"/>
+      <object-type name="KLOptionsTargetEditor" copyable="false"/>
+      <object-type name="OptionEditorCommandRegistration" copyable="false"/>
+  	</namespace-type>
   </namespace-type>
 </typesystem>

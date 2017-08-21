@@ -6,7 +6,12 @@
 #endif
 
 #include "pyside_global.h"
+#include "global_application.h"
+#include "global_util.h"
+#include "global_commands.h"
 #include "global_actions.h"
+#include "global_dialog.h"
+#include "global_tools.h"
 
 #include <FabricUI/Menus/BaseMenu.h>
 #include <FabricUI/GraphView/Graph.h>
@@ -77,6 +82,9 @@
 #include <FabricUI/ModelItems/VarPathItemMetadata.h>
 #include <FabricUI/ModelItems/VarPortItemMetadata.h>
 #include <FabricUI/ModelItems/VarPortModelItem.h>
+
+#include "global_dfg.h"
+
 #include <FabricUI/DFG/DFGConfig.h>
 #include <FabricUI/DFG/DFGBindingUtils.h>
 #include <FabricUI/DFG/DFGController.h>
@@ -115,12 +123,10 @@
 #include <FabricUI/DFG/PresetTreeWidget.h>
 #include <FabricUI/Licensing/Licensing.h>
 #include <FabricUI/Style/FabricStyle.h>
-#include <FabricUI/Application/FabricApplication.h>
 #include <FabricUI/Viewports/GLViewportWidget.h>
 #include <FabricUI/Viewports/ViewportWidget.h>
 #include <FabricUI/Viewports/TimeLineWidget.h>
-#include <FabricUI/Util/StringUtils.h>
-#include <FabricUI/Util/Config.h>
+
 #include <FabricUI/SceneHub/SHGLScene.h>
 #include <FabricUI/SceneHub/SHGLRenderer.h>
 #include <FabricUI/SceneHub/SHStates.h>
@@ -146,8 +152,6 @@
 #include <FabricUI/SceneHub/ValueEditor/SHOptionsEditor.h>
 #include <FabricUI/Viewports/ManipulationTool.h>
 #include "global_optionseditor.h"
-#include <FabricUI/Viewports/ViewportOptionsEditor.h>
 #include <FabricServices/ASTWrapper/KLASTManager.h>
-#include <FabricUI/Util/GetFilenameForFileURL.h>
-#include <FabricUI/Util/QTSignalBlocker.h>
+
 #include <FabricUI/Test/RTValCrash.h>

@@ -7,8 +7,8 @@ using namespace FabricUI;
 using namespace Actions;
 
 void BaseAction::init(
-  const QString &name, 
-  const QString &text, 
+  QString name, 
+  QString text, 
   bool enable,
   bool isEditable)
 {
@@ -38,8 +38,8 @@ void BaseAction::init(
 }
 
 void BaseAction::init(
-  const QString &name, 
-  const QString &text, 
+  QString name, 
+  QString text, 
   QKeySequence shortcut,
   Qt::ShortcutContext context,
   bool enable,
@@ -63,8 +63,8 @@ void BaseAction::init(
 }
 
 void BaseAction::init(
-  const QString &name, 
-  const QString &text, 
+  QString name, 
+  QString text, 
   const QList<QKeySequence> & shortcuts,
   Qt::ShortcutContext context,
   bool enable,
@@ -85,8 +85,8 @@ void BaseAction::init(
 }
 
 void BaseAction::init(
-  const QString &name, 
-  const QString &text, 
+  QString name, 
+  QString text, 
   QKeySequence shortcut,
   Qt::ShortcutContext context,
   const QIcon &icon,
@@ -104,8 +104,8 @@ void BaseAction::init(
 }
 
 void BaseAction::init(
-  const QString &name, 
-  const QString &text, 
+  QString name, 
+  QString text, 
   const QList<QKeySequence> & shortcuts,
   Qt::ShortcutContext context,
   const QIcon &icon,
@@ -130,8 +130,8 @@ BaseAction::BaseAction(
 
 BaseAction::BaseAction(
   QObject *parent,
-  const QString &name, 
-  const QString &text, 
+  QString name, 
+  QString text, 
   QKeySequence shortcut,
   Qt::ShortcutContext context,
   bool enable,
@@ -148,8 +148,8 @@ BaseAction::BaseAction(
 
 BaseAction::BaseAction(
   QObject *parent,
-  const QString &name, 
-  const QString &text, 
+  QString name, 
+  QString text, 
   const QList<QKeySequence> & shortcuts,
   Qt::ShortcutContext context,
   bool enable,

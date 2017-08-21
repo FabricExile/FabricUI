@@ -326,6 +326,25 @@ public:
     QString metaData
     );
 
+  virtual QString dfgDoAddNLSPort(
+    FabricCore::DFGBinding const &binding,
+    QString execPath,
+    FabricCore::DFGExec const &exec,
+    QString desiredPortName,
+    QString typeSpec,
+    QString portToConnect,
+    QString extDep,
+    QString metaData
+    );
+
+  virtual void dfgDoReorderNLSPorts(
+    FabricCore::DFGBinding const &binding,
+    QString execPath,
+    FabricCore::DFGExec const &exec,
+    QString itemPath,
+    QList<int> indices
+    );
+
 protected:
 
   class WrappedCommand;

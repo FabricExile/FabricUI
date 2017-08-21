@@ -21,6 +21,7 @@ namespace FabricUI
     protected:
 
       ItemPortModelItem *m_nodePortModelItem;
+      std::string m_bindingId, m_portPath;
 
       void reportFabricCoreException( FabricCore::Exception const &e ) const
       {
@@ -29,8 +30,9 @@ namespace FabricUI
 
     public:
 
-      ItemPortItemMetadata( ItemPortModelItem *nodePortModelItem )
-        : m_nodePortModelItem( nodePortModelItem ) {}
+      ItemPortItemMetadata( ItemPortModelItem *nodePortModelItem );
+
+      void computeDFGPath();
 
       virtual const char* getString( const char* key ) const /*override*/
       {
@@ -66,6 +68,12 @@ namespace FabricUI
                 || exec.hasSrcPorts( portPath.c_str() );
             return isNotInspectable? FTL_STR("1").c_str(): FTL_STR("").c_str();
           }
+
+          if( key == VEDFGBindingIdKey )
+            return m_bindingId.data();
+
+          if( key == VEDFGPortPathKey )
+            return m_portPath.data();
 
           return exec.getPortMetadata( portPath.c_str(), key );
         }

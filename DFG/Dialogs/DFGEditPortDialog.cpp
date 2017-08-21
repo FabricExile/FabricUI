@@ -6,7 +6,7 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include "DFGEditPortDialog.h"
-#include <FabricUI/Util/StringUtils.h>
+#include <FabricUI/Util/StringUtil.h>
 
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -57,6 +57,8 @@ DFGEditPortDialog::DFGEditPortDialog(
   m_combo = new QLineEdit("OptionA, OptionB", this);
   m_hasFileTypeFilter = new QCheckBox(this);
   m_fileTypeFilter = new QLineEdit("*.*", this);
+  m_isOpenFile = new QCheckBox(this);
+  m_isOpenFile->setCheckState(Qt::Checked);
 
   m_softRangeMin->setEnabled(false);
   m_softRangeMax->setEnabled(false);
@@ -87,6 +89,7 @@ DFGEditPortDialog::DFGEditPortDialog(
   addInput(m_combo, "Combo", "Metadata");
   addInput(m_hasFileTypeFilter, "Use File Filter", "Metadata");
   addInput(m_fileTypeFilter, "File Filter", "Metadata");
+  addInput(m_isOpenFile, "Is Open File", "Metadata");
 
   // [Julien] FE-5188, FE-5276
   if(setAlphaNum) alphaNumicStringOnly();
@@ -367,6 +370,17 @@ void DFGEditPortDialog::setFileTypeFilter(QString value)
   m_fileTypeFilter->setText(value);
 }
 
+bool DFGEditPortDialog::isOpenFile() const
+{
+  return m_isOpenFile->checkState() == Qt::Checked;
+}
+
+void DFGEditPortDialog::setIsOpenFile(bool value)
+{
+  m_isOpenFile->setCheckState(value ? Qt::Checked : Qt::Unchecked);
+}
+
+
 void DFGEditPortDialog::showEvent(QShowEvent * event)
 {
   QTimer::singleShot(0, m_titleEdit, SLOT(setFocus()));
@@ -408,6 +422,7 @@ void DFGEditPortDialog::onComboToggled(int state)
 void DFGEditPortDialog::onFileTypeFilterToggled(int state)
 {
   m_fileTypeFilter->setEnabled(state == Qt::Checked);
+  m_isOpenFile->setEnabled(state == Qt::Checked);
 }
 
 void DFGEditPortDialog::done(int r)

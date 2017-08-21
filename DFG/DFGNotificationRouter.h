@@ -3,6 +3,7 @@
 #ifndef __UI_DFG_DFGNotificationRouter__
 #define __UI_DFG_DFGNotificationRouter__
 
+#include <string>
 #include <FabricCore.h>
 #include <FTL/CStrRef.h>
 #include <FTL/JSONValue.h>

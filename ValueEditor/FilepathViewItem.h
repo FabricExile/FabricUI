@@ -52,6 +52,7 @@ private:
   VELineEdit* m_edit;
   QWidget *m_widget;
   QString m_filter;
+  bool m_isOpenFile;
   static QString m_lastFolder;
 
 private slots:

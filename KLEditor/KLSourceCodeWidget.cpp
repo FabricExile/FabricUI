@@ -41,10 +41,12 @@ KLSourceCodeWidget::KLSourceCodeWidget(QWidget * parent, FabricServices::ASTWrap
   m_popup = NULL;
 
   document()->setDefaultFont(config.codeFont);
+  setFont(config.codeFont);
   setWordWrapMode(QTextOption::NoWrap);
   QFontMetrics metrics(config.codeFont);
   setTabStopWidth(metrics.width(QString().fill(' ', config.codeTabWidth)));
-    
+  initFontPointSizeMembers();
+
   QPalette p = palette();
   p.setColor(QPalette::Base, config.codeBackgroundColor);
   p.setColor(QPalette::WindowText, config.codeFontColor);
@@ -53,6 +55,9 @@ KLSourceCodeWidget::KLSourceCodeWidget(QWidget * parent, FabricServices::ASTWrap
 
   m_highlighter = new KLSyntaxHighlighter(document(), manager);
   m_codeAssistant = new CodeCompletion::KLCodeAssistant(m_highlighter);
+
+  // disable code completaion
+  m_codeAssistant->setEnabled(false);
 
   setContentsMargins(0, 0, 0, 0);
 
@@ -93,6 +98,7 @@ void KLSourceCodeWidget::setCodeAndExec(QString text, FabricCore::DFGExec *dfgEx
   m_highlighter->setEnabled(false);
   setPlainText(text);
   m_highlighter->setEnabled(true);
+  m_highlighter->initializeBasicTypes(true /* force */);
   updateSourceCode();
   m_isHighlighting = true;
   m_highlighter->rehighlight();
@@ -240,6 +246,22 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
     }
     else
       hidePopup();
+  }
+
+  // [FE-7265]
+  if (event->modifiers().testFlag(Qt::ControlModifier))
+  {
+    if (   event->key() == Qt::Key_Plus
+        || event->key() == Qt::Key_Minus
+        || event->key() == Qt::Key_0)
+    {
+      if      (event->key() == Qt::Key_Plus)  m_fontPointSizeCurrent++;
+      else if (event->key() == Qt::Key_Minus) m_fontPointSizeCurrent--;
+      else                                    m_fontPointSizeCurrent = m_fontPointSizeOriginal;
+      applyFontPointSize();
+      event->accept();
+      return;
+    }
   }
 
   // [FE-6839]
@@ -512,6 +534,18 @@ void KLSourceCodeWidget::mouseReleaseEvent(QMouseEvent * event)
   QPlainTextEdit::mouseReleaseEvent(event);
 }
 
+void KLSourceCodeWidget::wheelEvent(QWheelEvent *event)
+{
+  if (event->modifiers().testFlag(Qt::ControlModifier))
+  {
+    m_fontPointSizeCurrent += 0.0125 * event->delta();
+    applyFontPointSize();
+    event->accept();
+  }
+  else
+    QPlainTextEdit::wheelEvent(event);
+}
+
 void KLSourceCodeWidget::contextMenuEvent(QContextMenuEvent *event)
 {
   QMenu *menu = createStandardContextMenu();
@@ -768,6 +802,21 @@ void KLSourceCodeWidget::clearHighlightedLocations()
   m_isHighlighting = true;
   m_highlighter->rehighlight();
   m_isHighlighting = false;
+}
+
+void KLSourceCodeWidget::initFontPointSizeMembers()
+{
+  m_fontPointSizeOriginal = this->font().pointSizeF();
+  m_fontPointSizeCurrent = m_fontPointSizeOriginal;
+}
+
+void KLSourceCodeWidget::applyFontPointSize()
+{
+  m_fontPointSizeCurrent = std::max(1.0, std::min(32.0, m_fontPointSizeCurrent));
+  char styleSheet[128];
+  sprintf(styleSheet, "font-size: %gpt;", m_fontPointSizeCurrent);
+  setStyleSheet(styleSheet);
+  emit fontPointSizeChanged(m_fontPointSizeCurrent);
 }
 
 bool KLSourceCodeWidget::showPopup(bool forParen)

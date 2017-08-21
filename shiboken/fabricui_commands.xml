@@ -1,0 +1,20 @@
+<?xml  version="1.0"?>
+<typesystem package="FabricUI">
+  <namespace-type name="FabricUI"  generate="no">
+    <namespace-type name="Commands"  generate="yes">
+      <object-type name="BaseCommand" />
+      <object-type name="CommandArgFlags" />
+      <object-type name="BaseScriptableCommand" />
+      <object-type name="BaseRTValScriptableCommand" />
+      <object-type name="CommandHelpers" />
+      <object-type name="CommandManager" />
+      <object-type name="RTValCommandManager" />
+      <object-type name="KLCommandManager" />
+      <object-type name="CommandRegistry" />
+      <object-type name="KLCommandRegistry" />
+      <object-type name="CppToPythonTestCommand" />
+      <object-type name="BasePathValueResolver" />
+      <object-type name="PathValueResolverRegistry" />
+    </namespace-type>
+  </namespace-type>
+</typesystem>

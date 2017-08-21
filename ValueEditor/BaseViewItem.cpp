@@ -12,7 +12,8 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-using namespace FabricUI::ValueEditor;
+using namespace FabricUI;
+using namespace ValueEditor;
 
 static int s_nInstances = 0;
 
@@ -56,6 +57,7 @@ void BaseViewItem::setBaseModelItem( BaseModelItem* item )
         m_metadata.setSInt32( "uiReadOnly", 1 );
       }
     }
+
   }
 }
 
@@ -109,7 +111,6 @@ void BaseViewItem::renameItem( QString newName )
     m_modelItem->rename( newName.toUtf8().constData() );
 }
 
-
 void BaseViewItem::onRenamed( QTreeWidgetItem* item )
 {
   if (m_modelItem != NULL) 
@@ -146,6 +147,11 @@ void BaseViewItem::setWidgetsOnTreeItem(
   treeWidget->setItemWidget( treeWidgetItem, 1, myWidget );
 }
 
+void BaseViewItem::emitToggleManipulation(bool toggled) {
+  emit toggleManipulation(toggled);
+}
+
 void BaseViewItem::metadataChanged()
 {
 }
+

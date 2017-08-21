@@ -88,8 +88,8 @@ void SHCmdHandler::registerCommands() {
 void SHCmdHandler::onSynchronizeCommands() {
   try 
   {
-    RTVal cmdManager = RTVal::Create(m_client, "CmdManager", 0, 0);
-    cmdManager = cmdManager.callMethod("CmdManager", "getOrCreateCmdManager", 0, 0);
+    RTVal cmdManager = RTVal::Create(m_client, "LegacyCmdManager", 0, 0);
+    cmdManager = cmdManager.callMethod("LegacyCmdManager", "getOrCreateLegacyCmdManager", 0, 0);
 
     unsigned int currentStackSize = cmdManager.callMethod("Size", "getNumCmdInUndoStack", 0, 0).getUInt32();
 

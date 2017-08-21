@@ -64,7 +64,7 @@ void InfoOverlay::paint(QPainter * painter, const QStyleOptionGraphicsItem * opt
   painter->setBrush(m_config.infoOverlayColor);
 
   QRectF rect = windowFrameRect();
-  painter->drawRect(rect);
+  painter->drawRoundedRect(rect, 5, 5);
 
   if(m_textLines.length() > 0)
   {

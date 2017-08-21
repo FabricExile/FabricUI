@@ -4,7 +4,7 @@
 
 #include "VEDoubleSpinBox.h"
 
-#include <FabricUI/Util/StringUtils.h>
+#include <FabricUI/Util/StringUtil.h>
 
 #include <float.h>
 #include <math.h>

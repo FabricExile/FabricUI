@@ -112,8 +112,8 @@ class BaseAction : public QAction
 
     BaseAction(
       QObject *parent,
-      const QString &name, 
-      const QString &text = "", 
+      QString name, 
+      QString text = "", 
       QKeySequence shortcut = QKeySequence(),
       Qt::ShortcutContext context = Qt::ApplicationShortcut,
       bool enable = true,
@@ -122,8 +122,8 @@ class BaseAction : public QAction
 
     BaseAction(
       QObject *parent,
-      const QString &name, 
-      const QString &text = "", 
+      QString name, 
+      QString text = "", 
       const QList<QKeySequence> &shortcuts = QList<QKeySequence>(),
       Qt::ShortcutContext context = Qt::ApplicationShortcut,
       bool enable = true,
@@ -149,16 +149,16 @@ class BaseAction : public QAction
   protected:
     /// Intializes the BaseAction.
     void init(
-      const QString &name, 
-      const QString &text,
+      QString name, 
+      QString text,
       bool enable = true,
       bool isEditable = true
       );
 
     /// Intializes the BaseAction.
     void init(
-      const QString &name, 
-      const QString &text,
+      QString name, 
+      QString text,
       QKeySequence shortuct,
       Qt::ShortcutContext context,
       bool enable = true,
@@ -167,8 +167,8 @@ class BaseAction : public QAction
 
     /// Intializes the BaseAction.
     void init(
-      const QString &name, 
-      const QString &text,
+      QString name, 
+      QString text,
       const QList<QKeySequence> &shortcuts,
       Qt::ShortcutContext context,
       bool enable = true,
@@ -177,8 +177,8 @@ class BaseAction : public QAction
 
     /// Intializes the BaseAction.
     void init(
-      const QString &name, 
-      const QString &text,
+      QString name, 
+      QString text,
       QKeySequence shortuct,
       Qt::ShortcutContext context,
       const QIcon &icon,
@@ -188,8 +188,8 @@ class BaseAction : public QAction
 
     /// Intializes the BaseAction.
     void init(
-      const QString &name, 
-      const QString &text,
+      QString name, 
+      QString text,
       const QList<QKeySequence> &shortcuts,
       Qt::ShortcutContext context,
       const QIcon &icon,

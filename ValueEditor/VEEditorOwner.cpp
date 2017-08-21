@@ -65,6 +65,14 @@ void VEEditorOwner::initConnections()
     this, SIGNAL( replaceModelRoot( FabricUI::ValueEditor::BaseModelItem* ) ),
     m_valueEditor, SLOT( onSetModelItem( FabricUI::ValueEditor::BaseModelItem* ) )
     );
+  connect(
+    this, SIGNAL( toggleManipulation(bool) ),
+    m_valueEditor, SLOT( emitToggleManipulation(bool) )
+    );
+  connect(
+    m_valueEditor, SIGNAL( refreshViewport() ),
+    this, SLOT( emitRefreshViewport() )
+    );
 }
 
 void VEEditorOwner::onModelItemInserted( FabricUI::ValueEditor::BaseModelItem* parent, int index, const char* childName )
@@ -93,4 +101,13 @@ void VEEditorOwner::reloadStyles()
 void VEEditorOwner::emitReplaceModelRoot(FabricUI::ValueEditor::BaseModelItem* model)
 {
   emit replaceModelRoot(model);
+}
+
+void VEEditorOwner::emitRefreshViewport() {
+
+  emit refreshViewport();
+}
+
+void VEEditorOwner::emitToggleManipulation(bool toggled) {
+  emit toggleManipulation(toggled);
 }

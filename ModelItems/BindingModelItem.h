@@ -30,7 +30,10 @@ class DFGUICmdHandler;
 
       BindingModelItem(
         DFG::DFGUICmdHandler *dfgUICmdHandler,
-        FabricCore::DFGBinding binding
+        FabricCore::DFGBinding binding,
+        bool showInputs = true,
+        bool showOutputs = true,
+        bool showIO = true
         );
       ~BindingModelItem();
 
@@ -80,6 +83,10 @@ class DFGUICmdHandler;
         bool commit,
         QVariant valueAtInteractionBegin
         ) /*override*/;
+
+      bool m_showInputs;
+      bool m_showOutputs;
+      bool m_showIO;
     };
   }
 }

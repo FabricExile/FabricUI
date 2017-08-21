@@ -24,6 +24,7 @@
       <object-type name="DFGUICmd_ImportNodeFromJSON" />
       <object-type name="DFGUICmd_AddInstBlockPort" />
       <object-type name="DFGUICmd_AddInstPort" />
+      <object-type name="DFGUICmd_AddNLSPort" />
       <object-type name="DFGUICmd_AddNode" />
       <object-type name="DFGUICmd_AddPort" />
       <object-type name="DFGUICmd_AddSet" />
@@ -44,6 +45,7 @@
       <object-type name="DFGUICmd_RemoveNodes" />
       <object-type name="DFGUICmd_RemovePort" />
       <object-type name="DFGUICmd_RenamePort" />
+      <object-type name="DFGUICmd_ReorderNLSPorts" />
       <object-type name="DFGUICmd_ReorderPorts" />
       <object-type name="DFGUICmd_ResizeBackDrop" />
       <object-type name="DFGUICmd_SetArgValue" />
@@ -55,7 +57,15 @@
       <object-type name="DFGUICmd_SplitFromPreset" />
       <object-type name="DFGVEEditorOwner" />
       <object-type name="DFGWidget" />
-      <object-type name="PresetTreeWidget" />-
-    </namespace-type>
+      <object-type name="PresetTreeWidget" />
+      <object-type name="DFGCommandRegistration" />
+      <object-type name="DFGToolsCommandRegistration" />
+      <object-type name="DFGPVToolsNotifierRegistry" />
+      <object-type name="DFGCreatePVToolAction" />
+      <object-type name="DFGDeletePVToolAction" />
+      <object-type name="DFGDeleteAllPVToolsAction" />
+      <object-type name="DFGDeleteAllAndCreatePVToolAction" />
+      <object-type name="DFGVEEditorPVToolMenu" />
+      </namespace-type>
   </namespace-type>
 </typesystem>

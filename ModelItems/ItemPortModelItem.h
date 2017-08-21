@@ -52,8 +52,12 @@ class DFGUICmdHandler;
 
       FabricCore::DFGExec getExec()
         { return m_exec; }
+      inline const FabricCore::DFGBinding& getBinding() const
+        { return m_binding; }
       FTL::CStrRef getItemPath()
         { return m_itemPath; }
+      FTL::CStrRef getExecPath()
+        { return m_execPath; }
       FTL::CStrRef getPortName()
         { return m_portName; }
       FTL::CStrRef getPortPath()
@@ -65,7 +69,7 @@ class DFGUICmdHandler;
         );
 
       /////////////////////////////////////////////////////////////////////////
-      // Metadata
+      // MetadatagetWidgetCommandArgs
       /////////////////////////////////////////////////////////////////////////
 
       virtual FabricUI::ValueEditor::ItemMetadata* getMetadata();
@@ -80,6 +84,10 @@ class DFGUICmdHandler;
 
       virtual QVariant getValue();
 
+      virtual QString getCommandName();
+      
+      virtual FabricCore::RTVal getCommandArgs();
+            
     protected:
 
       void updatePortPath();

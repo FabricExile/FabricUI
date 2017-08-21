@@ -124,6 +124,15 @@ protected:
     appendDesc_Path( refName, desc );
   }
 
+  void appendDesc_NLSPortPath(
+    QString refName,
+    QString &desc
+    )
+  {
+    desc += "local ";
+    appendDesc_Path( refName, desc );
+  }
+
   QStringList adjustNewItems(
     FabricCore::String const &newNodeNamesJSON,
     QPointF targetPos,

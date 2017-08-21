@@ -6,9 +6,12 @@
 #define FABRICUI_VALUEEDITOR_BASEMODELITEM_H
 
 #include <FTL/CStrRef.h>
+#include <QList>
 #include <QObject>
 #include <QString>
 #include <QVariant>
+#include <FabricCore.h>
+#include <vector>
 
 
 namespace FabricUI {
@@ -156,6 +159,12 @@ public:
 	// Return a copy of this classes value
 	virtual QVariant getValue() { return QVariant(); }
 
+  // Return the name of the command.
+  virtual QString getCommandName() 
+  {
+    return "";
+  }
+
   // Returns true if a ModelItem has a default
   // value - in other words, if resetToDefault
   // will have an effect
@@ -191,6 +200,8 @@ signals:
 	// Connect to this signal to be notified
 	// when the core value changes.
 	void modelValueChanged( QVariant const &newValue );
+
+  void metadataChanged();
 };
 
 } // namespace FabricUI 
