@@ -8,7 +8,6 @@
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Application/FabricApplicationStates.h>
 #include <FabricServices/Persistence/RTValToJSONEncoder.hpp>
-//#include <iostream>
 
 using namespace FabricUI;
 using namespace DFG;
@@ -179,12 +178,13 @@ inline void arePathValueAndDFGItemTypeEqual(
   QString const &dfgValueType) // From a port, arg or var
 { 
   Client client = FabricApplicationStates::GetAppStates()->getClient();
-  
+ 
   if(!client.areTypesEqual(pvValueType.toUtf8().constData(), dfgValueType.toUtf8().constData()))
     FabricException::Throw(
       "DFGPathValueResolver::arePathValueAndDFGItemTypeEqual",
       "Cannot set " + dfgItemType + " at path '" + dfgItemPath + "'",
-      "The type of the PathValue's value '" + pvValueType + "' and " + dfgItemType + " '" + dfgValueType + "' are not equal"
+      "The type of the PathValue's value '" + pvValueType + "' and " + dfgItemType + " '" + dfgValueType + "' are not equal",
+      FabricException::THROW
       );
 }
 
@@ -212,7 +212,7 @@ void DFGPathValueResolver::setValue(
 
   if(dfgType == DFGVar)
   {
-    RTVal varValue = m_binding.getExec().getVarValue(
+    QString varValueType = m_binding.getExec().getVarType(
       getPathWithoutBindingOrSolverID(pathValue).toUtf8().constData()
       );
       
@@ -220,7 +220,7 @@ void DFGPathValueResolver::setValue(
       dfgPortPaths.getAbsolutePortPath(),
       "variable",
       pvValueType,
-      RTValUtil::getType(varValue)
+      varValueType
       );
 
     m_binding.getExec().setVarValue( 
@@ -230,38 +230,26 @@ void DFGPathValueResolver::setValue(
 
   else
   {
+    QString portValueType = subExec.getPortResolvedType(
+      dfgPortPaths.getRelativePortPath().toUtf8().constData()
+      );
+
+    arePathValueAndDFGItemTypeEqual(
+      dfgPortPaths.getAbsolutePortPath(),
+      "port",
+      pvValueType,
+      portValueType
+      );
+
     if(dfgType == DFGPort)
-    {
-      QString portValueType = subExec.getPortResolvedType(
-        dfgPortPaths.getRelativePortPath().toUtf8().constData()
-        );
-
-      arePathValueAndDFGItemTypeEqual(
-        dfgPortPaths.getAbsolutePortPath(),
-        "port",
-        pvValueType,
-        portValueType
-        );
-
       subExec.setPortDefaultValue( 
         dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
         value, 
         false);
-    }
-
+ 
     else if( dfgType == DFGArg )
     {
-      RTVal argValue = m_binding.getArgValue(
-        dfgPortPaths.getRelativePortPath().toUtf8().constData()
-        );
-
-      arePathValueAndDFGItemTypeEqual(
-        dfgPortPaths.getAbsolutePortPath(),
-        "argument",
-        pvValueType,
-        RTValUtil::getType(argValue)
-        );
-         
+ 
       { // Code copy-pasted from FabricUI/DFG/DFGUICmd_SetArgValue.cpp :
 
         // Automatically set as "persistable" arg values that were explicitly set by the user
