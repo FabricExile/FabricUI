@@ -425,10 +425,26 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
       execBlockPath.toUtf8().constData()
       );
 
+    bool isBlock = false;
+
     // FE-8759
-    if(!exec.isExecBlock(nodeName.toUtf8().constData()) && exec.isInstBlock(
-        nodeName.toUtf8().constData(), 
-        blockName.toUtf8().constData()))
+    try
+    {
+      isBlock = (!exec.isExecBlock(nodeName.toUtf8().constData()) && exec.isInstBlock(
+          nodeName.toUtf8().constData(), 
+          blockName.toUtf8().constData()));
+      // {
+      //   dfgPortPaths.blockName = blockName;
+      //   dfgPortPaths.nodeName = nodeName;
+      // }
+
+    }
+
+    catch(FabricCore::Exception &e)
+    {
+    }
+
+    if(isBlock)
     {
       dfgPortPaths.blockName = blockName;
       dfgPortPaths.nodeName = nodeName;
