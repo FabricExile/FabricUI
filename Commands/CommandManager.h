@@ -150,6 +150,13 @@ class CommandManager : public QObject
       BaseCommand* cmd
       );
 
+    /// Cleans the stacks if errors occur when
+    /// doing a command and throws an exception.
+    virtual void cleanupUnfinishedCommandsAndThrow(
+      BaseCommand *cmd,
+      QString const&error
+      );
+
     /// Contains a command (top) and its 
     /// sub-commands (low) in a flat array.
     struct StackedCommand 
@@ -189,13 +196,6 @@ class CommandManager : public QObject
       QString const&stackName, 
       QList<StackedCommand> const& stack,
       bool withArgs = true
-      );
- 
-    /// Cleans the stacks if errors occur when
-    /// doing a command and throws an exception.
-    void cleanupUnfinishedCommandsAndThrow(
-      BaseCommand *cmd,
-      QString const&error
       );
 
     /// Cleans the stacks if errors occur when
