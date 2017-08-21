@@ -7,6 +7,39 @@
 using namespace FabricUI;
 using namespace Application;
 
+FabricLog* FabricLog::s_log = 0;
+
+FabricLog::FabricLog()
+{
+  if(s_log != 0)
+    FabricException::Throw(
+      "FabricLog::FabricLog",
+      "the singleton has been set already");
+
+  s_log = this;
+}
+
+FabricLog::~FabricLog()
+{
+  if( s_log == this )
+    s_log = 0;
+}
+
+FabricLog* FabricLog::get() 
+{
+  if(s_log == 0)
+    return new FabricLog();
+  return s_log;
+}
+
+void FabricLog::log(
+  QString const&message) 
+{
+  std::cerr 
+    << message.toUtf8().constData() 
+    << std::endl;
+}
+
 int FabricException::NOTHING = 0;
 int FabricException::THROW = 1;
 int FabricException::LOG = 2;
@@ -45,7 +78,9 @@ void FabricException::Throw(
 
 void FabricException::log() const throw()
 {
-  std::cerr << m_message.c_str() << std::endl;
+  FabricLog::get()->log(
+    m_message.c_str()
+    );
 }
 
 const char* FabricException::what() const throw()
