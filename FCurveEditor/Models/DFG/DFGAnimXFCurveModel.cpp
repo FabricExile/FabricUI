@@ -38,7 +38,7 @@ void RTValAnimXFCurveDFGController::setPath( const char* bindingId, const char* 
   if(m_dfgPath.mid(0, 1) == ".")
     m_dfgPath = m_dfgPath.mid(1);
 
-  m_dfgPath = "<" + bindingId + "." + m_dfgPath + ">"
+  m_dfgPath = "<" + QString(bindingId) + "." + m_dfgPath + ">";
 }
 
 void RTValAnimXFCurveDFGController::setKey( size_t i, Key h, bool autoTangent )
