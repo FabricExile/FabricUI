@@ -21,7 +21,7 @@ namespace FabricUI
     protected:
 
       ItemPortModelItem *m_nodePortModelItem;
-      std::string m_bindingId, m_portPath;
+      std::string m_bindingId, m_portPath, m_dfgPath;
 
       void reportFabricCoreException( FabricCore::Exception const &e ) const
       {
@@ -74,6 +74,9 @@ namespace FabricUI
 
           if( key == VEDFGPortPathKey )
             return m_portPath.data();
+
+          if( key == VEPathKey  )
+            return m_dfgPath.data();
 
           return exec.getPortMetadata( portPath.c_str(), key );
         }

@@ -23,4 +23,10 @@ void ItemPortItemMetadata::computeDFGPath()
   m_portPath = m_nodePortModelItem->getExec().getExecPath().getCStr();
   m_portPath += ".";
   m_portPath += m_nodePortModelItem->getPortPath().c_str();
+
+  QString dfgPath = m_portPath.c_str();
+	if(dfgPath.mid(0, 1) == ".")
+    dfgPath = dfgPath.mid(1);
+
+  m_dfgPath = (bdid + "." + dfgPath).toUtf8().constData();
 }

@@ -19,4 +19,6 @@ void ArgItemMetadata::computeDFGPath()
   m_bindingId = QString::number( m_argModelItem->getBinding().getBindingID() ).toUtf8().data();
 
   m_portPath = m_argModelItem->getArgName();
+
+  m_dfgPath = m_bindingId + "." + m_portPath;
 }

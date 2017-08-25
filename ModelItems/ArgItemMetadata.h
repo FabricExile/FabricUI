@@ -24,7 +24,7 @@ namespace FabricUI
     private:
 
       ArgModelItem *m_argModelItem;
-      std::string m_bindingId, m_portPath;
+      std::string m_bindingId, m_portPath, m_dfgPath;
 
     public:
 
@@ -49,6 +49,9 @@ namespace FabricUI
         if( key == DFGModelItemMetadata::VEDFGPortPathKey )
           return m_portPath.data();
 
+        if( key == VEPathKey  )
+            return m_dfgPath.data();
+          
         FabricCore::DFGExec rootExec = m_argModelItem->getRootExec();
         FTL::CStrRef argName = m_argModelItem->getArgName();
         return rootExec.getExecPortMetadata( argName.c_str(), key );

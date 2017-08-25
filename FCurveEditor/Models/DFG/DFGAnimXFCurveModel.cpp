@@ -28,7 +28,7 @@ inline void SynchronizeKLReg()
   static_cast<FabricUI::Commands::KLCommandRegistry*>( FabricUI::Commands::KLCommandRegistry::getCommandRegistry() )
     ->synchronizeKL(); // HACK : remove
 }
-
+/*
 void RTValAnimXFCurveDFGController::setPath( const char* bindingId, const char* dfgPortPath )
 {
   m_dfgPath = dfgPortPath;
@@ -39,6 +39,12 @@ void RTValAnimXFCurveDFGController::setPath( const char* bindingId, const char* 
     m_dfgPath = m_dfgPath.mid(1);
 
   m_dfgPath = "<" + QString(bindingId) + "." + m_dfgPath + ">";
+}*/
+
+void RTValAnimXFCurveDFGController::setPath( const char* dfgPath )
+{
+  m_dfgPath = dfgPath;
+  m_dfgPath = "<" + m_dfgPath + ">";
 }
 
 void RTValAnimXFCurveDFGController::setKey( size_t i, Key h, bool autoTangent )

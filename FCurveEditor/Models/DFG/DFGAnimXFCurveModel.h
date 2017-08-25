@@ -31,7 +31,8 @@ public:
   RTValAnimXFCurveDFGController() : m_isInteracting( false ) {}
 
   // DFG Path
-  void setPath( const char* bindingId, const char* dfgPortPath );
+  //void setPath( const char* bindingId, const char* dfgPortPath );
+  void setPath( const char* dfgPath );
 
   // AbstractFCurveModel
   void setKey( size_t i, Key h, bool autoTangent );
