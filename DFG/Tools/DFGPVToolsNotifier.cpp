@@ -37,10 +37,12 @@ void DFGPVToolsNotifierRegistry::registerPathValueTool(
 
   if(resolver)
   {
+    DFGPathValueResolver::DFGType dfgType;
     DFGPVToolsNotifierPortPaths dfgPortPaths;
-    DFGExec exec = resolver->getDFGPortPaths(
+    DFGExec exec = resolver->getDFGPortPathsAndType(
       pathValue, 
-      dfgPortPaths
+      dfgPortPaths,
+      dfgType
       );
 
     dfgPortPaths.oldPortName = dfgPortPaths.portName;
@@ -216,18 +218,20 @@ QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldRelativeP
     return "";
 }
 
-QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsolutePortPath() 
+QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsolutePortPath(
+  bool addBindingID) 
 {
   QString absPath = execPath.isEmpty()
     ? getOldRelativePortPath()
     : execPath + "." + getOldRelativePortPath();
 
-  return !id.isEmpty()
+  return addBindingID && !id.isEmpty()
     ? id + "." + absPath
     : absPath;
 }
 
-QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsoluteNodePath() 
+QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsoluteNodePath(
+  bool addBindingID)
 {
   if(!oldNodeName.isEmpty())
   {
@@ -235,7 +239,7 @@ QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsoluteN
       ? oldNodeName
       : execPath + "." + oldNodeName;
 
-    return !id.isEmpty()
+    return addBindingID && !id.isEmpty()
       ? id + "." + absPath
       : absPath;
   }
