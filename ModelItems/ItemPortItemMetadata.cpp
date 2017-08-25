@@ -18,15 +18,13 @@ ItemPortItemMetadata::ItemPortItemMetadata( ItemPortModelItem *nodePortModelItem
 void ItemPortItemMetadata::computeDFGPath()
 {
   QString bdid = QString::number(m_nodePortModelItem->getBinding().getBindingID());
-  m_bindingId = bdid.toUtf8().constData();
+ 
+  QString dfgPath = m_nodePortModelItem->getExec().getExecPath().getCStr();
+  dfgPath += ".";
+  dfgPath += m_nodePortModelItem->getPortPath().c_str();
 
-  m_portPath = m_nodePortModelItem->getExec().getExecPath().getCStr();
-  m_portPath += ".";
-  m_portPath += m_nodePortModelItem->getPortPath().c_str();
-
-  QString dfgPath = m_portPath.c_str();
 	if(dfgPath.mid(0, 1) == ".")
     dfgPath = dfgPath.mid(1);
 
-  m_dfgPath = (bdid + "." + dfgPath).toUtf8().constData();
+  m_dfgPath = bdid + "." + dfgPath;
 }

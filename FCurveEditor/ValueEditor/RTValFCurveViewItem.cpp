@@ -8,7 +8,6 @@
 #include <FabricUI/FCurveEditor/Models/DFG/DFGAnimXFCurveModel.h>
 #include <FabricUI/ValueEditor/ItemMetadata.h>
 #include <FabricUI/ValueEditor/BaseModelItem.h>
-#include <FabricUI/ModelItems/DFGModelItemMetadata.h>
 #include <FabricUI/Util/QtSignalsSlots.h>
 #include <FabricUI/Util/LoadPixmap.h>
 
@@ -83,12 +82,9 @@ public:
 
 void SetPath( RTValAnimXFCurveDFGController* model, const ItemMetadata* metadata )
 {
-  // const char* bindingId = metadata->getString( FabricUI::ModelItems::DFGModelItemMetadata::VEDFGBindingIdKey.data() );
-  // const char* portPath = metadata->getString( FabricUI::ModelItems::DFGModelItemMetadata::VEDFGPortPathKey.data() );
-  //model->setPath( bindingId, portPath );
-
-  const char* path = metadata->getString( FabricUI::ValueEditor::ItemMetadata::VEPathKey.data() );
-  model->setPath( path );
+  model->setPath( 
+    metadata->getString( FabricUI::ValueEditor::ItemMetadata::VEPathKey.data() ) 
+    );
 }
 
 RTValFCurveViewItem::RTValFCurveViewItem(
@@ -132,7 +128,6 @@ RTValFCurveViewItem::RTValFCurveViewItem(
     );
   }
 
-  //const char* portPath = metadata->getString( FabricUI::ModelItems::DFGModelItemMetadata::VEDFGPortPathKey.data() );
   SetPath( m_model, metadata );
   const char* portPath = metadata->getString( FabricUI::ValueEditor::ItemMetadata::VEPathKey.data() );
 

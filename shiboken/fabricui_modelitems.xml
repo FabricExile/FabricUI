@@ -7,8 +7,6 @@
       <object-type name="BindingModelItem" />
       <object-type name="DFGModelItemMetadata" copyable="false">
         <rejection function-name="DFGPortTypeToVEPortType"/>
-        <rejection field-name="VEDFGBindingIdKey"/>
-        <rejection field-name="VEDFGPortPathKey"/>
       </object-type>
       <object-type name="RootModelItem" />
       <object-type name="InstModelItem" />
