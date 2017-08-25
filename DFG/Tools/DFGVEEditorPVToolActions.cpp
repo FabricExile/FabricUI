@@ -9,6 +9,7 @@
 #include <FabricUI/ValueEditor/BaseModelItem.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/ModelItems/DFGModelItemMetadata.h>
+#include <iostream>
 
 using namespace FabricCore;
 using namespace FabricUI;
@@ -28,21 +29,9 @@ inline QString getItemPathFromItemMetaData(
     if(modelItem)
     {
       ItemMetadata* metadata = modelItem->getMetadata();
-
-      QString bindingId = metadata->getString(
-        ModelItems::DFGModelItemMetadata::VEDFGBindingIdKey.data() 
+      return metadata->getString( 
+        FabricUI::ValueEditor::ItemMetadata::VEPathKey.data() 
         );
-
-      QString portPath = metadata->getString(
-        ModelItems::DFGModelItemMetadata::VEDFGPortPathKey.data() 
-        );
-
-      // FE-8736 : if the current executable is the root
-      // The path has the form '.node.port' or , remove the first '.'
-      if(portPath.mid(0, 1) == ".")
-        portPath = portPath.mid(1);
-
-      return bindingId + "." + portPath;
     }
   }      
  
