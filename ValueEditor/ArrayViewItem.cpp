@@ -9,6 +9,7 @@
 #include <QWidget>
 #include <QBoxLayout>
 #include <QLabel>
+#include <String>
 
 using namespace FabricUI::ValueEditor;
 
@@ -82,9 +83,55 @@ ArrayViewItem::ArrayViewItem( QString name,
   layout->addStretch();
 }
 
+class ItemMetadataProxy : public ItemMetadata
+{
+protected:
+  ItemMetadata* m_parent;
+
+public:
+  ItemMetadataProxy( ItemMetadata* parent ) : m_parent( parent ) {}
+
+  const char* getString( const char* key ) const FTL_OVERRIDE { return m_parent->getString( key ); }
+  int getSInt32( const char* key ) const FTL_OVERRIDE { return m_parent->getSInt32( key ); }
+  double getFloat64( const char* key ) const FTL_OVERRIDE { return m_parent->getFloat64( key ); }
+  const FTL::JSONObject* getDict( const char* key ) const FTL_OVERRIDE { return m_parent->getDict( key ); }
+  const FTL::JSONArray* getArray( const char* key ) const FTL_OVERRIDE { return m_parent->getArray( key ); }
+
+};
+
+class ArrayViewItem::ArrayItemMetadata : public ItemMetadataProxy
+{
+  bool m_null;
+  QString m_path;
+  ItemMetadata* m_parent;
+
+  typedef ItemMetadataProxy Parent;
+
+public:
+  ArrayItemMetadata( ItemMetadata* parent, int index )
+    : Parent( parent )
+    , m_null( true )
+  {
+    const char* parentPath = parent->getString( VEPathKey.data() );
+    if( parentPath != NULL )
+    {
+      m_path = QString(parentPath) + "[" + QString::number(index) + "]";
+      m_null = false;
+    }
+  }
+
+  const char* getString( const char* key ) const FTL_OVERRIDE
+  {
+    if( key == VEPathKey )
+      return m_null ? NULL : m_path.toUtf8().constData();
+    return Parent::getString( key );
+  }
+};
+
 ArrayViewItem::~ArrayViewItem()
 {
-
+  for( ArrayItemMetadataMap::iterator it = m_itemsMetadata.begin(); it != m_itemsMetadata.end(); it++ )
+    delete it->second;
 }
 
 void ArrayViewItem::doAppendChildViewItems( QList<BaseViewItem *>& items )
@@ -99,11 +146,17 @@ void ArrayViewItem::doAppendChildViewItems( QList<BaseViewItem *>& items )
       snprintf( childName, 64, "[%d]", i );
 
       FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
+
+      // TODO : update when the parent path (through metadata) changed
+      if( m_itemsMetadata.find( i ) == m_itemsMetadata.end() )
+        m_itemsMetadata.insert( ArrayItemMetadataMap::value_type( i,
+          new ArrayItemMetadata( &m_metadata, i ) ) );
+
       BaseViewItem* childItem =
         factory->createViewItem(
           childName,
           toVariant( childVal ),
-          &m_metadata
+          m_itemsMetadata.find( i )->second
           );
 
       if (childItem != NULL)
