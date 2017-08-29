@@ -9,7 +9,7 @@
 #include <QWidget>
 #include <QBoxLayout>
 #include <QLabel>
-#include <String>
+#include <QString>
 
 using namespace FabricUI::ValueEditor;
 
