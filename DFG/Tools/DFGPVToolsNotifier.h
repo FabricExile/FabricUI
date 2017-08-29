@@ -49,6 +49,10 @@ class DFGPVToolsNotifierRegistry : public QObject
           bool addBindingID = true
           );
 
+        QString getOldFullItemPath(
+          bool addBindingID = true
+          );
+        
         QString getOldAbsoluteNodePath(
           bool addBindingID = true
           );

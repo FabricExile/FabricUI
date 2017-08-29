@@ -166,8 +166,12 @@ void DFGPathValueResolver::getValue(
   if(value.isValid())
   {
     if(value.isArray() && dfgPortPaths.isArrayElement())
-      value = value.getArrayElement(dfgPortPaths.arrayIndex);
+    {
+      RTVal valueElet = value.getArrayElementRef(dfgPortPaths.arrayIndex);
+      pathValue.setMember("value", valueElet);
 
+    }
+    else
     pathValue.setMember("value", value);
   }
   
@@ -639,6 +643,15 @@ QString DFGPathValueResolver::DFGPortPaths::getAbsolutePortPath(
 
   return addBindingID && !id.isEmpty()
     ? id + "." + absPath
+    : absPath;
+}
+
+QString DFGPathValueResolver::DFGPortPaths::getFullItemPath(
+  bool addBindingID) 
+{
+  QString absPath = getAbsolutePortPath(addBindingID);
+  return isArrayElement()
+    ? absPath + "[" + QString::number(arrayIndex) + "]"
     : absPath;
 }
 

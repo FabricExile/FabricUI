@@ -77,6 +77,10 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
           bool addBindingID = true
           );
 
+        QString getFullItemPath(
+          bool addBindingID = true
+          );
+
         QString getAbsoluteNodePath(
           bool addBindingID = true
           );
