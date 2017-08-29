@@ -2962,11 +2962,7 @@ void DFGWidget::populateMenuBar(QMenuBar *menuBar, bool addFileMenu, bool addEdi
       viewMenu->addSeparator();
 
     // block graph compilations.
-    QAction * blockCompilationsAction = new BlockCompilationsAction(this, menuBar);
-    blockCompilationsAction->setCheckable(true);
-    blockCompilationsAction->setChecked(false);
-    blockCompilationsAction->setShortcutContext(Qt::WindowShortcut);
-    viewMenu->addAction(blockCompilationsAction);
+    m_uiHeader->createMenu(viewMenu);
     viewMenu->addSeparator();
 
     // view -> graph view submenu

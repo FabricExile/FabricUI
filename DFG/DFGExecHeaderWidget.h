@@ -9,15 +9,14 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QToolButton>
-#include <QToolbar>
 #include <QFrame>
 #include <QMouseEvent>
+#include <QMenu>
 
 #include <FTL/StrRef.h>
 
 #include <FabricUI/GraphView/GraphConfig.h>
 #include <FabricUI/Util/FELineEdit.h>
-#include <FabricUI/Util/LoadPixmap.h>
 
 class QLabel;
 
@@ -71,6 +70,7 @@ namespace FabricUI
       virtual ~DFGExecHeaderWidget();
       
       void refreshExtDeps( FTL::CStrRef extDeps );
+      void createMenu(QMenu *menu);
 
     signals:
 
