@@ -19,20 +19,13 @@ using namespace ValueEditor;
 inline QString getItemPathFromItemMetaData(
   VETreeWidgetItem *veTreeItem)
 {
-  BaseModelItem *modelItem = 0;
   BaseViewItem *viewItem = veTreeItem->getViewItem();
-  
   if(viewItem)
   {
-    modelItem = viewItem->getModelItem();
-
-    if(modelItem)
-    {
-      ItemMetadata* metadata = modelItem->getMetadata();
-      return metadata->getString( 
-        FabricUI::ValueEditor::ItemMetadata::VEPathKey.data() 
-        );
-    }
+    ItemMetadata* metadata = viewItem->getMetadata();
+    return metadata->getString( 
+      FabricUI::ValueEditor::ItemMetadata::VEPathKey.data() 
+      );
   }      
  
   return "";
