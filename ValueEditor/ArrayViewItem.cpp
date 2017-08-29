@@ -103,8 +103,7 @@ class ArrayViewItem::ArrayItemMetadata : public ItemMetadataProxy
 {
   bool m_null;
   QString m_path;
-  ItemMetadata* m_parent;
-
+ 
   typedef ItemMetadataProxy Parent;
 
 public:
