@@ -414,23 +414,17 @@ FabricCore::DFGExec DFGPathValueResolver::getDFGPortPathsAndType(
 
   FABRIC_CATCH_BEGIN();
   
-  int arrayIndex;
-  QString path = getPathWithoutBindingOrSolverID(
-    pathValue, 
-    arrayIndex
-    );
+  exec = getDFGPortPaths(
+    pathValue,
+    dfgPortPaths);
 
   // Vars
-  if(m_binding.getExec().hasVar(path.toUtf8().constData()))
+  if(m_binding.getExec().hasVar(dfgPortPaths.getAbsolutePortPath(false).toUtf8().constData()))
     dfgType = DFGVar;
 
   // Args or Ports
   else
   {
-    exec = getDFGPortPaths(
-      pathValue,
-      dfgPortPaths);
-
     if(dfgPortPaths.isExecArg() && exec.haveExecPort(dfgPortPaths.portName.toUtf8().constData()))
       dfgType = DFGArg; 
 
