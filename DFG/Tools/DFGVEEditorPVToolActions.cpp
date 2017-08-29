@@ -22,7 +22,7 @@ inline QString getItemPathFromItemMetaData(
   BaseViewItem *viewItem = veTreeItem->getViewItem();
   if(viewItem)
   {
-    ItemMetadata* metadata = viewItem->getMetadata();
+    const ItemMetadata* metadata = viewItem->getMetadata();
     return metadata->getString( 
       FabricUI::ValueEditor::ItemMetadata::VEPathKey.data() 
       );

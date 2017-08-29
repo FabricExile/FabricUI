@@ -129,9 +129,8 @@ public:
   // We need to define a metadata syntax for 
   // additional type-info.  For example, it should
   // be possible using metadata to request a value
-  // be displayed in a certain way, eg as an angle
-  // or as a percentage, or 
-  inline ItemMetadata* getMetadata() { return &m_metadata; }
+  // be displayed in a certain way.
+  inline const ItemMetadata* getMetadata() const { return &m_metadata; };
 
 public slots:
 
