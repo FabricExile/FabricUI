@@ -8,6 +8,8 @@
 #include <QApplication>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QToolButton>
+#include <QToolbar>
 #include <QFrame>
 #include <QMouseEvent>
 
@@ -15,6 +17,7 @@
 
 #include <FabricUI/GraphView/GraphConfig.h>
 #include <FabricUI/Util/FELineEdit.h>
+#include <FabricUI/Util/LoadPixmap.h>
 
 class QLabel;
 
@@ -106,6 +109,7 @@ namespace FabricUI
       QPushButton * m_backButton;
       QPushButton * m_saveButton;
       QPushButton * m_reloadButton;
+      QToolButton * m_disableGraphButton;
       QColor m_backgroundColor;
       QPen m_pen;
       QWidget *m_presetSplitWidget;

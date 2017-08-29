@@ -779,13 +779,37 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
   margin: 0px;
   padding: 0px 4px;
   icon-size: 16px 16px;
+  background-color: #3c4450;
+}
 
+#DFGExecHeaderWidget QPushButton:hover
+{
+  color: #eee;
+  background-color: #525a66;
 }
 
 #DFGExecHeaderWidget #DFGBackButton
 {
   icon-size: 16px 16px;
   padding: 0px 4px 0px 0px;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton
+{
+  icon-size: 16px 16px;
+  border: none;
+  padding: 0;
+  border-radius: 3px;
+  background: none;
+  background-color: #79868F;
+  font: 11px "FontAwesome";
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton:checked
+{
+  margin-top: 1px;
+  margin-left: 1px;
+  background-color: yellow;
 }
 
 #DFGExecHeaderWidget #DFGRequiredExtensionsLabel
@@ -874,17 +898,6 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
   qproperty-text: "This node or one of its parents is an instance of a preset and cannot be changed unless split from the preset";
   qproperty-wordWrap: true;
   background-color: #ccb455;
-}
-
-#DFGExecHeaderWidget QPushButton
-{
-  background-color: #3c4450;
-}
-
-#DFGExecHeaderWidget QPushButton:hover
-{
-  color: #eee;
-  background-color: #525a66;
 }
 
 /****************************************************************************

@@ -2,7 +2,9 @@
 
 #include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGExecHeaderWidget.h>
+#include <FabricUI/DFG/DFGWidget.h>
 #include <FabricUI/Util/LoadPixmap.h>
+#include <FabricUI/Actions/ActionRegistry.h>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -64,6 +66,19 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   m_reqExtLineEdit = new ReqExtLineEdit; // [FE-7883] [FE-4882]
   m_reqExtLineEdit->setObjectName( "DFGRequiredExtensionsLineEdit" );
 
+  Actions::ActionRegistry *registry = Actions::ActionRegistry::GetActionRegistry();
+  QAction *blockCompilationsAction = registry->getAction("DFGWidget.BlockCompilationsAction");
+
+  m_disableGraphButton = new QToolButton();
+  m_disableGraphButton->setObjectName( "DFGDisableGraphButton" );
+  m_disableGraphButton->setFocusPolicy( Qt::NoFocus );
+  // m_disableGraphButton->setAutoFillBackground(false);
+  m_disableGraphButton->setDefaultAction( blockCompilationsAction );
+  m_disableGraphButton->setCheckable( true );
+  m_disableGraphButton->setText( QString::fromUtf8( "\xEF\x81\x8C" ) );
+  // m_disableGraphButton->setIcon( FabricUI::LoadPixmap( "DFGPause.png" ).scaledToWidth( 20, Qt::SmoothTransformation ) );
+  m_disableGraphButton->setToolTip("Disables graph compilations.");
+
   QObject::connect(
     m_reqExtLineEdit, SIGNAL(editingFinished()),
     this, SLOT(reqExtEditingFinished())
@@ -98,6 +113,7 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   layout->addWidget( m_saveButton );
   layout->addWidget( m_reqExtLabel );
   layout->addWidget( m_reqExtLineEdit );
+  layout->addWidget( m_disableGraphButton );
 
   QFrame *regWidget = new QFrame;
   regWidget->setObjectName( "DFGRegWidget" );
