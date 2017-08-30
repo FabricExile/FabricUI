@@ -778,14 +778,18 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 {
   margin: 0px;
   padding: 0px 4px;
-  icon-size: 16px 16px;
-  background-color: #3c4450;
+  background-color: #3C4450;
 }
 
 #DFGExecHeaderWidget QPushButton:hover
 {
-  color: #eee;
-  background-color: #525a66;
+  color: #EEEEEE;
+  background-color: #98A7B3;
+}
+
+#DFGExecHeaderWidget QPushButton:pressed
+{
+  background-color: #262B33;
 }
 
 #DFGExecHeaderWidget #DFGBackButton
@@ -796,20 +800,34 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 
 #DFGExecHeaderWidget #DFGDisableGraphButton
 {
-  icon-size: 16px 16px;
-  border: none;
-  padding: 0;
   border-radius: 3px;
-  background: none;
-  background-color: #79868F;
-  font: 11px "FontAwesome";
+  border: none;
+  width: 18px;
+  height: 18px;
+  icon-size: 16px 16px;
+  background-color: #3C4450;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton:hover
+{
+  background-color: #98A7B3;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton:pressed
+{
+  padding-top: 1px;
+  padding-left: 1px;
+  background-color: #262B33;
 }
 
 #DFGExecHeaderWidget #DFGDisableGraphButton:checked
 {
-  margin-top: 1px;
-  margin-left: 1px;
-  background-color: yellow;
+  background-color: #FF9C00;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton:checked:hover
+{
+  background-color: #FFBB4C;
 }
 
 #DFGExecHeaderWidget #DFGRequiredExtensionsLabel
