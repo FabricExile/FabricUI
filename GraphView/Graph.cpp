@@ -1148,6 +1148,7 @@ void Graph::setCompsBlockedOverlayVisibility(bool state)
 {
   if (!m_compsBlockedOverlay)
     m_compsBlockedOverlay = new InfoOverlay(this, "Graph Compilations Disabled", m_config);
+    m_compsBlockedOverlay->setBackgroundColor( QColor( 255, 153, 0 ) );
   m_compsBlockedOverlay->setVisible(state);
   updateOverlays(rect().width(), rect().height());
 }

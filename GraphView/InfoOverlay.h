@@ -21,6 +21,12 @@ namespace FabricUI
 
       friend class Node;
 
+      Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
+
+    private:
+
+      QColor m_backgroundColor;
+
     public:
 
       InfoOverlay(Graph * parent, QString text, const GraphConfig & config = GraphConfig());
@@ -33,6 +39,10 @@ namespace FabricUI
       virtual void setText(QString t);
 
       virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
+
+      inline QColor backgroundColor() const { return m_backgroundColor; }
+      inline void setBackgroundColor( QColor c ) { m_backgroundColor = c; this->update(); }
+
 
     protected:
 
