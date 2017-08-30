@@ -53,6 +53,8 @@ env = parentEnv.Clone()
 env.Append(BUILDERS = {'QTMOC': qtMOCBuilder})
 env.Append(CPPPATH = [env.Dir('#').Dir('Native').srcnode()])
 
+# print "FabricUI '%s' MSVC_VERSION %s" % (uiLibPrefix, env['MSVC_VERSION'])
+
 if buildOS == 'Darwin':
   env.Append(CCFLAGS = ['-fvisibility=hidden'])
   env.Append(CXXFLAGS = ['-std=c++03'])
@@ -74,7 +76,7 @@ if buildOS == 'Darwin':
   env.Append(FRAMEWORKS = ['OpenGL', 'Cocoa', 'Foundation'])
 
 
-if buildOS == 'Linux' and not env.get('BUILDING_MAYA_2017'):
+if buildOS == 'Linux' and not env.get('BUILDING_MAYA_2017') and not env.get('BUILDING_MAYA_2018'):
   env.Replace( CC = '/opt/centos5/usr/bin/gcc' )
   env.Replace( CXX = '/opt/centos5/usr/bin/gcc' )
 
