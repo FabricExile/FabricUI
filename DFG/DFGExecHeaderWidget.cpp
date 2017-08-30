@@ -4,6 +4,7 @@
 #include <FabricUI/DFG/DFGExecHeaderWidget.h>
 #include <FabricUI/DFG/DFGWidget.h>
 #include <FabricUI/Actions/ActionRegistry.h>
+#include <FabricUI/Util/LoadPixmap.h>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -70,7 +71,6 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   m_disableGraphButton->setFocusPolicy( Qt::NoFocus );
   m_disableGraphButton->setAutoFillBackground(false);
   m_disableGraphButton->setCheckable( true );
-  m_disableGraphButton->setText( QString::fromUtf8( "\xEF\x81\x8C" ) );
   m_disableGraphButton->setToolTip("Disables graph compilations.");
 
   QObject::connect(
@@ -158,10 +158,13 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
 
 void DFGExecHeaderWidget::createMenu(QMenu *menu)
 {
-  QAction * blockCompilationsAction = new BlockCompilationsAction(this->parent(), menu);
+  QAction * blockCompilationsAction = new BlockCompilationsAction(m_dfgController->getDFGWidget(), menu);
   blockCompilationsAction->setCheckable(true);
   blockCompilationsAction->setChecked(false);
+  blockCompilationsAction->setIcon( FabricUI::LoadPixmap( "DFGPause.png" ).scaledToWidth( 20, Qt::SmoothTransformation ) );
   blockCompilationsAction->setShortcutContext(Qt::WindowShortcut);
+
+  menu->addAction(blockCompilationsAction);
 
   this->m_disableGraphButton->setDefaultAction( blockCompilationsAction );
 }
