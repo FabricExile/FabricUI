@@ -1364,10 +1364,6 @@ class CanvasWindow(QtGui.QMainWindow):
         enabled (bool): Whether or not to enable the shortcuts.
 
         """
-        if self.undoAction:
-            self.undoAction.blockSignals(enabled)
-        if self.redoAction:
-            self.redoAction.blockSignals(enabled)
         if self.newGraphAction:
             self.newGraphAction.blockSignals(enabled)
         if self.loadGraphAction:
