@@ -33,6 +33,10 @@ class ArrayViewItem : public BaseComplexViewItem
   VEIntSpinBox *m_maxIndexEdit;
   VEIntSpinBox *m_arraySizeEdit;
 
+  class ArrayItemMetadata;
+  typedef std::map<int, ArrayItemMetadata*> ArrayItemMetadataMap;
+  ArrayItemMetadataMap m_itemsMetadata;
+ 
 public:
 
   static BaseViewItem* CreateItem( QString const &name, 

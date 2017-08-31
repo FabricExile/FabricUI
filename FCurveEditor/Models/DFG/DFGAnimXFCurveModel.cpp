@@ -29,15 +29,9 @@ inline void SynchronizeKLReg()
     ->synchronizeKL(); // HACK : remove
 }
 
-void RTValAnimXFCurveDFGController::setPath( const char* bindingId, const char* dfgPortPath )
+void RTValAnimXFCurveDFGController::setPath( const char* dfgPath )
 {
-  m_bindingId = bindingId;
-  m_dfgPortPath = dfgPortPath;
-
-  // FE-8736 : if the current executable is the root
-  // The path has the form '.node.port' or , remove the first '.'
-  if(m_dfgPortPath.mid(0, 1) == ".")
-    m_dfgPortPath = m_dfgPortPath.mid(1);
+  m_dfgPath = "<" + QString(dfgPath) + ">";
 }
 
 void RTValAnimXFCurveDFGController::setKey( size_t i, Key h, bool autoTangent )
@@ -47,7 +41,7 @@ void RTValAnimXFCurveDFGController::setKey( size_t i, Key h, bool autoTangent )
   FabricCore::RTVal bRV = FabricCore::RTVal::ConstructBoolean( m_val.getContext(), true );
   const_cast<FabricCore::RTVal*>( &m_val )->callMethod( "", "useIds", 1, &bRV );
   QMap<QString, QString> args;
-  args["target"] = "<" + m_bindingId + "." + m_dfgPortPath + ">";
+  args["target"] = m_dfgPath;
   args["id"] = QString::number( i );
   AddKeyValueToArgs( args, h );
   args["interactionEnd"] = m_isInteracting ? "false" : "true";
@@ -90,7 +84,7 @@ void RTValAnimXFCurveDFGController::moveKeys( const size_t* indices, const size_
   FabricCore::RTVal bRV = FabricCore::RTVal::ConstructBoolean( m_val.getContext(), true );
   const_cast<FabricCore::RTVal*>( &m_val )->callMethod( "", "useIds", 1, &bRV );
   QMap<QString, QString> args;
-  args["target"] = "<" + m_bindingId + "." + m_dfgPortPath + ">";
+  args["target"] = m_dfgPath;
   args["ids"] = SerializeQS( indices, nbIndices );
   args["dx"] = QString::number( delta.x() );
   args["dy"] = QString::number( delta.y() );
@@ -107,7 +101,7 @@ void RTValAnimXFCurveDFGController::addKey( Key k, bool useKey, bool autoTangent
   FabricUI::Commands::CommandManager* manager = FabricUI::Commands::CommandManager::getCommandManager();
   SynchronizeKLReg();
   QMap<QString, QString> args;
-  args["target"] = "<" + m_bindingId + "." + m_dfgPortPath + ">";
+  args["target"] = m_dfgPath;
   if( useKey )
     AddKeyValueToArgs( args, k );
   args["autoTangent"] = autoTangent ? "true" : "false";
@@ -120,7 +114,7 @@ void RTValAnimXFCurveDFGController::deleteKey( size_t i )
   FabricUI::Commands::CommandManager* manager = FabricUI::Commands::CommandManager::getCommandManager();
   SynchronizeKLReg();
   QMap<QString, QString> args;
-  args["target"] = "<" + m_bindingId + "." + m_dfgPortPath + ">";
+  args["target"] = m_dfgPath;
   args["id"] = QString::number( i );
   manager->createCommand( "AnimX_RemoveKeyframe", args );
   emit this->dirty();
@@ -131,7 +125,7 @@ void RTValAnimXFCurveDFGController::deleteKeys( const size_t* indices, const siz
   FabricUI::Commands::CommandManager* manager = FabricUI::Commands::CommandManager::getCommandManager();
   SynchronizeKLReg();
   QMap<QString, QString> args;
-  args["target"] = "<" + m_bindingId + "." + m_dfgPortPath + ">";
+  args["target"] = m_dfgPath;
   args["ids"] = SerializeQS( indices, nbIndices );
   manager->createCommand( "AnimX_RemoveKeyframes", args );
   emit this->dirty();
@@ -142,7 +136,7 @@ void RTValAnimXFCurveDFGController::setPreInfinityType( size_t i )
   FabricUI::Commands::CommandManager* manager = FabricUI::Commands::CommandManager::getCommandManager();
   SynchronizeKLReg();
   QMap<QString, QString> args;
-  args["target"] = "<" + m_bindingId + "." + m_dfgPortPath + ">";
+  args["target"] = m_dfgPath;
   args["type"] = QString::number( i );
   manager->createCommand( "AnimX_SetPreInfinityType", args );
   emit this->dirty();
@@ -153,7 +147,7 @@ void RTValAnimXFCurveDFGController::setPostInfinityType( size_t i )
   FabricUI::Commands::CommandManager* manager = FabricUI::Commands::CommandManager::getCommandManager();
   SynchronizeKLReg();
   QMap<QString, QString> args;
-  args["target"] = "<" + m_bindingId + "." + m_dfgPortPath + ">";
+  args["target"] = m_dfgPath;
   args["type"] = QString::number( i );
   manager->createCommand( "AnimX_SetPostInfinityType", args );
   emit this->dirty();
