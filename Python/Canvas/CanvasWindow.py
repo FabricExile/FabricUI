@@ -500,7 +500,7 @@ class CanvasWindow(QtGui.QMainWindow):
         self.dfguiCommandHandler = UICmdHandler(self.client, self.scriptEditor)
         
         self.cmdManagerCallback = CommandManagerCallback(self.qUndoStack, self.scriptEditor)
-        #self.hotkeyEditorDialog = HotkeyEditorDialog(self)
+        self.hotkeyEditorDialog = HotkeyEditorDialog(self)
 
 
     def _initDFGWidget(self):
@@ -1460,11 +1460,11 @@ class CanvasWindow(QtGui.QMainWindow):
                     self.toolsDFGPVNotifierRegistry.toolRegistered.connect(self.manipAction.triggerIfInactive)
                     self.deleteDFGPVToolsAction = FabricUI.DFG.DFGDeleteAllPVToolsAction(self, "CanvasWindow.deleteDFGPVToolsAction", "Delete All Edition Tools")
                     menu.addAction(self.deleteDFGPVToolsAction)
-                    # menu.addSeparator()
+                    menu.addSeparator()
 
-                    # editorMenu = menu.addMenu("Editors")
-                    # self.showHotkeyEditorDialogAction = ShowHotkeyEditorDialogAction(editorMenu, self)
-                    # editorMenu.addAction(self.showHotkeyEditorDialogAction)
+                    editorMenu = menu.addMenu("Editors")
+                    self.showHotkeyEditorDialogAction = ShowHotkeyEditorDialogAction(editorMenu, self)
+                    editorMenu.addAction(self.showHotkeyEditorDialogAction)
 
         elif name == 'View':
             if prefix:
