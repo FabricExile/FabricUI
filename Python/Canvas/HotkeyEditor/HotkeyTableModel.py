@@ -23,8 +23,10 @@ class HotkeyTableModel(QtCore.QObject):
         # Fetching the value from the QSettings
         if settings and settings.contains(actName):
             shortcut = settings.value(actName)
-            if shortcut:
-                keySeq = QtGui.QKeySequence(shortcut)
+            newKeySeq = QtGui.QKeySequence(shortcut)
+
+            if shortcut and newKeySeq != keySeq:
+                keySeq = newKeySeq
     
         self.__setItemKeySequenceAndShortcut(actName, keySeq)
 

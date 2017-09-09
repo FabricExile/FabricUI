@@ -168,7 +168,6 @@ class HotkeyTableWidget(QtGui.QTableWidget):
 
         self.model.initItemKeySequence(actName, keySequence) 
 
-
     def __onCommandRegistered(self, cmdName, cmdType, implType):
         """ \internal.
             Called when an command has been registered in CommandRegistry.
