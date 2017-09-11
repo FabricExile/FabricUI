@@ -179,7 +179,6 @@ class ResetCameraAction(BaseCanvasWindowAction):
         viewport.addAction(self)
         self.triggered.connect(viewport.resetCamera)
        
-
 class ShowHotkeyEditorDialogAction(BaseCanvasWindowAction):
 
     def __init__(self, parent, canvasWindow):
