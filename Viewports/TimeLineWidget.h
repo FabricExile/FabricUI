@@ -232,9 +232,9 @@ class TimeLineWidget : public QWidget
 
     /// elements
     FrameSlider *m_frameSlider;
-    Util::FEDoubleSpinBox *m_endSpinBox;
-    Util::FEDoubleSpinBox *m_startSpinBox;
-    Util::FEDoubleSpinBox *m_currentFrameSpinBox;
+    FabricUI::Util::FEDoubleSpinBox *m_endSpinBox;
+    FabricUI::Util::FEDoubleSpinBox *m_startSpinBox;
+    FabricUI::Util::FEDoubleSpinBox *m_currentFrameSpinBox;
     QPushButton *m_playButton;
     QPushButton *m_goToEndFrameButton;
     QPushButton *m_goToNextFrameButton;

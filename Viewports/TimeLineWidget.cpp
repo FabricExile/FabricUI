@@ -124,7 +124,7 @@ TimeLineWidget::TimeLineWidget()
   layout()->setContentsMargins(0, 0, 0, 0);
 
   // elements
-  m_startSpinBox = new Util::FEDoubleSpinBox();
+  m_startSpinBox = new FabricUI::Util::FEDoubleSpinBox(this);
   m_startSpinBox->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
   m_startSpinBox->setWrapping(false);
   m_startSpinBox->setFrame(false);
@@ -142,7 +142,7 @@ TimeLineWidget::TimeLineWidget()
   m_frameSlider->setTickPosition(QSlider::TicksBelow);
   layout()->addWidget(m_frameSlider);
 
-  m_endSpinBox = new Util::FEDoubleSpinBox();
+  m_endSpinBox = new FabricUI::Util::FEDoubleSpinBox(this);
   m_endSpinBox->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
   m_endSpinBox->setFrame(false);
   m_endSpinBox->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
@@ -157,7 +157,7 @@ TimeLineWidget::TimeLineWidget()
   separator->setContentsMargins(0, 0, 0, 0);
   layout()->addWidget(separator);
 
-  m_currentFrameSpinBox = new Util::FEDoubleSpinBox();
+  m_currentFrameSpinBox = new FabricUI::Util::FEDoubleSpinBox(this);
   m_currentFrameSpinBox->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
   m_currentFrameSpinBox->setFrame(false);
   m_currentFrameSpinBox->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
