@@ -29,6 +29,7 @@
 #include <FabricUI/DFG/Dialogs/DFGBaseDialog.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/Actions/BaseAction.h>
+#include <FabricUI/Util/LoadPixmap.h>
 
 #include <FTL/OwnedPtr.h>
 #include <FTL/JSONEnc.h>
@@ -2683,24 +2684,24 @@ namespace DFG {
       QUrl m_url;
     };
 
-    class BlockCompilationsAction : public QAction
+    class BlockCompilationsAction : public BaseDFGWidgetAction
     {
       Q_OBJECT
 
     public:
-
       BlockCompilationsAction(
         DFGWidget *dfgWidget,
         QObject *parent,
         bool enable = true)
-        : QAction(parent)
-        , m_dfgWidget(dfgWidget)
+        : BaseDFGWidgetAction(
+          dfgWidget, 
+          parent, 
+          "DFGWidget.BlockCompilationsAction",
+          "Disable Graph Compilations",
+          QKeySequence(Qt::SHIFT + Qt::CTRL + Qt::Key_Return),
+          Qt::WidgetWithChildrenShortcut,
+          enable)
       {
-        setText("Disable Graph Compilations");
-        setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_Return);
-        setShortcutContext(Qt::WidgetWithChildrenShortcut);
-        connect(this, SIGNAL(triggered()), this, SLOT(onTriggered()));
-        setEnabled(enable);
       }
 
     private slots:
@@ -2709,10 +2710,6 @@ namespace DFG {
       {
         m_dfgWidget->onToggleBlockCompilations();
       }
-
-    private:
-
-      DFGWidget *m_dfgWidget;
     };
 
 } // namespace DFG

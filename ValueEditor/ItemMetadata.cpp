@@ -10,6 +10,7 @@ using namespace FabricUI::ValueEditor;
 FTL::CStrRef const ItemMetadata::VEPortTypeKey = FTL_STR("vePortType");
 FTL::CStrRef const ItemMetadata::VENotInspectableKey = FTL_STR("veNotInspectable");
 FTL::CStrRef const ItemMetadata::VEExpandedKey = FTL_STR("veExpand");
+FTL::CStrRef const ItemMetadata::VEPathKey = FTL_STR("vePath");
 
 ViewItemMetadata::ViewItemMetadata( ItemMetadata* parent )
   : m_json(new FTL::JSONObject())

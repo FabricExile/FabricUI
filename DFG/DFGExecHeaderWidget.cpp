@@ -2,6 +2,8 @@
 
 #include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGExecHeaderWidget.h>
+#include <FabricUI/DFG/DFGWidget.h>
+#include <FabricUI/Actions/ActionRegistry.h>
 #include <FabricUI/Util/LoadPixmap.h>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -64,6 +66,13 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   m_reqExtLineEdit = new ReqExtLineEdit; // [FE-7883] [FE-4882]
   m_reqExtLineEdit->setObjectName( "DFGRequiredExtensionsLineEdit" );
 
+  m_disableGraphButton = new QToolButton();
+  m_disableGraphButton->setObjectName( "DFGDisableGraphButton" );
+  m_disableGraphButton->setFocusPolicy( Qt::NoFocus );
+  m_disableGraphButton->setAutoFillBackground(false);
+  m_disableGraphButton->setCheckable( true );
+  m_disableGraphButton->setToolTip("Disables graph compilations.");
+
   QObject::connect(
     m_reqExtLineEdit, SIGNAL(editingFinished()),
     this, SLOT(reqExtEditingFinished())
@@ -98,6 +107,7 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   layout->addWidget( m_saveButton );
   layout->addWidget( m_reqExtLabel );
   layout->addWidget( m_reqExtLineEdit );
+  layout->addWidget( m_disableGraphButton );
 
   QFrame *regWidget = new QFrame;
   regWidget->setObjectName( "DFGRegWidget" );
@@ -145,6 +155,20 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
     );
   onExecChanged();
 }
+
+void DFGExecHeaderWidget::createMenu(QMenu *menu)
+{
+  QAction * blockCompilationsAction = new BlockCompilationsAction(m_dfgController->getDFGWidget(), menu);
+  blockCompilationsAction->setCheckable(true);
+  blockCompilationsAction->setChecked(false);
+  blockCompilationsAction->setIcon( FabricUI::LoadPixmap( "DFGPause.png" ).scaledToWidth( 20, Qt::SmoothTransformation ) );
+  blockCompilationsAction->setShortcutContext(Qt::WindowShortcut);
+
+  menu->addAction(blockCompilationsAction);
+
+  this->m_disableGraphButton->setDefaultAction( blockCompilationsAction );
+}
+
 
 DFGExecHeaderWidget::~DFGExecHeaderWidget()
 {

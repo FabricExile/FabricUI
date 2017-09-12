@@ -22,6 +22,7 @@
         <rejection field-name="VEPortTypeKey"/>
         <rejection field-name="VENotInspectableKey"/>
         <rejection field-name="VEExpandedKey"/>
+        <rejection field-name="VEPathKey"/>
       </object-type>
       <object-type name="ViewItemMetadata" />
       <object-type name="NotInspectableViewItem" />

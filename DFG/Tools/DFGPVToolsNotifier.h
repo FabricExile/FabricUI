@@ -45,9 +45,17 @@ class DFGPVToolsNotifierRegistry : public QObject
      
         QString getOldRelativePortPath();
 
-        QString getOldAbsolutePortPath();
+        QString getOldAbsolutePortPath(
+          bool addBindingID = true
+          );
 
-        QString getOldAbsoluteNodePath();
+        QString getOldFullItemPath(
+          bool addBindingID = true
+          );
+        
+        QString getOldAbsoluteNodePath(
+          bool addBindingID = true
+          );
     };
 
     void unregisterPathValueTool(
