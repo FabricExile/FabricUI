@@ -17,6 +17,28 @@
 namespace FabricUI {
 namespace Application {
 
+class FabricLog 
+{
+  public:
+    FabricLog();
+
+    virtual ~FabricLog();
+
+    /// Gets the FabricLog states singleton.
+    /// Throws an error if the singleton has not been crated.
+    static FabricLog* get();
+    
+    virtual void log(
+      QString const&message
+      );
+
+  private:
+    /// FabricLog singleton, set from Constructor.
+    static FabricLog *s_log;
+    /// Check if the singleton has been set.
+    static bool s_instanceFlag;
+};
+
 class FabricException : public std::exception
 {
   /**

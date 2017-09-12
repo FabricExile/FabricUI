@@ -16,6 +16,7 @@ from FabricEngine.Canvas.UICmdHandler import UICmdHandler
 from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder
 from FabricEngine.Canvas.LoadFabricStyleSheet import LoadFabricStyleSheet
 from FabricEngine.Canvas.Commands.CommandManager import *
+from FabricEngine.Canvas.Application.FabricLog import *
 from FabricEngine.Canvas.Application.FabricApplicationStates import *
 from FabricEngine.Canvas.HotkeyEditor.HotkeyEditorDialog import HotkeyEditorDialog
 from FabricEngine.Canvas.Commands.CommandManagerCallback import CommandManagerCallback
@@ -577,6 +578,7 @@ class CanvasWindow(QtGui.QMainWindow):
     def _initLog(self):
         """Initializes the DFGLogWidget."""
         self.logWidget = DFG.DFGLogWidget(self.config)
+        self.fabricLog = GetFabricLog()
 
     def _initTimeLine(self):
         """Initializes the TimeLineWidget.

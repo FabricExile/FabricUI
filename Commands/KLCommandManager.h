@@ -61,6 +61,12 @@ class KLCommandManager : public RTValCommandManager
     void doKLCommand(
       FabricCore::RTVal klCmd
       );
+
+    /// Implementation of CommandManager
+    virtual void cleanupUnfinishedCommandsAndThrow(
+      BaseCommand *cmd,
+      QString const&error
+      );
 };
  
 } // namespace Commands

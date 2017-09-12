@@ -6,6 +6,7 @@
 #include <FabricUI/Util/RTValUtil.h>
 #include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/Application/FabricException.h>
+#include <FabricUI/Application/FabricApplicationStates.h>
 #include <FabricServices/Persistence/RTValToJSONEncoder.hpp>
 //#include <iostream>
 
@@ -138,25 +139,36 @@ void DFGPathValueResolver::getValue(
 
   else 
   {
-    if(dfgType == DFGPort)
-      value = subExec.getPortResolvedDefaultValue( 
-        dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
-        subExec.getPortResolvedType(dfgPortPaths.getRelativePortPath().toUtf8().constData())
-        );
+    try
+    {
+      if(dfgType == DFGPort)
+        value = subExec.getPortResolvedDefaultValue( 
+          dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
+          subExec.getPortResolvedType(dfgPortPaths.getRelativePortPath().toUtf8().constData())
+          );
 
-    else if(dfgType == DFGArg)
-      value = m_binding.getArgValue(
-        dfgPortPaths.getRelativePortPath().toUtf8().constData()
+      else if(dfgType == DFGArg)
+        value = m_binding.getArgValue(
+          dfgPortPaths.getRelativePortPath().toUtf8().constData()
+          );
+    }
+
+    catch(FabricCore::Exception &e)
+    {
+      FabricException::Throw(
+        "DFGPathValueResolver::arePathValueAndDFGItemTypeEqual",
+        "The port value at path '" + dfgPortPaths.getAbsolutePortPath() + "' is undefined"
         );
+    }
   }
 
-  QString type = RTValUtil::getType(value);
   
   if(value.isValid())
     pathValue.setMember("value", value);
   
   else
   {
+    QString type = RTValUtil::getType(value);
     QString path = RTValUtil::toRTVal(pathValue).maybeGetMember(
       "path").getStringCString();
 
@@ -171,6 +183,22 @@ void DFGPathValueResolver::getValue(
   FABRIC_CATCH_END("DFGPathValueResolver::getValue");
 }
 
+inline void arePathValueAndDFGItemTypeEqual(
+  QString const &dfgItemPath,
+  QString const &dfgItemType,
+  QString const &pvValueType, // PathValue's value type
+  QString const &dfgValueType) // From a port, arg or var
+{ 
+  Client client = FabricApplicationStates::GetAppStates()->getClient();
+ 
+  if(pvValueType != "None" && !client.areTypesEqual(pvValueType.toUtf8().constData(), dfgValueType.toUtf8().constData()))
+    FabricException::Throw(
+      "DFGPathValueResolver::arePathValueAndDFGItemTypeEqual",
+      "Cannot set " + dfgItemType + " at path '" + dfgItemPath + "'",
+      "The type of the PathValue's value '" + pvValueType + "' and " + dfgItemType + " '" + dfgValueType + "' are not equal"
+      );
+}
+
 void DFGPathValueResolver::setValue(
   RTVal pathValue)
 {
@@ -182,6 +210,20 @@ void DFGPathValueResolver::setValue(
   if( !value.isValid() )
     return; // no value specified
 
+  if( ( value.isObject() || value.isInterface() ) && !value.isNullObject() ) {
+    // Get the most specialized type.
+    // In particular, port values must be persisted, and loading a graph
+    // will first create an object of the type of the port.
+    // For this to work well, it must be the actual specialized Object type
+    // that is set as the default value.
+    RTVal specializedTypeName = value.invokeMethod( "type", 0, 0 ).getDesc();
+    RTVal specializedValue = RTVal::Create(
+                  value.getContext(),
+                  specializedTypeName.getStringCString(),
+                  1, &value );
+    value = specializedValue;
+  }
+
   DFGPortPaths dfgPortPaths;
   DFGType dfgType = DFGUnknow;
 
@@ -191,22 +233,48 @@ void DFGPathValueResolver::setValue(
     dfgType
     );
 
+  QString pvValueType = RTValUtil::getType(value).toUtf8().constData();
+
   if(dfgType == DFGVar)
+  {
+    QString varValueType = m_binding.getExec().getVarType(
+      getPathWithoutBindingOrSolverID(pathValue).toUtf8().constData()
+      );
+      
+    arePathValueAndDFGItemTypeEqual(
+      dfgPortPaths.getAbsolutePortPath(),
+      "variable",
+      pvValueType,
+      varValueType
+      );
+
     m_binding.getExec().setVarValue( 
       getPathWithoutBindingOrSolverID(pathValue).toUtf8().constData(), 
       value);
+  }
 
   else
   {
+    QString portValueType = subExec.getPortResolvedType(
+      dfgPortPaths.getRelativePortPath().toUtf8().constData()
+      );
+
+    arePathValueAndDFGItemTypeEqual(
+      dfgPortPaths.getAbsolutePortPath(),
+      "port",
+      pvValueType,
+      portValueType
+      );
+
     if(dfgType == DFGPort)
       subExec.setPortDefaultValue( 
         dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
         value, 
         false);
-
+ 
     else if( dfgType == DFGArg )
     {
-    
+ 
       { // Code copy-pasted from FabricUI/DFG/DFGUICmd_SetArgValue.cpp :
 
         // Automatically set as "persistable" arg values that were explicitly set by the user
@@ -225,7 +293,7 @@ void DFGPathValueResolver::setValue(
         dfgPortPaths.getRelativePortPath().toUtf8().constData(),
         value,
         false );
-    }
+    }   
   }
 
   FABRIC_CATCH_END("DFGPathValueResolver::setValue");
@@ -357,10 +425,26 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
       execBlockPath.toUtf8().constData()
       );
 
+    bool isBlock = false;
+
     // FE-8759
-    if(!exec.isExecBlock(nodeName.toUtf8().constData()) && exec.isInstBlock(
-        nodeName.toUtf8().constData(), 
-        blockName.toUtf8().constData()))
+    try
+    {
+      isBlock = (!exec.isExecBlock(nodeName.toUtf8().constData()) && exec.isInstBlock(
+          nodeName.toUtf8().constData(), 
+          blockName.toUtf8().constData()));
+      // {
+      //   dfgPortPaths.blockName = blockName;
+      //   dfgPortPaths.nodeName = nodeName;
+      // }
+
+    }
+
+    catch(FabricCore::Exception &e)
+    {
+    }
+
+    if(isBlock)
     {
       dfgPortPaths.blockName = blockName;
       dfgPortPaths.nodeName = nodeName;
