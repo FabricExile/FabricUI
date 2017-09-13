@@ -124,15 +124,19 @@ void ArrayViewItem::onChildViewValueChanged( int index, QVariant value )
 {
   if (m_val.isValid() && m_val.isArray())
   {
+    // FE-8822, we need to clone the array 'm_val' 
+    // since it references directly the model array.
+    FabricCore::RTVal cloneVal = m_val.clone();
+
     // We cannot simply create a new RTVal based on the QVariant type, as 
     // we have to set the type exactly the same as the original.  Get the
     // original child value to ensure the new value matches the internal type
     int arrayIndex = index + m_min;
-    FabricCore::RTVal oldChildVal = m_val.getArrayElementRef( arrayIndex );
+    FabricCore::RTVal oldChildVal = cloneVal.getArrayElementRef( arrayIndex );
     RTVariant::toRTVal( value, oldChildVal );
-    m_val.setArrayElement( arrayIndex, oldChildVal );
+    cloneVal.setArrayElement( arrayIndex, oldChildVal );
+    emit viewValueChanged( toVariant( cloneVal ) );
   }
-  emit viewValueChanged( toVariant( m_val ) );
 }
 
 QWidget * ArrayViewItem::getWidget()
@@ -142,27 +146,26 @@ QWidget * ArrayViewItem::getWidget()
 
 void ArrayViewItem::onModelValueChanged( QVariant const &value )
 {
+  int oldSize = m_val.getArraySize();
   RTVariant::toRTVal( value, m_val );
-
-  // If we have changed our min/max values, then
-  // rebuild the whole widget.  Otherwise, update children
   int arraySize = m_val.getArraySize();
-  if (arraySize < m_max)
+
+  // If array size changed, 
+  // rebuild the whole widget. 
+  if (arraySize != oldSize)
   {
     m_max = arraySize;
     m_min = min( m_max, m_min );
+
+    updateWidgets();
     emit rebuildChildren( this );
   }
-  else
+   
+  for (int i = m_min; i < m_max; ++i)
   {
-    for (int i = m_min; i < m_max; ++i)
-    {
-      FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
-      routeModelValueChanged( i - m_min, toVariant( childVal ) );
-    }
-  }
-
-  updateWidgets();
+    FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
+    routeModelValueChanged( i - m_min, toVariant( childVal ) );
+  }  
 }
 
 void ArrayViewItem::updateWidgets()
@@ -239,19 +242,13 @@ void ArrayViewItem::onMaxIndexChanged( int newMax )
 
 void ArrayViewItem::onArraySizeChanged( int newSize )
 {
-  if (m_val.isValid())
+  if (m_val.isValid() && m_val.isVariableArray())
   {
-    int oldSize = m_val.getArraySize();
-
-    if(m_val.isVariableArray())
-      m_val.setArraySize( newSize );
-
-    emit viewValueChanged( toVariant( m_val ) );
-
-    if (oldSize == m_max)
-    {
-      onMaxIndexChanged( newSize );
-    }
+    // FE-8822, we need to clone the array 'm_val' 
+    // since it references directly the model array.
+    FabricCore::RTVal cloneVal = m_val.clone();
+    cloneVal.setArraySize( newSize );
+    emit viewValueChanged( toVariant( cloneVal ) );
   }
 }
 
