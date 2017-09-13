@@ -100,23 +100,24 @@ QWidget *Vec3ViewItem::getWidget()
 
 void Vec3ViewItem::onModelValueChanged( QVariant const &value )
 {
-  QVector3D newVec3dValue = getQVariantRTValValue<QVector3D>( value );
-  if ( newVec3dValue.x() != m_vec3dValue.x() )
+  QVector3D vec3d = m_vec3dValue;
+  m_vec3dValue = getQVariantRTValValue<QVector3D>( value );
+ 
+  if ( vec3d.x() != m_vec3dValue.x() )
   {
-    m_xSpinBox->setValue( newVec3dValue.x() );
-    routeModelValueChanged( 0, QVariant( newVec3dValue.x() ) );
+    m_xSpinBox->setValue( m_vec3dValue.x() );
+    routeModelValueChanged( 0, QVariant( m_vec3dValue.x() ) );
   }
-  if ( newVec3dValue.y() != m_vec3dValue.y() )
+  if ( vec3d.y() != m_vec3dValue.y() )
   {
-    m_ySpinBox->setValue( newVec3dValue.y() );
-    routeModelValueChanged( 1, QVariant( newVec3dValue.y() ) );
+    m_ySpinBox->setValue( m_vec3dValue.y() );
+    routeModelValueChanged( 1, QVariant( m_vec3dValue.y() ) );
   }
-  if ( newVec3dValue.z() != m_vec3dValue.z() )
+  if ( vec3d.z() != m_vec3dValue.z() )
   {
-    m_zSpinBox->setValue( newVec3dValue.z() );
-    routeModelValueChanged( 2, QVariant( newVec3dValue.z() ) );
+    m_zSpinBox->setValue( m_vec3dValue.z() );
+    routeModelValueChanged( 2, QVariant( m_vec3dValue.z() ) );
   }
-  m_vec3dValue = newVec3dValue;
 }
 
 void Vec3ViewItem::onXSpinBoxValueChanged( double value )
