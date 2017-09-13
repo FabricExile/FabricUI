@@ -35,10 +35,6 @@ protected:
 
   void init()
   {
-    connect(
-      this, SIGNAL(returnPressed()),
-      this, SLOT(onReturnPressed())
-      );
   }
 
   void checkValue()
