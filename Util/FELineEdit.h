@@ -2,8 +2,8 @@
 // Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 //
 
-#ifndef FABRICUI_UTIL_VELINEEDIT_H
-#define FABRICUI_UTIL_VELINEEDIT_H
+#ifndef FABRICUI_UTIL_FELINEEDIT_H
+#define FABRICUI_UTIL_FELINEEDIT_H
 
 #include <QLineEdit>
 #include <FabricUI/Util/StringUtil.h>
