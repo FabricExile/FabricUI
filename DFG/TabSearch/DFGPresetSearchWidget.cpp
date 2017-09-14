@@ -579,7 +579,8 @@ void DFGPresetSearchWidget::unregisterVariables()
   {
     try
     {
-      m_host->searchDBRemoveUser( it->data() );
+      if( m_host->isValid() )
+        m_host->searchDBRemoveUser( it->data() );
     }
     catch( const FabricCore::Exception& e )
     {
