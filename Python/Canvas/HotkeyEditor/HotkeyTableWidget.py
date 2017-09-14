@@ -117,7 +117,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         self.setCurrentItem(None)
         super(HotkeyTableWidget, self).mousePressEvent(event)
         item = self.__getCurrentShortcutItem()
-        if item is not None:
+        if item:
             self.onEmitEditingItem(True)
             self.editItem(item)
         else:
@@ -157,12 +157,16 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         self.setItem(rowCount, 0, item)
 
         # 2. Shortcut item
-        shortcut = action.shortcut().toString(QtGui.QKeySequence.NativeText)
+        keySequence = action.shortcut()
+        shortcut = keySequence.toString(QtGui.QKeySequence.NativeText)
         actRegistry = CppActions.ActionRegistry.GetActionRegistry()
         isActGlobal = actRegistry.isActionContextGlobal(actName) 
-        item = ShorcutTableWidgetItem(shortcut, isEditable, isActGlobal) 
+        item = ShorcutTableWidgetItem(shortcut, isEditable, isActGlobal)
+        
         self.setItem(rowCount, 1, item)
         self.resizeColumnsToContents()
+
+        self.model.initItemKeySequence(actName, keySequence) 
 
     def __onCommandRegistered(self, cmdName, cmdType, implType):
         """ \internal.
@@ -202,7 +206,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         actRegistry = CppActions.ActionRegistry.GetActionRegistry()
 
         # Check it's the first time the action is registered.
-        if actRegistry.getRegistrationCount(actName) == 1:     
+        if actRegistry.getRegistrationCount(actName) == 1:    
             self.__createNewRow(actName, action)
         
         # To update the item tool tip.
