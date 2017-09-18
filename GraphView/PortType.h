@@ -3,8 +3,6 @@
 #ifndef __UI_GraphView_PortType__
 #define __UI_GraphView_PortType__
 
-#include <FabricCore.h>
-
 #include <assert.h>
 
 namespace FabricUI {
@@ -42,33 +40,6 @@ inline PortType InvertPortType( PortType portType )
       break;
   }
   return result;
-}
-
-inline FabricCore::DFGPortType PortTypeToDFGPortType( PortType portType )
-{
-  FabricCore::DFGPortType dfgPortType;
-  switch ( portType )
-  {
-    case GraphView::PortType_Input:
-      dfgPortType = FabricCore::DFGPortType_Out;
-      break;
-    
-    case GraphView::PortType_Output:
-      dfgPortType = FabricCore::DFGPortType_In;
-      break;
-    
-    case GraphView::PortType_IO:
-      dfgPortType = FabricCore::DFGPortType_IO;
-      break;
-
-    default:
-      // [andrew 20150730] shouldn't be possible but needed to prevent
-      // compiler warning
-      assert( false );
-      dfgPortType = FabricCore::DFGPortType_In;
-      break;
-  }
-  return dfgPortType;
 }
 
 } // namespace GraphView
