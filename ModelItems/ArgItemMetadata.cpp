@@ -3,6 +3,7 @@
 //
 
 #include <FabricUI/ModelItems/ArgItemMetadata.h>
+#include <QString>
 
 using namespace FabricUI::ModelItems;
 
@@ -20,5 +21,5 @@ void ArgItemMetadata::computeDFGPath()
 
   QString portPath = m_argModelItem->getArgName().c_str();
 
-  m_dfgPath = bindingId + "." + portPath;
+  m_dfgPath = (bindingId + "." + portPath).toUtf8().constData();
 }
