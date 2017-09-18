@@ -1463,20 +1463,17 @@ class CanvasWindow(QtGui.QMainWindow):
 
         elif name == 'View':
             if prefix:
-
+                self.clearLogAction = QtGui.QAction('&Clear Log Messages', None)
+                self.clearLogAction.triggered.connect(self.logWidget.clear)
+                menu.addAction(self.clearLogAction)
+            else:   
                 if self.isCanvas:
                     self.setGridVisibleAction = GridVisibilityAction(self.viewport, self.viewport)
                     self.resetCameraAction = ResetCameraAction(self.viewport, self.viewport)
-
-                self.clearLogAction = QtGui.QAction('&Clear Log Messages', None)
-                self.clearLogAction.triggered.connect(self.logWidget.clear)
-
-                if self.isCanvas:
-                    menu.addAction(self.setGridVisibleAction)
-                    menu.addSeparator()
-                    menu.addAction(self.resetCameraAction)
-                    menu.addSeparator()
-                menu.addAction(self.clearLogAction)
+                    viewportMenu = menu.addMenu("Viewport")
+                    viewportMenu.addAction(self.setGridVisibleAction)
+                    viewportMenu.addSeparator()
+                    viewportMenu.addAction(self.resetCameraAction)
 
     def onGraphSet(self, graph):
         """Callback when the graph is set.
