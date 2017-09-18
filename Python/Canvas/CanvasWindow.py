@@ -179,7 +179,6 @@ class ResetCameraAction(BaseCanvasWindowAction):
         viewport.addAction(self)
         self.triggered.connect(viewport.resetCamera)
        
-
 class ShowHotkeyEditorDialogAction(BaseCanvasWindowAction):
 
     def __init__(self, parent, canvasWindow):
@@ -500,7 +499,7 @@ class CanvasWindow(QtGui.QMainWindow):
         self.dfguiCommandHandler = UICmdHandler(self.client, self.scriptEditor)
         
         self.cmdManagerCallback = CommandManagerCallback(self.qUndoStack, self.scriptEditor)
-        #self.hotkeyEditorDialog = HotkeyEditorDialog(self)
+        self.hotkeyEditorDialog = HotkeyEditorDialog(self)
 
 
     def _initDFGWidget(self):
@@ -1364,10 +1363,6 @@ class CanvasWindow(QtGui.QMainWindow):
         enabled (bool): Whether or not to enable the shortcuts.
 
         """
-        if self.undoAction:
-            self.undoAction.blockSignals(enabled)
-        if self.redoAction:
-            self.redoAction.blockSignals(enabled)
         if self.newGraphAction:
             self.newGraphAction.blockSignals(enabled)
         if self.loadGraphAction:
@@ -1460,11 +1455,11 @@ class CanvasWindow(QtGui.QMainWindow):
                     self.toolsDFGPVNotifierRegistry.toolRegistered.connect(self.manipAction.triggerIfInactive)
                     self.deleteDFGPVToolsAction = FabricUI.DFG.DFGDeleteAllPVToolsAction(self, "CanvasWindow.deleteDFGPVToolsAction", "Delete All Edition Tools")
                     menu.addAction(self.deleteDFGPVToolsAction)
-                    # menu.addSeparator()
+                    menu.addSeparator()
 
-                    # editorMenu = menu.addMenu("Editors")
-                    # self.showHotkeyEditorDialogAction = ShowHotkeyEditorDialogAction(editorMenu, self)
-                    # editorMenu.addAction(self.showHotkeyEditorDialogAction)
+                    editorMenu = menu.addMenu("Editors")
+                    self.showHotkeyEditorDialogAction = ShowHotkeyEditorDialogAction(editorMenu, self)
+                    editorMenu.addAction(self.showHotkeyEditorDialogAction)
 
         elif name == 'View':
             if prefix:

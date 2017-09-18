@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QDoubleSpinBox>
 #include <FabricUI/Actions/BaseAction.h>
+#include <FabricUI/Util/FEDoubleSpinBox.h>
 
 namespace FabricUI {
 namespace TimeLine {
@@ -231,9 +232,9 @@ class TimeLineWidget : public QWidget
 
     /// elements
     FrameSlider *m_frameSlider;
-    QDoubleSpinBox *m_endSpinBox;
-    QDoubleSpinBox *m_startSpinBox;
-    QDoubleSpinBox *m_currentFrameSpinBox;
+    FabricUI::Util::FEDoubleSpinBox *m_endSpinBox;
+    FabricUI::Util::FEDoubleSpinBox *m_startSpinBox;
+    FabricUI::Util::FEDoubleSpinBox *m_currentFrameSpinBox;
     QPushButton *m_playButton;
     QPushButton *m_goToEndFrameButton;
     QPushButton *m_goToNextFrameButton;

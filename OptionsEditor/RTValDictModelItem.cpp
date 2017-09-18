@@ -4,6 +4,7 @@
  
 #include "RTValDictModelItem.h"
 #include <FabricUI/Util/RTValUtil.h>
+#include <FabricUI/ValueEditor/ItemMetadata.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Application/FabricApplicationStates.h>
 
@@ -20,11 +21,14 @@ RTValDictModelItem::RTValDictModelItem(
   BaseRTValOptionsEditor *editor,
   RTVal options) 
   : BaseRTValModelItem(name, path)
+  , m_metaData(new ViewItemMetadata())
 {
   FABRIC_CATCH_BEGIN();
 
   m_options = options;
   
+  m_metaData->setString(ItemMetadata::VEExpandedKey.c_str(), "true");
+
   RTVal keys = m_options.getDictKeys();
   for(unsigned i = 0; i < keys.getArraySize(); i++) 
   {
@@ -47,6 +51,12 @@ RTValDictModelItem::RTValDictModelItem(
  
 RTValDictModelItem::~RTValDictModelItem() 
 {
+  delete m_metaData;
+}
+
+FabricUI::ValueEditor::ItemMetadata* RTValDictModelItem::getMetadata()
+{
+  return m_metaData;
 }
 
 int RTValDictModelItem::getNumChildren() 

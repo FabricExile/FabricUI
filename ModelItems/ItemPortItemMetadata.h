@@ -5,7 +5,6 @@
 #ifndef FABRICUI_MODELITEMS_ITEMPORTITEMMETADATA_H
 #define FABRICUI_MODELITEMS_ITEMPORTITEMMETADATA_H
 
-#include <QString>
 #include "DFGModelItemMetadata.h"
 #include <FabricUI/ModelItems/ItemPortModelItem.h>
 
@@ -21,7 +20,7 @@ namespace FabricUI
     protected:
 
       ItemPortModelItem *m_nodePortModelItem;
-      QString m_dfgPath;
+      std::string m_dfgPath;
 
       void reportFabricCoreException( FabricCore::Exception const &e ) const
       {
@@ -70,7 +69,7 @@ namespace FabricUI
           }
 
           if( key == VEPathKey  )
-            return m_dfgPath.toUtf8().constData();
+            return m_dfgPath.data();
 
           return exec.getPortMetadata( portPath.c_str(), key );
         }
