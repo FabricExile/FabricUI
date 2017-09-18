@@ -51,7 +51,15 @@ class GLViewportWidget : public ViewportWidget
     /// default parameters.
     void resetCamera();
 
-  protected:
+    /// Starts the viewport capture.
+    /// (sequence).
+    void startViewportCapture();
+
+    /// Saves the current viewport.
+    /// (single frame).
+    void saveViewportAs();
+
+protected:
     /// Implementation of QGLWidget
     virtual void initializeGL();
     

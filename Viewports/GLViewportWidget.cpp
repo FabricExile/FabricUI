@@ -361,3 +361,28 @@ void GLViewportWidget::resetCamera()
 
   update();
 }
+
+void GLViewportWidget::startViewportCapture()
+{
+  if (!m_viewport.isValid())
+    return;
+
+  FABRIC_CATCH_BEGIN();
+
+  printf("startViewportCapture is not yet implemented\n");
+
+  FABRIC_CATCH_END("GLViewportWidget::startViewportCapture");
+}
+
+void GLViewportWidget::saveViewportAs()
+{
+  if (!m_viewport.isValid())
+    return;
+
+  FABRIC_CATCH_BEGIN();
+
+  printf("saveViewportAs is not yet implemented\n");
+
+  FABRIC_CATCH_END("GLViewportWidget::saveViewportAs");
+}
+
