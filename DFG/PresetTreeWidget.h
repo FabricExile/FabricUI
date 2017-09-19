@@ -70,6 +70,7 @@ namespace FabricUI
       bool m_showsPresets;
       std::string m_contextPath;
       bool m_modelDirty;
+      bool m_hideFabricDirs;
     };
 
   };
