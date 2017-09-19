@@ -102,7 +102,7 @@ public:
 class ArrayViewItem::ArrayItemMetadata : public ItemMetadataProxy
 {
   bool m_null;
-  QString m_path;
+  std::string m_path;
  
   typedef ItemMetadataProxy Parent;
 
@@ -114,7 +114,7 @@ public:
     const char* parentPath = parent->getString( VEPathKey.data() );
     if( parentPath != NULL )
     {
-      m_path = QString(parentPath) + "[" + QString::number(index) + "]";
+      m_path = (QString(parentPath) + "[" + QString::number(index) + "]").toUtf8().constData();
       m_null = false;
     }
   }
@@ -122,7 +122,7 @@ public:
   const char* getString( const char* key ) const FTL_OVERRIDE
   {
     if( key == VEPathKey )
-      return m_null ? NULL : m_path.toUtf8().constData();
+      return m_null ? NULL : m_path.data();
     return Parent::getString( key );
   }
 };
