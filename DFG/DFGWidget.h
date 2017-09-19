@@ -620,7 +620,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::CreateTimelinePortAction" 
-          , "Create timeline Port" 
+          , "Create Timeline Port" 
           , QKeySequence() 
           , Qt::WidgetWithChildrenShortcut
           , enable)
