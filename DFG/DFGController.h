@@ -676,6 +676,33 @@ namespace FabricUI
 
   };
 
+  inline FabricCore::DFGPortType PortTypeToDFGPortType( GraphView::PortType portType )
+  {
+    FabricCore::DFGPortType dfgPortType;
+    switch ( portType )
+    {
+      case GraphView::PortType_Input:
+        dfgPortType = FabricCore::DFGPortType_Out;
+        break;
+    
+      case GraphView::PortType_Output:
+        dfgPortType = FabricCore::DFGPortType_In;
+        break;
+    
+      case GraphView::PortType_IO:
+        dfgPortType = FabricCore::DFGPortType_IO;
+        break;
+
+      default:
+        // [andrew 20150730] shouldn't be possible but needed to prevent
+        // compiler warning
+        assert( false );
+        dfgPortType = FabricCore::DFGPortType_In;
+        break;
+    }
+    return dfgPortType;
+  }
+
 };
 
 #endif // __UI_DFG_DFGController__

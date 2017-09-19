@@ -5,7 +5,7 @@
 
 #include <FabricUI/ModelItems/ItemPortItemMetadata.h>
 
-#include <sstream>
+#include <QString>
 
 using namespace FabricUI::ModelItems;
 
@@ -23,8 +23,8 @@ void ItemPortItemMetadata::computeDFGPath()
   dfgPath += ".";
   dfgPath += m_nodePortModelItem->getPortPath().c_str();
 
-	if(dfgPath.mid(0, 1) == ".")
+  if(dfgPath.mid(0, 1) == ".")
     dfgPath = dfgPath.mid(1);
 
-  m_dfgPath = bdid + "." + dfgPath;
+  m_dfgPath = (bdid + "." + dfgPath).toUtf8().constData();
 }

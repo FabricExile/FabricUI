@@ -5,7 +5,6 @@
 #ifndef FABRICUI_MODELITEMS_ARGITEMMETADATA_H
 #define FABRICUI_MODELITEMS_ARGITEMMETADATA_H
 
-#include <QString>
 #include "DFGModelItemMetadata.h"
 #include <FabricUI/ModelItems/ArgModelItem.h>
 
@@ -24,7 +23,7 @@ namespace FabricUI
     private:
 
       ArgModelItem *m_argModelItem;
-      QString m_dfgPath;
+      std::string m_dfgPath;
 
     public:
 
@@ -44,7 +43,7 @@ namespace FabricUI
         }
  
         if( key == VEPathKey  )
-            return m_dfgPath.toUtf8().constData();
+            return m_dfgPath.data();
           
         FabricCore::DFGExec rootExec = m_argModelItem->getRootExec();
         FTL::CStrRef argName = m_argModelItem->getArgName();
