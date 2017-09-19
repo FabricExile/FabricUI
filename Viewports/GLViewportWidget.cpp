@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QImage>
 #include <QPixmap>
+#include <QFileDialog>
 #include "QtToKLEvent.h"
 #include "GLViewportWidget.h"
 #include <FabricUI/Commands/KLCommandManager.h>
@@ -393,9 +394,16 @@ void GLViewportWidget::saveViewportAs()
     return;
   }
 
-  QString filename = "C:\\Temp\\saveViewportAs.png";
-  if (!image.save(filename))
-    printf("error: failed to save image as \"%s\"\n", filename.toUtf8().data());
- 
+  QFileInfo fileInfo(QFileDialog::getSaveFileName(this, "Save Capture As", "capture.png"));
+  if (!fileInfo.exists())
+    return;
+
+  QString filepath = fileInfo.absoluteFilePath();
+  if (!image.save(filepath))
+  {
+    printf("error: failed to save image as \"%s\"\n", filepath.toUtf8().data());
+    return;
+  }
+
   FABRIC_CATCH_END("GLViewportWidget::saveViewportAs");
 }
