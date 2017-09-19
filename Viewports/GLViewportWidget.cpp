@@ -4,6 +4,8 @@
 
 #include <QMouseEvent>
 #include <QApplication>
+#include <QImage>
+#include <QPixmap>
 #include "QtToKLEvent.h"
 #include "GLViewportWidget.h"
 #include <FabricUI/Commands/KLCommandManager.h>
@@ -377,12 +379,23 @@ void GLViewportWidget::startViewportCapture()
 void GLViewportWidget::saveViewportAs()
 {
   if (!m_viewport.isValid())
+  {
+    printf("error: viewport not valid\n");
     return;
+  }
 
   FABRIC_CATCH_BEGIN();
 
-  printf("saveViewportAs is not yet implemented\n");
+  QImage image = grabFrameBuffer(false /* withAlpha */);
+  if (image.isNull())
+  {
+    printf("error: grabFrameBuffer() failed\n");
+    return;
+  }
 
+  QString filename = "C:\\Temp\\saveViewportAs.png";
+  if (!image.save(filename))
+    printf("error: failed to save image as \"%s\"\n", filename.toUtf8().data());
+ 
   FABRIC_CATCH_END("GLViewportWidget::saveViewportAs");
 }
-

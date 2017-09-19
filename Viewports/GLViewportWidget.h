@@ -8,6 +8,8 @@
 #include <FabricCore.h>
 #include "ViewportWidget.h"
 
+class QImage;
+
 namespace FabricUI {
 namespace Viewports {
 
