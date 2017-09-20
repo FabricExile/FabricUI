@@ -372,7 +372,29 @@ void GLViewportWidget::startViewportCapture()
 
   FABRIC_CATCH_BEGIN();
 
-  printf("startViewportCapture is not yet implemented\n");
+  Context context = FabricApplicationStates::GetAppStates()->getContext();
+
+  RTVal rtvalCapturePath         = m_viewport.maybeGetMember("capturePath");
+  RTVal rtvalCaptureFilename     = m_viewport.maybeGetMember("captureFilename");
+  RTVal rtvalCaptureExtension    = m_viewport.maybeGetMember("captureExtension");
+  RTVal rtvalCaptureFramePadding = m_viewport.maybeGetMember("captureFramePadding");
+
+  QString  capturePath         = rtvalCapturePath        .getStringCString();
+  QString  captureFilename     = rtvalCaptureFilename    .getStringCString();
+  QString  captureExtension    = rtvalCaptureExtension   .getStringCString();
+  uint32_t captureFramePadding = rtvalCaptureFramePadding.getUInt32();
+
+  if (!captureExtension.startsWith("."))
+    captureExtension.push_front(".");
+
+  char paddedFrame[64];
+
+  int frame = 17;
+  sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
+
+  QString filepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
+
+  printf("filepath \"%s\"\n", filepath.toUtf8().data());
 
   FABRIC_CATCH_END("GLViewportWidget::startViewportCapture");
 }
