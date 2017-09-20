@@ -49,6 +49,9 @@ PresetTreeWidget::PresetTreeWidget(
     m_searchEdit = new QLineEdit(this);
   else
     m_searchEdit = NULL;
+
+  m_hideFabricDirs = hideFabricDir;
+
   m_treeView = new TreeView::TreeViewWidget(this);
   m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
   m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -75,7 +78,7 @@ PresetTreeWidget::PresetTreeWidget(
   refresh();
 
   // remove "Fabric" from the tree.
-  if (hideFabricDir)
+  if (m_hideFabricDirs)
   {
     TreeView::TreeItem *item = m_treeModel->item("Fabric");
     if (item)   m_treeModel->removeItem(item);
@@ -307,6 +310,23 @@ void PresetTreeWidget::refresh()
     }
 
     m_treeView->expandAll();
+  }
+
+  // remove "Fabric" from the tree.
+  if (m_hideFabricDirs)
+  {
+    TreeView::TreeItem *item = m_treeModel->item("Fabric");
+    if (item)   m_treeModel->removeItem(item);
+    
+    // FE-8312 remove "Kraken", "KrakenForCanvas", "KrakenAnimation" entries in the tree.
+    TreeView::TreeItem *krakenItem = m_treeModel->item("Kraken");
+    if (krakenItem)   m_treeModel->removeItem(krakenItem);
+
+    TreeView::TreeItem *krakenCanvasItem = m_treeModel->item("KrakenForCanvas");
+    if (krakenCanvasItem)   m_treeModel->removeItem(krakenCanvasItem);
+
+    TreeView::TreeItem *krakenAnimationItem = m_treeModel->item("KrakenAnimation");
+    if (krakenAnimationItem)   m_treeModel->removeItem(krakenAnimationItem);
   }
 
   m_modelDirty = false;
