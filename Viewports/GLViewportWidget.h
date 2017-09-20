@@ -28,7 +28,7 @@ class GLViewportWidget : public ViewportWidget
 
   	virtual ~GLViewportWidget();
   
-    /// Gets tge camera.
+    /// Gets the camera.
     FabricCore::RTVal getCamera();
 
     /// Checks if the grid is visible.

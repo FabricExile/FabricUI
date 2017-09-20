@@ -8,6 +8,7 @@
 #include <QPixmap>
 #include <QFileDialog>
 #include "QtToKLEvent.h"
+#include "TimeLineWidget.h"
 #include "GLViewportWidget.h"
 #include <FabricUI/Commands/KLCommandManager.h>
 #include <FabricUI/Application/FabricException.h>
@@ -372,6 +373,18 @@ void GLViewportWidget::startViewportCapture()
 
   FABRIC_CATCH_BEGIN();
 
+  // get the timeline widget.
+
+  QWidget *parent = parentWidget();
+  if (parent == NULL)
+    return;
+  QWidget *child = parent->findChild<QWidget *>("DFGTimelineWidget");
+  if (child == NULL)
+    return;
+  TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)child;
+
+  // get the capture parameters.
+
   Context context = FabricApplicationStates::GetAppStates()->getContext();
 
   RTVal rtvalCapturePath         = m_viewport.maybeGetMember("capturePath");
@@ -387,14 +400,40 @@ void GLViewportWidget::startViewportCapture()
   if (!captureExtension.startsWith("."))
     captureExtension.push_front(".");
 
-  char paddedFrame[64];
+  // get the frame range and memorize the timeline's current frame.
+  int timelineFrameStart      = timeline->getRangeStart();
+  int timelineFrameEnd        = timeline->getRangeEnd();
+  int timelineMemCurrentFrame = timeline->getTime();
 
-  int frame = 17;
-  sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
+  // capture.
+  for (int frame=timelineFrameStart;frame<=timelineFrameEnd;frame++)
+  {
+    // go to frame.
+    timeline->updateTime(frame);
 
-  QString filepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
+    // grab the viewport.
+    QImage image = grabFrameBuffer(false /* withAlpha */);
+    if (image.isNull())
+    {
+      printf("error: grabFrameBuffer() failed\n");
+      break;
+    }
 
-  printf("filepath \"%s\"\n", filepath.toUtf8().data());
+    // create full output filepath.
+    char paddedFrame[64];
+    sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
+    QString filepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
+
+    // save image.
+    if (!image.save(filepath))
+    {
+      printf("error: failed to save image as \"%s\"\n", filepath.toUtf8().data());
+      return;
+    }
+  }
+
+  // restore timeline position.
+  timeline->updateTime(timelineMemCurrentFrame);
 
   FABRIC_CATCH_END("GLViewportWidget::startViewportCapture");
 }
