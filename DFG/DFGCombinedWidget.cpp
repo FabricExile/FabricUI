@@ -42,6 +42,10 @@ void DFGCombinedWidget::initMenu() {
     );
 
   m_dfgWidget->populateMenuBar(m_menuBar, false /* addFileMenu */, true /* addEditMenu */, true /* addViewMenu */, true /* addDCCMenu */, true /* addHelpMenu */);
+
+  // [FE-5340]
+  setCollapsible(indexOf(m_menuBar), false);
+  m_menuBar->setMaximumHeight(m_menuBar->sizeHint().height());
 }
 
 void DFGCombinedWidget::initTreeView() {
