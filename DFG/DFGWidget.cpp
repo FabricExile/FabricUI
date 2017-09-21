@@ -2868,6 +2868,12 @@ void DFGWidget::onEditSelectedNodeProperties()
           // [Julien] FE-5246
           // Force update the header/body node color
           onExecChanged();
+
+          // [FE8896] the above call of onExecChanged() cleared
+          // the selection,so we need to "re-select" the node.
+          node = getUIGraph()->node(nodeName);
+          if (node)
+            node->setSelected(true);
         }
       }
     }
