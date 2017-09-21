@@ -69,9 +69,7 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
   m_nodeDefaultHeaderColor = dfgConfig.graphConfig.nodeDefaultLabelColor;
   m_allowHeaderColorCheckBox = new QCheckBox("", this);
   m_allowHeaderColorCheckBox->setDisabled(!isEditable);
-  // If the "uiHeaderColor" metadata already exists, diplays the  header color property
-  FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
-  m_allowHeaderColorCheckBox->setChecked(!metadata.empty());
+
   QObject::connect(
     m_allowHeaderColorCheckBox, SIGNAL(clicked()),
     this, SLOT(onAllowHeaderColorCheckBoxClicked())
@@ -86,6 +84,11 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     if ( nodeType == FabricCore::DFGNodeType_Inst )
     {
       subExec = exec.getSubExec( m_nodeName.c_str() );
+
+      // If the "uiHeaderColor" metadata already exists, diplays the  header color property
+      FTL::CStrRef uiHeaderColorData = subExec.getMetadata("uiHeaderColor");
+      m_allowHeaderColorCheckBox->setChecked(!uiHeaderColorData.empty());
+
       if ( subExec.isPreset() )
       {
         m_presetNameLabel = new QLineEdit( subExec.getTitle(), this );
@@ -100,6 +103,9 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     }
     else if ( nodeType == FabricCore::DFGNodeType_User )
     {
+      FTL::CStrRef uiHeaderColorData = exec.getNodeMetadata( m_nodeName.c_str(), "uiHeaderColor" );
+      m_allowHeaderColorCheckBox->setChecked(!uiHeaderColorData.empty());
+
       FTL::CStrRef uiTitle =
         exec.getNodeMetadata( m_nodeName.c_str(), "uiTitle" );
       m_textEdit = new QLineEdit( uiTitle.c_str(), this );
