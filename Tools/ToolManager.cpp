@@ -53,6 +53,41 @@ inline RTVal pathToPathValue(
     );
 }
 
+inline bool isToolRenderSetupValid()
+{
+  bool res = false;
+
+  try
+  {
+    /// Loadthe extension if not done already.
+    FabricApplicationStates::GetAppStates()->getClient().loadExtension("Manipulation", "", false);
+
+    RTVal renderSetup = RTVal::Create(
+      FabricApplicationStates::GetAppStates()->getContext(),
+      "Tool::InlineDrawingRender::AppRenderSetup",
+      0,
+      0);
+
+    res = renderSetup.callMethod(
+      "Boolean",
+      "isRenderEngineValid",
+      0,
+      0).getBoolean();
+  }
+
+  catch(FabricCore::Exception &e)
+  {
+    FabricUI::Application::FabricException::Throw(
+      "ToolManager::isToolRenderSetupValid",
+      e.getDesc_cstr(),
+      "",
+      FabricUI::Application::FabricException::LOG
+      );
+  }
+
+  return res;
+}
+
 inline RTVal getKLToolManager()
 {
   RTVal toolRegistry;
@@ -87,11 +122,12 @@ bool ToolManager::canCreatePathValueTool(
 bool ToolManager::canCreatePathValueTool(
   RTVal value)
 {
-	bool res = false;
+  if(!isToolRenderSetupValid())
+    return false;
 
   FABRIC_CATCH_BEGIN();
   
-  res = getKLToolManager().callMethod(
+  return getKLToolManager().callMethod(
   	"Boolean", 
   	"canCreatePathValueTool", 
   	1, 
@@ -99,7 +135,7 @@ bool ToolManager::canCreatePathValueTool(
  
   FABRIC_CATCH_END("ToolManager::canCreatePathValueTool");
 
-  return res;
+  return false;
 }
 
 RTVal ToolManager::createPathValueTool(
