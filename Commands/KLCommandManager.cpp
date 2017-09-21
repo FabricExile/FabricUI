@@ -143,6 +143,9 @@ void KLCommandManager::synchronizeKL()
     "clearAppStack", 
     0, 0);
 
+  // Keep in synch the merge ID
+  getNewCanMergeID();
+
   FABRIC_CATCH_END("KLCommandManager::synchronizeKL");
 }
 
