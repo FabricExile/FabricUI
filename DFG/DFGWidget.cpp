@@ -2789,7 +2789,7 @@ void DFGWidget::onEditSelectedNodeProperties()
                 );
 
               // [Julien] FE-5246
-              // Add or remove the geader colo node metadata
+              // Add or remove the header color node metadata
               QColor headerColor;
               if ( dialog.getHeaderColor( headerColor ) )
                 DFGAddMetaDataPair_Color(
@@ -2840,7 +2840,7 @@ void DFGWidget::onEditSelectedNodeProperties()
                 );
 
               // [Julien] FE-5246
-              // Add or remove the geader colo node metadata
+              // Add or remove the header color node metadata
               QColor headerColor;  
               if ( dialog.getHeaderColor( headerColor ) )
                 DFGAddMetaDataPair_Color(
@@ -2866,7 +2866,7 @@ void DFGWidget::onEditSelectedNodeProperties()
             );  // undoable.
 
           // [Julien] FE-5246
-          // Force update the header/nody node color
+          // Force update the header/body node color
           onExecChanged();
         }
       }
