@@ -427,8 +427,18 @@ void GLViewportWidget::startViewportCapture()
     // save image.
     if (!image.save(filepath))
     {
-      printf("error: failed to save image as \"%s\"\n", filepath.toUtf8().data());
-      return;
+      // saving the image failed. Instead of aborting here
+      // we wait for a second and try again as sometimes people
+      // are using a flipbbok to watch the images while they are
+      // being written.
+      Sleep(1000);
+
+      // try again.
+      if (!image.save(filepath))
+      {
+        printf("error: failed to save image as \"%s\"\n", filepath.toUtf8().data());
+        return;
+      }
     }
   }
 
