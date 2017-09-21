@@ -2390,6 +2390,11 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   }
 
   DFGGetTextDialog dialog(this, text);
+  if ( !text.isEmpty() || !dialog.text().isEmpty() )
+    dialog.setWindowTitle( "Edit Node Comment" );
+  else
+    dialog.setWindowTitle( "Set Node Comment" );
+
   if ( dialog.exec() == QDialog::Accepted )
   {
     if ( !text.isEmpty() || !dialog.text().isEmpty() )
