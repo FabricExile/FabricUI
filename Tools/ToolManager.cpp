@@ -59,7 +59,7 @@ inline bool isToolRenderSetupValid()
 
   try
   {
-    /// Loadthe extension if not done already.
+    /// Load the extension if not done already.
     FabricApplicationStates::GetAppStates()->getClient().loadExtension("Manipulation", "", false);
 
     RTVal renderSetup = RTVal::Create(
