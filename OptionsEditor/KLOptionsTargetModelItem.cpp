@@ -73,7 +73,19 @@ void KLOptionsTargetModelItem::setValue(
   if( !commit )
     cmd->blockLog();
 
-  manager->doCommand( cmd, m_canMergeID );
+  try
+  {
+    manager->doCommand( cmd, m_canMergeID );
+  }
+
+  catch(Application::FabricException &e)
+  {
+    Application::FabricException::Throw(
+      "KLOptionsTargetModelItem::getRTValOptions",
+      "",
+      e.what(),
+      Application::FabricException::LOG);
+  }
 
   if( commit )
     m_canMergeID = CommandManager::NoCanMergeID;
