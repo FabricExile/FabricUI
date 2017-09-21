@@ -340,6 +340,7 @@ class ScriptEditor(QtGui.QWidget):
         qUndoStack.indexChanged.connect(self.undoStackIndexChanged)
         self.__qUndoStack = qUndoStack
         self._echoStackIndexChanges = True
+        self._isExecuting = False
 
         self.eval_globals = {
             "binding": BindingWrapper(client, binding, qUndoStack),
@@ -581,6 +582,7 @@ class ScriptEditor(QtGui.QWidget):
         return result
 
     def exec_(self, code, replace = False):
+        self._isExecuting = True
         if self.echoCommandsAction.isChecked():
             self.log.appendCommand(code + "\n", replace)
         oldEchoStackIndexChanges = self._echoStackIndexChanges
@@ -599,9 +601,10 @@ class ScriptEditor(QtGui.QWidget):
             sys.stderr = old_stderr
             sys.stdout = old_stdout
         self._echoStackIndexChanges = oldEchoStackIndexChanges
+        self._isExecuting = False
 
     def logCommand(self, text, replace = False):
-        if self.echoCommandsAction.isChecked():
+        if self.echoCommandsAction.isChecked() and not self._isExecuting:
             self.log.appendCommand(text + "\n", replace)
     
     def clear(self):

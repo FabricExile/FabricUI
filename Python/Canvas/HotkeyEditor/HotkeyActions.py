@@ -93,7 +93,7 @@ class UndoAction(BaseHotkeyEditorAction):
             hotkeyEditor, 
             "HotkeyEditor.UndoAction", 
             "Undo", 
-            QtGui.QKeySequence("Ctrl+Z"))
+            QtGui.QKeySequence(QtGui.QKeySequence.Undo))
 
         self.setToolTip('Undo the changes.')
         self.setEnabled(False)
@@ -117,7 +117,7 @@ class RedoAction(BaseHotkeyEditorAction):
             hotkeyEditor, 
             "HotkeyEditor.RedoAction", 
             "Redo", 
-            QtGui.QKeySequence("Ctrl+Shift+Z"))
+            QtGui.QKeySequence(QtGui.QKeySequence.Redo))
 
         self.setEnabled(False)
         self.setToolTip('Redo the changes.')

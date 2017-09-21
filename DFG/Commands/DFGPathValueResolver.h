@@ -51,48 +51,40 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
       );
 
     struct DFGPortPaths {
-      QString portName; 
-      QString blockName;
-      QString nodeName;
+      public:
+        QString portName; 
+        QString blockName;
+        QString nodeName;
+        QString execPath;
+        QString id;
+        int arrayIndex; // If array element
 
-      bool isExecBlockPort() {
-        return !blockName.isEmpty();
-      }
+        DFGPortPaths() {
+          arrayIndex = -1;
+        }
 
-      bool isExecArg() {
-        return !isExecBlockPort() && nodeName.isEmpty();
-      }
+        bool isArrayElement() {
+          return arrayIndex > -1;
+        }
 
-      QString getRelativePortPath() {
-        if(isExecBlockPort())
-          return nodeName + "." + blockName + "." + portName;
-        else if(isExecArg())
-          return portName;
-        else if(!nodeName.isEmpty())
-          return nodeName + "." + portName;
-        else
-          return "";
-      }
+        bool isExecBlockPort();
+
+        bool isExecArg();
+
+        QString getRelativePortPath();
+
+        QString getAbsolutePortPath(
+          bool addBindingID = true
+          );
+
+        QString getFullItemPath(
+          bool addBindingID = true
+          );
+
+        QString getAbsoluteNodePath(
+          bool addBindingID = true
+          );
     };
-
-    /// Gets the executable and DFGPortPaths
-    /// from the pathValue.
-    FabricCore::DFGExec getDFGPortPaths(
-      FabricCore::RTVal pathValue, 
-      DFGPortPaths &dfgPortPaths
-      );
-
-  public slots:
-    /// Update the binding.
-    virtual void onBindingChanged(
-      FabricCore::DFGBinding const &binding
-      );
-
-  private:
-    /// Removes the bindingID or the solverID from the path if set.
-    QString getPathWithoutBindingOrSolverID(
-      FabricCore::RTVal pathValue
-      );
 
     /// Type of DFG item.
     enum DFGType { DFGUnknow, DFGPort, DFGArg, DFGVar };
@@ -104,6 +96,29 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
       DFGPortPaths &dfgPortPaths,
       DFGType &dfgType
       );  
+
+    FabricCore::DFGBinding getDFGBinding() const;
+
+  public slots:
+    /// Update the binding.
+    virtual void onBindingChanged(
+      FabricCore::DFGBinding const &binding
+      );
+
+  private:
+    /// Removes the bindingID or the solverID from the path if set.
+    QString getPathWithoutBindingOrSolverID(
+      FabricCore::RTVal pathValue,
+      int &arrayIndex,
+      bool removeArrayElement = true
+      );
+
+    /// Gets the executable and DFGPortPaths
+    /// from the pathValue.
+    FabricCore::DFGExec getDFGPortPaths(
+      FabricCore::RTVal pathValue, 
+      DFGPortPaths &dfgPortPaths
+      );
 
     /// Casts the path the a humain readable format.
     /// Replaces the bindingID by the solverID if it exists.

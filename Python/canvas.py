@@ -10,7 +10,7 @@ if sys.version_info < (2, 7):
 
 from PySide import QtCore, QtGui
 from FabricEngine.Core import CAPI
-from FabricEngine.FabricUI import Application
+from FabricEngine.FabricUI import Style
 from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 from FabricEngine.Canvas.FabricParser import FabricParser
 from FabricEngine.Canvas.FabricParser import CheckExtension
@@ -24,7 +24,8 @@ if __name__ == "__main__":
     # execute, and a Python script to execute are also available to be called on
     # startup.
 
-    app = Application.FabricApplication()
+    app = QtGui.QApplication("")
+    Style.FabricStyleUtil.applyFabricStyle(app)
     app.setOrganizationName('Fabric Software Inc')
     app.setApplicationName('Fabric Canvas Standalone')
     app.setApplicationVersion(CAPI.GetVersionStr())

@@ -7,6 +7,7 @@
 
 #include <FabricUI/ValueEditor/VEEditorOwner.h>
 #include <FabricUI/DFG/DFGNotifier.h>
+#include <QTreeWidgetItem>
 
 class BaseModelItem;
 
@@ -159,6 +160,10 @@ namespace FabricUI {
 
       virtual void onSidePanelInspectRequested();
 
+      virtual void onCustomContextMenu(
+        const QPoint &point
+        );
+
       void onNodeInspectRequested(
         FabricUI::GraphView::Node *node
         );
@@ -281,6 +286,11 @@ namespace FabricUI {
         FTL::CStrRef instName,
         FTL::CStrRef blockName,
         FTL::ArrayRef<unsigned> newOrder
+        );
+
+      void onItemOveredChanged( 
+        QTreeWidgetItem *oldItem,
+        QTreeWidgetItem *newItem
         );
 
       virtual void onStructureChanged() {};

@@ -144,6 +144,7 @@ dirs = [
   'DFG/Dialogs',
   'DFG/PortEditor',
   'DFG/TabSearch',
+  'DFG/Tools',
   'FCurveEditor',
   'FCurveEditor/Models/AnimXKL',
   'FCurveEditor/Models/DFG',
@@ -334,6 +335,7 @@ if uiLibPrefix == 'ui':
         diffFile,
         shibokenDir.File('fabricui.xml'),
         shibokenDir.File('fabricui_core.xml'),
+        shibokenDir.File('fabricui_style.xml'),
         shibokenDir.File('fabricui_application.xml'),
         shibokenDir.File('fabricui_tools.xml'),
         shibokenDir.File('fabricui_actions.xml'),
@@ -372,6 +374,7 @@ if uiLibPrefix == 'ui':
       ]
       )
     pysideEnv.Depends(pysideGen, installedHeaders)
+    pysideEnv.Depends(pysideGen, qtInstalledLibs)
     pysideEnv.Requires(pysideGen, uiLib) # HACK [FE-8436] : this line shouldn't be needed
       # ... instead, we should just add QtCore to the RPath on OSX for the shiboken executable
     pysideEnv.Depends(pysideGen, corePythonModuleFiles)
@@ -382,12 +385,14 @@ if uiLibPrefix == 'ui':
         pysideEnv.Dir('Commands').srcnode(),
         pysideEnv.Dir('Menus').srcnode(),
         pysideEnv.Dir('Dialog').srcnode(),
+        pysideEnv.Dir('Style').srcnode(),
         pysideEnv.Dir('Tools').srcnode(),
         pysideEnv.Dir('Actions').srcnode(),
         pysideEnv.Dir('OptionsEditor').srcnode(),
         pysideEnv.Dir('OptionsEditor/Commands').srcnode(),
         pysideEnv.Dir('DFG').srcnode(),
         pysideEnv.Dir('DFG/Commands').srcnode(),
+        pysideEnv.Dir('DFG/Tools').srcnode(),
         pysideEnv.Dir('DFG/DFGUICmd').srcnode(),
         pysideEnv.Dir('GraphView').srcnode(),
         pysideEnv.Dir('Licensing').srcnode(),

@@ -165,10 +165,21 @@ class BaseCommand : public QObject
     /// Gets the CanMerge ID.
     virtual int getCanMergeID();
 
-    /// Checks if `this` and `prevCmd`  
-    /// commands `this` can be merged.
+    /**
+      Checks if the command `cmd` can be merged with `this` command.
+      When applicable, parent class's merge() should be called
+      at the beginning of specialized implementations.
+
+      If undoPrevAndMergeFirst is false (default), then `this.doIt()` will first be called,
+      then `this.merge(previousCmd)` will be called.
+
+      If undoPrevAndMergeFirst is true, then `this.merge()` will first be called,
+      then `previousCmd.undo()` will be called, then `this.doIt()` will be called.
+      This allows to simplify the management of commands that have a cumulative effect.
+    */
     virtual bool canMerge(
-      BaseCommand *prevCmd
+      BaseCommand *prevCmd,
+      bool& undoPrevAndMergeFirst
       );
 
     /// Merges `this` with `prevCmd` command.

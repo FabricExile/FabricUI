@@ -2,9 +2,7 @@
 <typesystem package="FabricUI">
   <namespace-type name="FabricUI" generate="no">
     <namespace-type name="Tools" generate="yes">
-      <object-type name="ToolsCommandRegistration" copyable="false"/>
-      <object-type name="ToolsNotifier" copyable="false"/>
-			<object-type name="ToolsNotifierRegistry" copyable="false"/>
-	</namespace-type>
+      <object-type name="ToolManager" copyable="false"/>
+		</namespace-type>
   </namespace-type>
 </typesystem> 

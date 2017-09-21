@@ -9,11 +9,20 @@
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 
+#define QOBJECT_DISCONNECT( objA, TA, ClassA, methodA, ArgsA, objB, TB, ClassB, methodB, ArgsB ) \
+    QObject::disconnect( objA, & ClassA :: methodA, objB, & ClassB :: methodB )
+
 #define QOBJECT_CONNECT( objA, TA, ClassA, methodA, ArgsA, objB, TB, ClassB, methodB, ArgsB ) \
     QObject::connect( objA, & ClassA :: methodA, objB, & ClassB :: methodB )
 
 // when several signals/slots have the same name (overloading), we must use this
 // macro (const qualifiers must also be specified, if any)
+#define QOBJECT_DISCONNECT_OVERLOADED( objA, TA, ClassA, methodA, ArgsA, constA, objB, TB, ClassB, methodB, ArgsB, constB ) \
+    QObject::disconnect( \
+      objA, static_cast<void( ClassA ::*) ArgsA constA >( & ClassA :: methodA ), \
+      objB, static_cast<void( ClassB ::*) ArgsB constB >( & ClassB :: methodB ) \
+    )
+
 #define QOBJECT_CONNECT_OVERLOADED( objA, TA, ClassA, methodA, ArgsA, constA, objB, TB, ClassB, methodB, ArgsB, constB ) \
     QObject::connect( \
       objA, static_cast<void( ClassA ::*) ArgsA constA >( & ClassA :: methodA ), \
@@ -22,8 +31,14 @@
 
 #else
 
+#define QOBJECT_DISCONNECT( objA, TA, ClassA, methodA, ArgsA, objB, TB, ClassB, methodB, ArgsB ) \
+    QObject::disconnect( objA, TA ( methodA ArgsA ), objB, TB ( methodB ArgsB ) )
+
 #define QOBJECT_CONNECT( objA, TA, ClassA, methodA, ArgsA, objB, TB, ClassB, methodB, ArgsB ) \
     QObject::connect( objA, TA ( methodA ArgsA ), objB, TB ( methodB ArgsB ) )
+
+#define QOBJECT_DISCONNECT_OVERLOADED( objA, TA, ClassA, methodA, ArgsA, constA, objB, TB, ClassB, methodB, ArgsB, constB ) \
+    QOBJECT_DISCONNECT( objA, TA, ClassA, methodA, ArgsA, objB, TB, ClassB, methodB, ArgsB )
 
 #define QOBJECT_CONNECT_OVERLOADED( objA, TA, ClassA, methodA, ArgsA, constA, objB, TB, ClassB, methodB, ArgsB, constB ) \
     QOBJECT_CONNECT( objA, TA, ClassA, methodA, ArgsA, objB, TB, ClassB, methodB, ArgsB )

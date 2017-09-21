@@ -9,6 +9,7 @@
 #include <QWidget>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QString>
 
 using namespace FabricUI::ValueEditor;
 
@@ -82,9 +83,54 @@ ArrayViewItem::ArrayViewItem( QString name,
   layout->addStretch();
 }
 
+class ItemMetadataProxy : public ItemMetadata
+{
+protected:
+  ItemMetadata* m_parent;
+
+public:
+  ItemMetadataProxy( ItemMetadata* parent ) : m_parent( parent ) {}
+
+  const char* getString( const char* key ) const FTL_OVERRIDE { return m_parent->getString( key ); }
+  int getSInt32( const char* key ) const FTL_OVERRIDE { return m_parent->getSInt32( key ); }
+  double getFloat64( const char* key ) const FTL_OVERRIDE { return m_parent->getFloat64( key ); }
+  const FTL::JSONObject* getDict( const char* key ) const FTL_OVERRIDE { return m_parent->getDict( key ); }
+  const FTL::JSONArray* getArray( const char* key ) const FTL_OVERRIDE { return m_parent->getArray( key ); }
+
+};
+
+class ArrayViewItem::ArrayItemMetadata : public ItemMetadataProxy
+{
+  bool m_null;
+  std::string m_path;
+ 
+  typedef ItemMetadataProxy Parent;
+
+public:
+  ArrayItemMetadata( ItemMetadata* parent, int index )
+    : Parent( parent )
+    , m_null( true )
+  {
+    const char* parentPath = parent->getString( VEPathKey.data() );
+    if( parentPath != NULL )
+    {
+      m_path = (QString(parentPath) + "[" + QString::number(index) + "]").toUtf8().constData();
+      m_null = false;
+    }
+  }
+
+  const char* getString( const char* key ) const FTL_OVERRIDE
+  {
+    if( key == VEPathKey )
+      return m_null ? NULL : m_path.data();
+    return Parent::getString( key );
+  }
+};
+
 ArrayViewItem::~ArrayViewItem()
 {
-
+  for( ArrayItemMetadataMap::iterator it = m_itemsMetadata.begin(); it != m_itemsMetadata.end(); it++ )
+    delete it->second;
 }
 
 void ArrayViewItem::doAppendChildViewItems( QList<BaseViewItem *>& items )
@@ -99,11 +145,17 @@ void ArrayViewItem::doAppendChildViewItems( QList<BaseViewItem *>& items )
       snprintf( childName, 64, "[%d]", i );
 
       FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
+
+      // TODO : update when the parent path (through metadata) changed
+      if( m_itemsMetadata.find( i ) == m_itemsMetadata.end() )
+        m_itemsMetadata.insert( ArrayItemMetadataMap::value_type( i,
+          new ArrayItemMetadata( &m_metadata, i ) ) );
+
       BaseViewItem* childItem =
         factory->createViewItem(
           childName,
           toVariant( childVal ),
-          &m_metadata
+          m_itemsMetadata.find( i )->second
           );
 
       if (childItem != NULL)
@@ -124,15 +176,19 @@ void ArrayViewItem::onChildViewValueChanged( int index, QVariant value )
 {
   if (m_val.isValid() && m_val.isArray())
   {
+    // FE-8822, we need to clone the array 'm_val' 
+    // since it references directly the model array.
+    FabricCore::RTVal cloneVal = m_val.clone();
+
     // We cannot simply create a new RTVal based on the QVariant type, as 
     // we have to set the type exactly the same as the original.  Get the
     // original child value to ensure the new value matches the internal type
     int arrayIndex = index + m_min;
-    FabricCore::RTVal oldChildVal = m_val.getArrayElementRef( arrayIndex );
+    FabricCore::RTVal oldChildVal = cloneVal.getArrayElementRef( arrayIndex );
     RTVariant::toRTVal( value, oldChildVal );
-    m_val.setArrayElement( arrayIndex, oldChildVal );
+    cloneVal.setArrayElement( arrayIndex, oldChildVal );
+    emit viewValueChanged( toVariant( cloneVal ) );
   }
-  emit viewValueChanged( toVariant( m_val ) );
 }
 
 QWidget * ArrayViewItem::getWidget()
@@ -142,27 +198,26 @@ QWidget * ArrayViewItem::getWidget()
 
 void ArrayViewItem::onModelValueChanged( QVariant const &value )
 {
+  int oldSize = m_val.getArraySize();
   RTVariant::toRTVal( value, m_val );
-
-  // If we have changed our min/max values, then
-  // rebuild the whole widget.  Otherwise, update children
   int arraySize = m_val.getArraySize();
-  if (arraySize < m_max)
+
+  // If array size changed, 
+  // rebuild the whole widget. 
+  if (arraySize != oldSize)
   {
     m_max = arraySize;
     m_min = min( m_max, m_min );
+
+    updateWidgets();
     emit rebuildChildren( this );
   }
-  else
+   
+  for (int i = m_min; i < m_max; ++i)
   {
-    for (int i = m_min; i < m_max; ++i)
-    {
-      FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
-      routeModelValueChanged( i - m_min, toVariant( childVal ) );
-    }
-  }
-
-  updateWidgets();
+    FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
+    routeModelValueChanged( i - m_min, toVariant( childVal ) );
+  }  
 }
 
 void ArrayViewItem::updateWidgets()
@@ -239,19 +294,13 @@ void ArrayViewItem::onMaxIndexChanged( int newMax )
 
 void ArrayViewItem::onArraySizeChanged( int newSize )
 {
-  if (m_val.isValid())
+  if (m_val.isValid() && m_val.isVariableArray())
   {
-    int oldSize = m_val.getArraySize();
-
-    if(m_val.isVariableArray())
-      m_val.setArraySize( newSize );
-
-    emit viewValueChanged( toVariant( m_val ) );
-
-    if (oldSize == m_max)
-    {
-      onMaxIndexChanged( newSize );
-    }
+    // FE-8822, we need to clone the array 'm_val' 
+    // since it references directly the model array.
+    FabricCore::RTVal cloneVal = m_val.clone();
+    cloneVal.setArraySize( newSize );
+    emit viewValueChanged( toVariant( cloneVal ) );
   }
 }
 

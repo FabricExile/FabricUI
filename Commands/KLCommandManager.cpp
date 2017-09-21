@@ -143,6 +143,9 @@ void KLCommandManager::synchronizeKL()
     "clearAppStack", 
     0, 0);
 
+  // Keep in synch the merge ID
+  getNewCanMergeID();
+
   FABRIC_CATCH_END("KLCommandManager::synchronizeKL");
 }
 
@@ -244,4 +247,22 @@ void KLCommandManager::doKLCommand(
     );
 
   FABRIC_CATCH_END("KLCommandManager::doKLCommand");
+}
+
+void KLCommandManager::cleanupUnfinishedCommandsAndThrow(
+  BaseCommand *cmd,
+  QString const&error)
+{
+  FABRIC_CATCH_BEGIN();
+
+  KLCommandHelpers::getKLCommandManager().callMethod(
+    "", 
+    "clearAppStack", 
+    0, 0);
+
+  CommandManager::cleanupUnfinishedCommandsAndThrow(
+    cmd,
+    error);
+
+  FABRIC_CATCH_END("KLCommandManager::cleanupUnfinishedCommandsAndThrow");
 }

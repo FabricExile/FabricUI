@@ -99,15 +99,20 @@ int KLScriptableCommand::getCanMergeID()
 }
 
 bool KLScriptableCommand::canMerge(
-  BaseCommand *prevCmd) 
+  BaseCommand *prevCmd,
+  bool &undoPrevAndMergeFirst)
 {
   KLScriptableCommand* scriptCmd = qobject_cast<KLScriptableCommand*>(prevCmd);
   if(scriptCmd == 0)
     return false;
   
+  if(!BaseCommand::canMerge(prevCmd, undoPrevAndMergeFirst))
+    return false;
+
   return KLCommandHelpers::canMergeKLCommand(
     m_klCmd, 
-    scriptCmd->m_klCmd);
+    scriptCmd->m_klCmd,
+    undoPrevAndMergeFirst);
 }
 
 void KLScriptableCommand::merge(

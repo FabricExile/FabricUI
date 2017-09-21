@@ -16,6 +16,7 @@ from FabricEngine.Canvas.UICmdHandler import UICmdHandler
 from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder
 from FabricEngine.Canvas.LoadFabricStyleSheet import LoadFabricStyleSheet
 from FabricEngine.Canvas.Commands.CommandManager import *
+from FabricEngine.Canvas.Application.FabricLog import *
 from FabricEngine.Canvas.Application.FabricApplicationStates import *
 from FabricEngine.Canvas.HotkeyEditor.HotkeyEditorDialog import HotkeyEditorDialog
 from FabricEngine.Canvas.Commands.CommandManagerCallback import CommandManagerCallback
@@ -144,6 +145,10 @@ class ToggleManipulationAction(BaseCanvasWindowAction):
     def onTriggered(self):
         self.viewport.toggleManipulation()
 
+    def triggerIfInactive(self):
+        if not self.viewport.isManipulationActive():
+            self.trigger()
+
 class GridVisibilityAction(BaseCanvasWindowAction):
 
     def __init__(self, parent, viewport):
@@ -174,7 +179,6 @@ class ResetCameraAction(BaseCanvasWindowAction):
         viewport.addAction(self)
         self.triggered.connect(viewport.resetCamera)
        
-
 class ShowHotkeyEditorDialogAction(BaseCanvasWindowAction):
 
     def __init__(self, parent, canvasWindow):
@@ -259,7 +263,6 @@ class CanvasWindow(QtGui.QMainWindow):
         self.onFrameChanged(self.timeLine.getTime())
         self.onGraphSet(self.dfgWidget.getUIGraph())
         self.valueEditor.initConnections()
-        self.toolsNotifierRegistry.initConnections()
         self.installEventFilter(CanvasWindowEventFilter(self))
 
         self._slowOpPop()
@@ -416,6 +419,7 @@ class CanvasWindow(QtGui.QMainWindow):
                 FabricUI.HandleLicenseData(self, self.client, data, True)
             except Exception as e:
                 self.dfgWidget.getDFGController().logError(str(e))
+                print e
         elif target == 'slowOp.push':
             self._slowOpPush(data)
         elif target == 'slowOp.pop':
@@ -445,14 +449,13 @@ class CanvasWindow(QtGui.QMainWindow):
           'rtValFromJSONDecoder': self.rtvalEncoderDecoder.decode,
           }
 
-        client = Core.createClient(clientOpts)
-        client.loadExtension('Math')
-        client.loadExtension('Parameters')
-        client.loadExtension('Util')
-        client.loadExtension('FabricInterfaces')
-        client.loadExtension('Manipulation')
-        client.setStatusCallback(self._statusCallback)
-        self.client = client
+        self.client = Core.createClient(clientOpts)
+        self.client.setStatusCallback(self._statusCallback)
+        self.client.loadExtension('Math')
+        self.client.loadExtension('Parameters')
+        self.client.loadExtension('Util')
+        self.client.loadExtension('FabricInterfaces')
+        self.client.loadExtension('Manipulation')
         self.rtvalEncoderDecoder.client = self.client
         CreateAppStates(self.client, self.settings)
 
@@ -496,7 +499,7 @@ class CanvasWindow(QtGui.QMainWindow):
         self.dfguiCommandHandler = UICmdHandler(self.client, self.scriptEditor)
         
         self.cmdManagerCallback = CommandManagerCallback(self.qUndoStack, self.scriptEditor)
-        #self.hotkeyEditorDialog = HotkeyEditorDialog(self)
+        self.hotkeyEditorDialog = HotkeyEditorDialog(self)
 
 
     def _initDFGWidget(self):
@@ -527,8 +530,8 @@ class CanvasWindow(QtGui.QMainWindow):
     def _initTools(self):
         """Initializes the Tools.
         """
-        self.toolsNotifierRegistry = FabricUI.Tools.ToolsNotifierRegistry(self.dfgWidget)
-        FabricUI.Tools.ToolsCommandRegistration.RegisterCommands(self.toolsNotifierRegistry)
+        self.toolsDFGPVNotifierRegistry = FabricUI.DFG.DFGPVToolsNotifierRegistry()
+        FabricUI.DFG.DFGToolsCommandRegistration.RegisterCommands(self.toolsDFGPVNotifierRegistry)
 
     def _initTreeView(self):
         """Initializes the preset TreeView.
@@ -561,8 +564,9 @@ class CanvasWindow(QtGui.QMainWindow):
 
         OptionsEditor.KLOptionsTargetEditor.create( "Rendering Options", "Rendering Options", "", self )
 
-        # When a klWidget is activated/deactivated from the value-editor.
+        # When a tool is activated/deactivated from the value-editor.
         self.valueEditor.refreshViewport.connect(self.viewport.redraw)
+        self.toolsDFGPVNotifierRegistry.toolUpdated.connect(self.viewport.redraw)
 
     def _initValueEditor(self):
         """Initializes the value editor."""
@@ -573,6 +577,7 @@ class CanvasWindow(QtGui.QMainWindow):
     def _initLog(self):
         """Initializes the DFGLogWidget."""
         self.logWidget = DFG.DFGLogWidget(self.config)
+        self.fabricLog = GetFabricLog()
 
     def _initTimeLine(self):
         """Initializes the TimeLineWidget.
@@ -1123,6 +1128,8 @@ class CanvasWindow(QtGui.QMainWindow):
         """ Clear the app before loading a new graph.
         """
         manipActive = self.viewport.isManipulationActive()
+        self.toolsDFGPVNotifierRegistry.unregisterAllPathValueTools()
+        
         if manipActive is True:
             self.manipAction.onTriggered()
     
@@ -1356,10 +1363,6 @@ class CanvasWindow(QtGui.QMainWindow):
         enabled (bool): Whether or not to enable the shortcuts.
 
         """
-        if self.undoAction:
-            self.undoAction.blockSignals(enabled)
-        if self.redoAction:
-            self.redoAction.blockSignals(enabled)
         if self.newGraphAction:
             self.newGraphAction.blockSignals(enabled)
         if self.loadGraphAction:
@@ -1449,11 +1452,14 @@ class CanvasWindow(QtGui.QMainWindow):
                     self.manipAction = ToggleManipulationAction(self, self.viewport)
                     menu.addAction(self.manipAction)
 
-                    # menu.addSeparator()
+                    self.toolsDFGPVNotifierRegistry.toolRegistered.connect(self.manipAction.triggerIfInactive)
+                    self.deleteDFGPVToolsAction = FabricUI.DFG.DFGDeleteAllPVToolsAction(self, "CanvasWindow.deleteDFGPVToolsAction", "Delete All Edition Tools")
+                    menu.addAction(self.deleteDFGPVToolsAction)
+                    menu.addSeparator()
 
-                    # editorMenu = menu.addMenu("Editors")
-                    # self.showHotkeyEditorDialogAction = ShowHotkeyEditorDialogAction(editorMenu, self)
-                    # editorMenu.addAction(self.showHotkeyEditorDialogAction)
+                    editorMenu = menu.addMenu("Editors")
+                    self.showHotkeyEditorDialogAction = ShowHotkeyEditorDialogAction(editorMenu, self)
+                    editorMenu.addAction(self.showHotkeyEditorDialogAction)
 
         elif name == 'View':
             if prefix:

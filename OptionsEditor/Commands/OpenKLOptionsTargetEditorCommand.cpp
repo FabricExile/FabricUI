@@ -58,7 +58,7 @@ bool OpenKLOptionsTargetEditorCommand::doIt()
     "editorID"
     ).getStringCString();
 
-  QWidget *dock = QtUtil::getDockWidget(editorID);
+  QDockWidget* dock = QtUtil::getDockWidget(editorID);
   if(dock != 0)
   {
     if(dock->isHidden())
@@ -77,10 +77,16 @@ bool OpenKLOptionsTargetEditorCommand::doIt()
       ? getRTValArgValue("groupName").getStringCString()
       : QString();
 
-    KLOptionsTargetEditor::create(
+    dock = KLOptionsTargetEditor::create(
       editorID,
       editorTitle,
       groupName);
+  }
+
+  if( dock ) {
+    KLOptionsTargetEditor *optionsEditor = (KLOptionsTargetEditor*)dock->widget();
+    if( optionsEditor )
+      optionsEditor->refreshKLOptions();
   }
 
   res = true;

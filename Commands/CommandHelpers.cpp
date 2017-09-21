@@ -14,18 +14,15 @@ using namespace Commands;
 using namespace FabricCore;
 using namespace Application;
 
-/// Optional argument flag
+// Command arg flags (see BaseScriptableCommand::declareArg)
 int CommandArgFlags::NO_FLAG_ARG = 0;
-/// Optional argument flag
-int CommandArgFlags::OPTIONAL_ARG = 1;
-/// Loggale argument flag
-int CommandArgFlags::DONT_LOG_ARG = 2;
-/// Input argument flag
-int CommandArgFlags::IN_ARG = 4;
-/// Output argument flag
-int CommandArgFlags::OUT_ARG = 8;
-/// IO argument flag
-int CommandArgFlags::IO_ARG = 16;
+int CommandArgFlags::OPTIONAL_ARG = 1<<0;
+int CommandArgFlags::DONT_LOG_ARG = 1<<1;
+int CommandArgFlags::IN_ARG = 1<<2;
+int CommandArgFlags::OUT_ARG = 1<<3;
+int CommandArgFlags::IO_ARG = 1<<4;
+// int CommandArgFlags::CREATE_IF_NULL = 1<<5;// Reserved, not implemented yet in C++
+// int CommandArgFlags::CLONE_FOR_UNDO = 1<<6;// Reserved, not implemented yet in C++
 
 inline BaseScriptableCommand* CastToBaseScriptableCommand(
   BaseCommand *cmd) 

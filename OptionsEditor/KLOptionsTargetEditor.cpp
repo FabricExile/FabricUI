@@ -39,26 +39,29 @@ BaseRTValModelItem* KLOptionsTargetEditor::constructModel(
 
   options = RTValUtil::toRTVal(options);
 
-  if(options.isDict()) 
-    return new RTValDictModelItem(
-      name,
-      path, 
-      editor,
-      options);
+  // It's always possible that the options no longer exist (eg: tool was detructed)
+  if( options.isValid() ) {
+    if( options.isDict() )
+      return new RTValDictModelItem(
+        name,
+        path,
+        editor,
+        options );
 
-  else if(options.isArray())
-    return new RTValArrayModelItem(
-      name,
-      path,
-      editor,
-      options);
+    else if( options.isArray() )
+      return new RTValArrayModelItem(
+        name,
+        path,
+        editor,
+        options );
 
-  else
-    return new KLOptionsTargetModelItem(
-      name,
-      path,
-      editor,
-      options);
+    else
+      return new KLOptionsTargetModelItem(
+        name,
+        path,
+        editor,
+        options );
+  }
 
   FABRIC_CATCH_END("KLOptionsTargetEditor::constructModel");
 
@@ -79,13 +82,20 @@ void KLOptionsTargetEditor::updateModel(
   FABRIC_CATCH_END("KLOptionsTargetEditor::updateModel");
 }
 
+void KLOptionsTargetEditor::refreshKLOptions() {
+  if( m_model )
+    updateModel( RTVal() );
+  else
+    resetModel( RTVal() );
+}
+
 void KLOptionsTargetEditor::resetModel(
   RTVal options) 
 {
   FABRIC_CATCH_BEGIN();
   
-  BaseRTValOptionsEditor::resetModel( 
-    OptionsEditorHelpers::getKLOptionsTargetOptions(m_title)
+  BaseRTValOptionsEditor::resetModel(
+    OptionsEditorHelpers::getKLOptionsTargetOptions( m_title )
     );
   
   FABRIC_CATCH_END("KLOptionsTargetEditor::resetModel");

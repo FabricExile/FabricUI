@@ -37,7 +37,7 @@ class KLCommand : public BaseCommand
       }
 
       Boolean MyCommand.doIt!( io String error ) {
-        ... Do you logic
+        ... Do your logic
         return true;
       }
 
@@ -110,7 +110,8 @@ class KLCommand : public BaseCommand
 
     /// Implementation of BaseCommand.
     virtual bool canMerge(
-      BaseCommand *prevCmd
+      BaseCommand *prevCmd,
+      bool &undoPrevAndMergeFirst
       );
 
     /// Implementation of BaseCommand.

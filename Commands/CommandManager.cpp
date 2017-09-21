@@ -98,24 +98,39 @@ void CommandManager::doCommand(
   
   cmd->setCanMergeID(canMergeID);
 
+  bool undoPrevBeforeMerge = false;
   bool canMerge = m_undoStack.size() == 0 
     ? false
-    : cmd->canMerge(m_undoStack[m_undoStack.size()-1].topLevelCmd.data());
+    : cmd->canMerge( m_undoStack[m_undoStack.size()-1].topLevelCmd.data(), undoPrevBeforeMerge );
 
   bool subCmd = m_undoStack.size() != 0 && 
     !m_undoStack[m_undoStack.size()-1].succeeded;
-    
-  if(!subCmd && cmd->canUndo() && !canMerge)
-  {
-    clearRedoStack();
-    pushTopCommand(cmd, false);
-  }
 
   // Execute the command, catch any errors.
   // The command breaks if the 'doIt' method
   // returns false or throws an exception.
-  try
-  {
+  try {
+
+    if( !subCmd && canMerge && cmd->canUndo() && undoPrevBeforeMerge ) {
+      // In this case, we first merge and undo the previous command
+      // before calling doIt().
+      BaseCommand *top = m_undoStack[m_undoStack.size() - 1].topLevelCmd.data();
+
+      cmd->merge( top );
+      preDoCommand( top );
+
+      if( !top->undoIt() )
+        FabricException::Throw( "" );
+
+      postDoCommand( top );
+    }
+
+    if(!subCmd && cmd->canUndo() && !canMerge)
+    {
+      clearRedoStack();
+      pushTopCommand(cmd, false);
+    }
+
     preDoCommand(cmd);
 
     if(!cmd->doIt())
@@ -139,9 +154,10 @@ void CommandManager::doCommand(
       m_undoStack[m_undoStack.size()-1].succeeded = true;
   }
 
-  if(canMerge)
+  if( canMerge )
   {
-    cmd->merge(m_undoStack[m_undoStack.size()-1].topLevelCmd.data());
+    if( !undoPrevBeforeMerge )
+      cmd->merge(m_undoStack[m_undoStack.size()-1].topLevelCmd.data());
     QSharedPointer< BaseCommand > prt(cmd);
     m_undoStack[m_undoStack.size()-1].topLevelCmd = prt;
   }
@@ -490,8 +506,8 @@ QString CommandManager::getStackContent(
 
     BaseCommand *top = stackedCmd.topLevelCmd.data();
     BaseScriptableCommand *scriptableTop = qobject_cast<BaseScriptableCommand *>(top);
-
-    QString desc = withArgs && scriptableTop != 0
+    
+    QString desc = withArgs && scriptableTop != 0 && (scriptableTop->getArgKeys().size() > 0)
       ? top->getName() + "\n" + scriptableTop->getArgsDescription() 
       : top->getName();
 

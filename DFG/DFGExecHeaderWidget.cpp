@@ -2,6 +2,8 @@
 
 #include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGExecHeaderWidget.h>
+#include <FabricUI/DFG/DFGWidget.h>
+#include <FabricUI/Actions/ActionRegistry.h>
 #include <FabricUI/Util/LoadPixmap.h>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -63,7 +65,14 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   m_reqExtLabel->setObjectName( "DFGRequiredExtensionsLabel" );
   m_reqExtLineEdit = new ReqExtLineEdit; // [FE-7883] [FE-4882]
   m_reqExtLineEdit->setObjectName( "DFGRequiredExtensionsLineEdit" );
-  m_reqExtLineEdit->setFocusPolicy( Qt::ClickFocus ); // [FE-5446]
+
+  m_disableGraphButton = new QToolButton();
+  m_disableGraphButton->setObjectName( "DFGDisableGraphButton" );
+  m_disableGraphButton->setFocusPolicy( Qt::NoFocus );
+  m_disableGraphButton->setAutoFillBackground(false);
+  m_disableGraphButton->setCheckable( true );
+  m_disableGraphButton->setToolTip("Disables graph compilations.");
+
   QObject::connect(
     m_reqExtLineEdit, SIGNAL(editingFinished()),
     this, SLOT(reqExtEditingFinished())
@@ -98,6 +107,7 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   layout->addWidget( m_saveButton );
   layout->addWidget( m_reqExtLabel );
   layout->addWidget( m_reqExtLineEdit );
+  layout->addWidget( m_disableGraphButton );
 
   QFrame *regWidget = new QFrame;
   regWidget->setObjectName( "DFGRegWidget" );
@@ -146,8 +156,65 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   onExecChanged();
 }
 
+void DFGExecHeaderWidget::createMenu(QMenu *menu)
+{
+  QAction * blockCompilationsAction = new BlockCompilationsAction(m_dfgController->getDFGWidget(), menu);
+  blockCompilationsAction->setCheckable(true);
+  blockCompilationsAction->setChecked(false);
+  blockCompilationsAction->setIcon( FabricUI::LoadPixmap( "DFGPause.png" ).scaledToWidth( 20, Qt::SmoothTransformation ) );
+  blockCompilationsAction->setShortcutContext(Qt::WindowShortcut);
+
+  menu->addAction(blockCompilationsAction);
+
+  this->m_disableGraphButton->setDefaultAction( blockCompilationsAction );
+}
+
+
 DFGExecHeaderWidget::~DFGExecHeaderWidget()
 {
+}
+
+ReqExtLineEdit::ReqExtLineEdit(QWidget *parent)
+: FELineEdit( parent )
+, m_allowEdits( false)
+{
+  init();
+}
+
+void ReqExtLineEdit::setAllowEdits(bool allow)
+{
+  m_allowEdits = allow;
+}
+
+void ReqExtLineEdit::onEditingFinished()
+{
+  setEnabled(false);
+}
+
+bool ReqExtLineEdit::eventFilter(QObject * watched, QEvent * event)
+{
+  if (event->type() == QEvent::MouseButtonDblClick)
+  {
+    if (m_allowEdits)
+    {
+      setEnabled(true);
+      setFocus();
+    }
+    selectAll();
+    return true;
+  }
+  return QObject::eventFilter(watched, event);
+}
+
+void ReqExtLineEdit::init()
+{
+  setEnabled(false);
+  installEventFilter(this);
+
+  QObject::connect(
+    this, SIGNAL(editingFinished()),
+    this, SLOT(onEditingFinished())
+    );
 }
 
 void ReqExtLineEdit::onGoUpPressed()
@@ -217,26 +284,6 @@ void DFGExecHeaderWidget::refresh()
 void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
 {
   refresh();
-}
-
-bool DFGExecHeaderWidget::reqExtLineEditWidgetHasFocus() const
-{
-  return (m_reqExtLineEdit && QApplication::focusWidget() == m_reqExtLineEdit);
-}
-
-bool DFGExecHeaderWidget::reqExtLineEditWidgetClearFocus()
-{
-  if (!m_reqExtLineEdit)
-    return false;
-
-  // cancel any text changes.
-  FabricCore::String currentExtDepDesc = getExec().getExtDeps();
-  m_reqExtLineEdit->setText(currentExtDepDesc.getCStr());
-
-  // remove keyboard focus.
-  m_reqExtLineEdit->clearFocus();
-
-  return true;
 }
 
 void DFGExecHeaderWidget::reqExtEditingFinished()

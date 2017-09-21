@@ -111,7 +111,7 @@ bool KLCommandHelpers::doKLCommand(
 
   getKLCommandManager().callMethod(
     "", 
-    "_doCommand", 
+    "doCommandForAppCommandManager", 
     2, 
     args);
   
@@ -251,16 +251,27 @@ int KLCommandHelpers::getKLCommandCanMergeID(
 
 bool KLCommandHelpers::canMergeKLCommand(
   FabricCore::RTVal klCmd,
-  FabricCore::RTVal prevKlCmd)
+  FabricCore::RTVal prevKlCmd,
+  bool &undoPrevAndMergeFirst)
 {
   FABRIC_CATCH_BEGIN();
 
-  return klCmd.callMethod(
+  RTVal args[2];
+  args[0] = prevKlCmd;
+  args[1] = RTVal::ConstructBoolean(
+    klCmd.getContext(),
+    undoPrevAndMergeFirst );
+
+  bool result = klCmd.callMethod(
     "Boolean", 
     "canMerge", 
-    1, 
-    &prevKlCmd
+    2, 
+    args
     ).getBoolean();
+
+  undoPrevAndMergeFirst = args[1].getBoolean();
+
+  return result;
 
   FABRIC_CATCH_END("KLCommandHelpers::canMergeKLCommand");
 

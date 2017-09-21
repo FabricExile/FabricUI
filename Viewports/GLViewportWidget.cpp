@@ -231,7 +231,7 @@ void GLViewportWidget::initializeID(
     printf("[GLWidget] Error: Cannot construct OGLInlineDrawing RTVal (extension loaded?)\n");
     return;
   }
-  m_drawing = m_drawing.callMethod("OGLInlineDrawing", "getNewInstance", 0, 0);
+  m_drawing = m_drawing.callMethod("OGLInlineDrawing", "getInstance", 0, 0);
 
   m_viewport = RTVal::Create(context, "OGLStandaloneViewport", 0, 0);
   if(!m_viewport.isValid())

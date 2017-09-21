@@ -11,7 +11,7 @@ if sys.version_info < (2, 7):
 from PySide import QtGui
 
 from FabricEngine import Core
-from FabricEngine.FabricUI import Application
+from FabricEngine.FabricUI import Style
 from FabricEngine.Canvas.FabricParser import FabricParser
 
 from AlembicViewer.AlembicViewerWindow import AlembicViewerWindow
@@ -25,7 +25,8 @@ if __name__ == "__main__":
     # Optional command line arguments for the initial directory are also
     # available to be called on startup.
 
-    app = Application.FabricApplication()
+    app = QtGui.QApplication("")
+    Style.FabricStyleUtil.applyFabricStyle(app)
     app.setOrganizationName('Fabric Software Inc')
     app.setApplicationName('Alembic Viewer')
     app.setApplicationVersion('1.0.0')
