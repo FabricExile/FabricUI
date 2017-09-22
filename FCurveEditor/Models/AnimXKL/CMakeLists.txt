@@ -9,5 +9,5 @@ target_include_directories( RTValAnimXFCurveModel PUBLIC
 
 target_link_libraries( RTValAnimXFCurveModel PUBLIC
   FCurveEditor
-  ${FabricStageDir}/lib/FabricCore-2.6.lib
+  ${FabricStageDir}/lib/FabricCore-2.7.lib
 )
