@@ -15,6 +15,8 @@
 #include <assert.h>
 #include <QTimer>
 
+#define RULED_GRAPHICS_VIEW_CACHE_BACKGROUND 1;
+
 using namespace FabricUI::FCurveEditor;
 
 class RuledGraphicsView::GraphicsView : public QGraphicsView
@@ -24,6 +26,13 @@ class RuledGraphicsView::GraphicsView : public QGraphicsView
   enum State { PANNING, SELECTING, NOTHING } m_state;
   QRectF m_selectionRect; // in scene space
   QPoint m_lastMousePos; // in widget space
+
+#if RULED_GRAPHICS_VIEW_CACHE_BACKGROUND
+  QRect m_backgroundCacheSize;
+  QTransform m_backgroundCacheTransform;
+  QPixmap m_backgroundCache;
+#endif
+
 public:
   GraphicsView( RuledGraphicsView* parent )
     : m_parent( parent )
@@ -40,6 +49,7 @@ public:
     hBar->setValue( hBar->value() + ( isRightToLeft() ? delta.x() : -delta.x() ) );
     vBar->setValue( vBar->value() - delta.y() );
   }
+  void drawBackgroundNoCache( QPainter* );
 protected:
   // HACK ? (move the parent's handler here instead ?)
   void wheelEvent( QWheelEvent * e ) FTL_OVERRIDE { return e->ignore(); }
@@ -313,6 +323,37 @@ void RuledGraphicsView::tick()
 }
 
 void RuledGraphicsView::GraphicsView::drawBackground( QPainter * p, const QRectF & r )
+{
+#if RULED_GRAPHICS_VIEW_CACHE_BACKGROUND
+  const QRect wr = this->viewport()->geometry();
+  const bool cacheUpToDate =
+  (
+    ( p->transform() == m_backgroundCacheTransform ) &&
+    ( wr == m_backgroundCacheSize )
+  );
+  if( !cacheUpToDate )
+  {
+    // Updating the cache
+    m_backgroundCache = QPixmap( wr.size() );
+    m_backgroundCache.fill( Qt::transparent );
+    QPainter cacheP( &m_backgroundCache );
+    cacheP.setMatrix( p->matrix() );
+    this->drawBackgroundNoCache( &cacheP );
+
+    // Updating the indicators of cache validity
+    m_backgroundCacheTransform = p->transform();
+    m_backgroundCacheSize = wr;
+  }
+  
+  p->setMatrixEnabled( false );
+  p->drawPixmap( wr.topLeft(), m_backgroundCache );
+  p->setMatrixEnabled( true );
+#else
+  this->drawBackgroundNoCache( p );
+#endif
+}
+
+void RuledGraphicsView::GraphicsView::drawBackgroundNoCache( QPainter* p )
 {
   QRect wr = this->viewport()->geometry(); // widget viewRect
   QRectF sr = this->mapToScene( wr ).boundingRect(); // scene viewRect
