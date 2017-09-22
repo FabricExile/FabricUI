@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QFileDialog>
+#include <QMessageBox>
 #include "QtToKLEvent.h"
 #include "TimeLineWidget.h"
 #include "GLViewportWidget.h"
@@ -473,13 +474,13 @@ void GLViewportWidget::saveViewportAs()
 
   static QString filepath = "capture.png";
   filepath = QFileDialog::getSaveFileName(this, "Save Capture As", filepath);
-  printf("filepath = \"%s\"\n", filepath.toUtf8().data());
   if (!filepath.isEmpty())
   {
     filepath = QFileInfo(filepath).absoluteFilePath();
     if (!image.save(filepath))
     {
-      printf("error: failed to save image as \"%s\"\n", filepath.toUtf8().data());
+      QString msg = "Failed to save image as\n\"" + filepath + "\"";
+      QMessageBox::warning(this, "Canvas Viewport Capture", msg);
       return;
     }
   }
