@@ -104,4 +104,7 @@ def GetCommandRegistry():
     global s_klCmdRegistrySingleton
     if s_klCmdRegistrySingleton is None:
         s_klCmdRegistrySingleton = KLCommandRegistry()
+         # Sets the C++ singleton
+        CppCommands.CommandRegistry.setCommandRegistrySingleton(s_klCmdRegistrySingleton)
+      
     return s_klCmdRegistrySingleton

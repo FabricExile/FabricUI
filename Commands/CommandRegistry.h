@@ -20,8 +20,8 @@ class CommandRegistry : public Util::BaseFactoryRegistry
     specialized in Python , the same registry is shared between C++ and Python,
     so commands implemented in Python can be created from C++ and vice versa.
     
-    The registry sets it-self as a singleton when it's constructed:
-    - Create the singleton: new CommandRegistry();
+    A registry can be set/get as a singleton:
+    - Set the singleton: CommandRegistry::setCommandRegistrySingleton(new CommandRegistry());
     - Get the singleton: CommandRegistry *cmdRegistry = CommandRegistry::getCommandRegistry();
   */  
   Q_OBJECT
@@ -33,6 +33,11 @@ class CommandRegistry : public Util::BaseFactoryRegistry
     CommandRegistry();
 
     virtual ~CommandRegistry();
+
+    /// Sets the registry singleton.
+    static void setCommandRegistrySingleton(
+      CommandRegistry* registry
+      );
 
     /// Gets the registry singleton.
     /// Thows an error if the registry has not been created.
