@@ -465,15 +465,17 @@ void GLViewportWidget::saveViewportAs()
     return;
   }
 
-  QFileInfo fileInfo(QFileDialog::getSaveFileName(this, "Save Capture As", "capture.png"));
-  if (!fileInfo.exists())
-    return;
-
-  QString filepath = fileInfo.absoluteFilePath();
-  if (!image.save(filepath))
+  static QString filepath = "capture.png";
+  filepath = QFileDialog::getSaveFileName(this, "Save Capture As", filepath);
+  printf("filepath = \"%s\"\n", filepath.toUtf8().data());
+  if (!filepath.isEmpty())
   {
-    printf("error: failed to save image as \"%s\"\n", filepath.toUtf8().data());
-    return;
+    filepath = QFileInfo(filepath).absoluteFilePath();
+    if (!image.save(filepath))
+    {
+      printf("error: failed to save image as \"%s\"\n", filepath.toUtf8().data());
+      return;
+    }
   }
 
   FABRIC_CATCH_END("GLViewportWidget::saveViewportAs");
