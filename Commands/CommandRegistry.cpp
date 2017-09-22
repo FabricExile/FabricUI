@@ -16,17 +16,7 @@ CommandRegistry* CommandRegistry::s_cmdRegistry = 0;
 CommandRegistry::CommandRegistry() 
   : Util::BaseFactoryRegistry()
 {
-  if(s_instanceFlag)
-    FabricException::Throw(
-      "CommandRegistry::CommandRegistry",
-      "singleton has already been created");
-   
   COMMAND_CPP = "CPP";
- 
-  // Set the pointer of the CommandRegistry singleton
-  // equal to this instance of CommandRegistry.
-  s_cmdRegistry = this;
-  s_instanceFlag = true;
 }
 
 CommandRegistry::~CommandRegistry() 
@@ -36,8 +26,23 @@ CommandRegistry::~CommandRegistry()
     s_cmdRegistry = 0;
 }
 
+void CommandRegistry::setCommandRegistrySingleton(
+  CommandRegistry* registry)
+{
+  if(registry != 0)
+  {
+    s_instanceFlag = true;
+    s_cmdRegistry = registry;
+  }
+}
+
 CommandRegistry* CommandRegistry::getCommandRegistry()
 {
+  if(!s_instanceFlag)
+    FabricException::Throw(
+      "CommandRegistry::getCommandRegistry",
+      "The registry is null");
+
   return s_cmdRegistry;
 }
 

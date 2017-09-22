@@ -15,6 +15,7 @@
       <object-type name="CppToPythonTestCommand" />
       <object-type name="BasePathValueResolver" />
       <object-type name="PathValueResolverRegistry" />
-    </namespace-type>
+      <object-type name="CommandRegistration" />
+   </namespace-type>
   </namespace-type>
 </typesystem>
