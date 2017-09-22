@@ -431,7 +431,13 @@ void GLViewportWidget::startViewportCapture()
       // we wait for a second and try again as sometimes people
       // are using a flipbbok to watch the images while they are
       // being written.
-      Sleep(1000);
+      const uint32_t ms = 1000;
+#ifdef Q_OS_WIN
+      Sleep(ms);
+#else
+      struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
+      nanosleep(&ts, NULL);
+#endif
 
       // try again.
       if (!image.save(filepath))
