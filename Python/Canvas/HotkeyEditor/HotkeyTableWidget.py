@@ -112,7 +112,6 @@ class HotkeyTableWidget(QtGui.QTableWidget):
  
     def mouseDoubleClickEvent(self, event):
         """ Implementation of QtGui.QTableWidget.
-            Directly edit the item to simulate a double-click.
         """
         super(HotkeyTableWidget, self).mouseDoubleClickEvent(event)
         item = self.__getCurrentShortcutItem()
@@ -121,9 +120,9 @@ class HotkeyTableWidget(QtGui.QTableWidget):
        
     def mousePressEvent(self, event):
         """ Implementation of QtGui.QTableWidget.
-            Do nothing.
         """
         super(HotkeyTableWidget, self).mousePressEvent(event)
+        # Reset the selection.
         if not self.__getCurrentShortcutItem():
             self.setCurrentItem(None)
         self.onEmitEditingItem(False)
