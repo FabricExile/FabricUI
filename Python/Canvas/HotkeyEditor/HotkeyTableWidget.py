@@ -203,8 +203,11 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         """
         actRegistry = CppActions.ActionRegistry.GetActionRegistry()
 
-        # Check it's the first time the action is registered.
-        if actRegistry.getRegistrationCount(actName) == 1:    
+        # To determine if the item should be created, it should be sufficient to only 
+        # check if the number of actions registered under `actName` is equal to one 
+        # However, because of C++/Python thread issues, it may happens that this condition 
+        # is not enough, so we need to check on the UI side too. 
+        if actRegistry.getRegistrationCount(actName) == 1 and self.__getActionItem(actName) is None:    
             self.__createNewRow(actName, action)
         
         # To update the item tool tip.
@@ -221,7 +224,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         # Check there is no more action registered under `actName`.
         if actRegistry.getRegistrationCount(actName) == 0:
             # if so, remove the item.
-            item = self.__getShorcutItem(actName)
+            item = self.__getActionItem(actName)
             if item:
                 self.removeRow(item.row())
 
