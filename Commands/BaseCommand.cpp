@@ -83,11 +83,13 @@ void BaseCommand::blockLog() {
 
 
 bool BaseCommand::canMerge(
-  BaseCommand *prevCmd, bool& undoPrevAndMergeFirst )
+  BaseCommand *prevCmd, 
+  bool& undoPrevAndMergeFirst)
 {
   if(prevCmd) 
   {
     if(getCanMergeID() > CommandManager::NoCanMergeID && 
+      getName() == prevCmd->getName() &&
       getCanMergeID() == prevCmd->getCanMergeID())
       return true;
   }

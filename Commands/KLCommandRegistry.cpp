@@ -22,9 +22,6 @@ KLCommandRegistry::KLCommandRegistry()
   
   // Construct the KL registry.
   KLCommandHelpers::getKLCommandRegistry();
-  
-  CommandFactory<SetPathValueCommand>::Register(
-    "setPathValue");
 }
 
 KLCommandRegistry::~KLCommandRegistry() 

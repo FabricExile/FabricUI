@@ -83,18 +83,19 @@ QWidget *Vec2ViewItem::getWidget()
 
 void Vec2ViewItem::onModelValueChanged( QVariant const &value )
 {
-  QVector2D newVec2dValue = getQVariantRTValValue<QVector2D>(value);
-  if ( newVec2dValue.x() != m_vec2dValue.x() )
+  QVector2D vec2d = m_vec2dValue;
+  m_vec2dValue = getQVariantRTValValue<QVector2D>( value );
+ 
+  if ( vec2d.x() != m_vec2dValue.x() )
   {
-    m_xSpinBox->setValue( newVec2dValue.x() );
-    routeModelValueChanged( 0, QVariant( newVec2dValue.x() ) );
+    m_xSpinBox->setValue( m_vec2dValue.x() );
+    routeModelValueChanged( 0, QVariant( m_vec2dValue.x() ) );
   }
-  if ( newVec2dValue.y() != m_vec2dValue.y() )
+  if ( vec2d.y() != m_vec2dValue.y() )
   {
-    m_ySpinBox->setValue( newVec2dValue.y() );
-    routeModelValueChanged( 1, QVariant( newVec2dValue.y() ) );
+    m_ySpinBox->setValue( m_vec2dValue.y() );
+    routeModelValueChanged( 1, QVariant( m_vec2dValue.y() ) );
   }
-  m_vec2dValue = newVec2dValue;
 }
 
 void Vec2ViewItem::onXSpinBoxValueChanged( double value )

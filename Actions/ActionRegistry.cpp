@@ -102,11 +102,14 @@ QList<QAction*> ActionRegistry::isShortcutUsed(
   while (ite.hasNext()) 
   {
     ite.next();
-    // Only check the first action, they all share the same shorcut.
-    // QSetIterator<  QAction * > i(ite.value());
-    QAction *action = GetFirstAction(ite);
-    if(action->shortcut() == shortcut)
-      res.append(action);
+    QSetIterator<  QAction * > i(ite.value());
+
+    while (i.hasNext()) 
+    {
+      QAction *action = i.next();
+      if(action->shortcut() == shortcut)
+        res.append(action);
+    }
   }
 
   return res;
@@ -121,9 +124,14 @@ QList<QAction*> ActionRegistry::isShortcutUsed(
   while (ite.hasNext()) 
   {
     ite.next();
-    QAction *action = GetFirstAction(ite);
-    if(action->shortcuts() == shortcuts)
-      res.append(action);
+    QSetIterator<  QAction * > i(ite.value());
+
+    while (i.hasNext()) 
+    {
+      QAction *action = i.next();
+      if(action->shortcuts() == shortcuts)
+        res.append(action);
+    }
   }
   
   return res;

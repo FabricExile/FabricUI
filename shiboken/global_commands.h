@@ -14,4 +14,5 @@
 #include <FabricUI/Commands/CppTestCommand.h>
 #include <FabricUI/Commands/BasePathValueResolver.h>
 #include <FabricUI/Commands/PathValueResolverRegistry.h>
+#include <FabricUI/Commands/CommandRegistration.h>
 

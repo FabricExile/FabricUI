@@ -8,7 +8,7 @@
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Application/FabricApplicationStates.h>
 #include <FabricServices/Persistence/RTValToJSONEncoder.hpp>
-//#include <iostream>
+#include <iostream>
 
 using namespace FabricUI;
 using namespace DFG;
@@ -104,8 +104,9 @@ QString DFGPathValueResolver::getType(
 
   if(dfgType == DFGVar)
     type = m_binding.getExec().getVarType(
-      getPathWithoutBindingOrSolverID(pathValue).toUtf8().constData());
-
+      dfgPortPaths.getAbsolutePortPath(false).toUtf8().constData()
+      );
+  
   else
     type = subExec.getPortResolvedType(
       dfgPortPaths.getRelativePortPath().toUtf8().constData()
@@ -134,7 +135,7 @@ void DFGPathValueResolver::getValue(
 
   if(dfgType == DFGVar)
     value = m_binding.getExec().getVarValue(
-      getPathWithoutBindingOrSolverID(pathValue).toUtf8().constData()
+      dfgPortPaths.getAbsolutePortPath(false).toUtf8().constData()
       );
 
   else 
@@ -161,10 +162,18 @@ void DFGPathValueResolver::getValue(
         );
     }
   }
-
   
   if(value.isValid())
+  {
+    if(value.isArray() && dfgPortPaths.isArrayElement())
+    {
+      RTVal valueElet = value.getArrayElementRef(dfgPortPaths.arrayIndex);
+      pathValue.setMember("value", valueElet);
+
+    }
+    else
     pathValue.setMember("value", value);
+  }
   
   else
   {
@@ -210,6 +219,15 @@ void DFGPathValueResolver::setValue(
   if( !value.isValid() )
     return; // no value specified
 
+  DFGPortPaths dfgPortPaths;
+  DFGType dfgType = DFGUnknow;
+
+  FabricCore::DFGExec subExec = getDFGPortPathsAndType(
+    pathValue,
+    dfgPortPaths,
+    dfgType
+    );
+
   if( ( value.isObject() || value.isInterface() ) && !value.isNullObject() ) {
     // Get the most specialized type.
     // In particular, port values must be persisted, and loading a graph
@@ -224,53 +242,86 @@ void DFGPathValueResolver::setValue(
     value = specializedValue;
   }
 
-  DFGPortPaths dfgPortPaths;
-  DFGType dfgType = DFGUnknow;
-
-  FabricCore::DFGExec subExec = getDFGPortPathsAndType(
-    pathValue,
-    dfgPortPaths,
-    dfgType
-    );
-
   QString pvValueType = RTValUtil::getType(value).toUtf8().constData();
 
   if(dfgType == DFGVar)
-  {
-    QString varValueType = m_binding.getExec().getVarType(
-      getPathWithoutBindingOrSolverID(pathValue).toUtf8().constData()
-      );
-      
-    arePathValueAndDFGItemTypeEqual(
-      dfgPortPaths.getAbsolutePortPath(),
-      "variable",
-      pvValueType,
-      varValueType
-      );
+  { 
+    if(dfgPortPaths.isArrayElement())
+    {
+      RTVal arrayVal = m_binding.getExec().getVarValue(
+        dfgPortPaths.getAbsolutePortPath(false).toUtf8().constData()
+        );
 
-    m_binding.getExec().setVarValue( 
-      getPathWithoutBindingOrSolverID(pathValue).toUtf8().constData(), 
-      value);
+      arrayVal.setArrayElement(
+        dfgPortPaths.arrayIndex,
+        value
+        );
+
+      m_binding.getExec().setVarValue( 
+        dfgPortPaths.getAbsolutePortPath(false).toUtf8().constData(), 
+        arrayVal);
+    }
+
+    else
+    {
+      QString varValueType = m_binding.getExec().getVarType(
+        dfgPortPaths.getAbsolutePortPath(false).toUtf8().constData()
+        );
+
+      arePathValueAndDFGItemTypeEqual(
+        dfgPortPaths.getAbsolutePortPath(),
+        "variable",
+        pvValueType,
+        varValueType
+        );
+
+      m_binding.getExec().setVarValue( 
+        dfgPortPaths.getAbsolutePortPath(false).toUtf8().constData(), 
+        value);
+    }
   }
 
   else
   {
-    QString portValueType = subExec.getPortResolvedType(
-      dfgPortPaths.getRelativePortPath().toUtf8().constData()
-      );
+    if(!dfgPortPaths.isArrayElement())
+    {
+      QString portValueType = subExec.getPortResolvedType(
+        dfgPortPaths.getRelativePortPath().toUtf8().constData()
+        );
 
-    arePathValueAndDFGItemTypeEqual(
-      dfgPortPaths.getAbsolutePortPath(),
-      "port",
-      pvValueType,
-      portValueType
-      );
+      arePathValueAndDFGItemTypeEqual(
+        dfgPortPaths.getAbsolutePortPath(),
+        "port",
+        pvValueType,
+        portValueType
+        );
+    }
 
     if(dfgType == DFGPort)
-      subExec.setPortDefaultValue( 
-        dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
-        value, 
-        false);
+    {
+      if(dfgPortPaths.isArrayElement())
+      {
+        RTVal arrayVal = subExec.getPortResolvedDefaultValue( 
+          dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
+          subExec.getPortResolvedType(dfgPortPaths.getRelativePortPath().toUtf8().constData())
+          );
+
+        arrayVal.setArrayElement(
+          dfgPortPaths.arrayIndex,
+          value);
+
+        subExec.setPortDefaultValue( 
+          dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
+          arrayVal, 
+          false);
+      }
+
+      else
+        subExec.setPortDefaultValue( 
+          dfgPortPaths.getRelativePortPath().toUtf8().constData(), 
+          value, 
+          false);
+    }
  
     else if( dfgType == DFGArg )
     {
@@ -288,11 +339,28 @@ void DFGPathValueResolver::setValue(
           false
         );
       }
+ 
+      if(dfgPortPaths.isArrayElement())
+      {
+        RTVal arrayVal = m_binding.getArgValue(
+          dfgPortPaths.getRelativePortPath().toUtf8().constData()
+          );
 
-      m_binding.setArgValue(
-        dfgPortPaths.getRelativePortPath().toUtf8().constData(),
-        value,
-        false );
+        arrayVal.setArrayElement(
+          dfgPortPaths.arrayIndex,
+          value);
+
+        m_binding.setArgValue(
+          dfgPortPaths.getRelativePortPath().toUtf8().constData(),
+          arrayVal,
+          false );
+      }
+
+      else
+        m_binding.setArgValue(
+          dfgPortPaths.getRelativePortPath().toUtf8().constData(),
+          value,
+          false );
     }   
   }
 
@@ -300,21 +368,35 @@ void DFGPathValueResolver::setValue(
 }
 
 QString DFGPathValueResolver::getPathWithoutBindingOrSolverID(
-  RTVal pathValue) 
+  RTVal pathValue,
+  int &arrayIndex,
+  bool removeArrayElement)
 {
   QString path;
 
   FABRIC_CATCH_BEGIN();
 
+  arrayIndex = -1;
+
   path = RTValUtil::toRTVal(pathValue).maybeGetMember(
     "path").getStringCString();
- 
+
   int index = path.indexOf(".");
   if(index != -1)
   {
     QString id = path.mid(0, index);
     if(id == QString::number(m_binding.getBindingID()) || id == m_id)
       path = path.mid(index+1);
+  }
+  
+  if(removeArrayElement)
+  {
+    index = path.lastIndexOf("[");
+    if(index != -1)
+    {
+      arrayIndex = path.mid(index+1, 1).toInt();
+      path = path.mid(0, index);
+    }
   }
  
   FABRIC_CATCH_END("DFGPathValueResolver::getPathWithoutBindingOrSolverID");
@@ -332,19 +414,17 @@ FabricCore::DFGExec DFGPathValueResolver::getDFGPortPathsAndType(
 
   FABRIC_CATCH_BEGIN();
   
-  QString path = getPathWithoutBindingOrSolverID(pathValue);
+  exec = getDFGPortPaths(
+    pathValue,
+    dfgPortPaths);
 
   // Vars
-  if(m_binding.getExec().hasVar(path.toUtf8().constData()))
+  if(m_binding.getExec().hasVar(dfgPortPaths.getAbsolutePortPath(false).toUtf8().constData()))
     dfgType = DFGVar;
 
   // Args or Ports
   else
   {
-    exec = getDFGPortPaths(
-      pathValue,
-      dfgPortPaths);
-
     if(dfgPortPaths.isExecArg() && exec.haveExecPort(dfgPortPaths.portName.toUtf8().constData()))
       dfgType = DFGArg; 
 
@@ -376,9 +456,16 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
   DFGPortPaths &dfgPortPaths)  
 {
   DFGExec exec;
-  QString path = getPathWithoutBindingOrSolverID(pathValue);
-
   FABRIC_CATCH_BEGIN();
+
+  int arrayIndex = 1;
+  QString path = getPathWithoutBindingOrSolverID(
+    pathValue, 
+    arrayIndex
+    );
+
+  dfgPortPaths.id = m_id;
+  dfgPortPaths.arrayIndex = arrayIndex;
 
   int index = path.lastIndexOf(".");
 
@@ -482,11 +569,10 @@ DFGExec DFGPathValueResolver::getDFGPortPaths(
   //   << dfgPortPaths.isExecBlockPort()
   //   << std::endl;
 
-  FABRIC_CATCH_END("DFGPathValueResolver::getDFGPortPaths");
-
   FabricCore::String execPath = exec.getExecPath();
   dfgPortPaths.execPath = QString(std::string(execPath.getCStr(), execPath.getSize()).c_str());
-  dfgPortPaths.id = m_id;
+
+  FABRIC_CATCH_END("DFGPathValueResolver::getDFGPortPaths");
 
   return exec;
 }
@@ -501,7 +587,13 @@ void DFGPathValueResolver::castPathToHRFormat(
 {
   FABRIC_CATCH_BEGIN();
 
-  QString path = getPathWithoutBindingOrSolverID(pathValue);
+  int arrayIndex;
+  QString path = getPathWithoutBindingOrSolverID(
+    pathValue, 
+    arrayIndex,
+    false
+    );
+
   path = !m_id.isEmpty() ? m_id + "." + path : path;
 
   RTVal pathVal = RTVal::ConstructString(
@@ -536,18 +628,29 @@ QString DFGPathValueResolver::DFGPortPaths::getRelativePortPath()
   return "";
 }
  
-QString DFGPathValueResolver::DFGPortPaths::getAbsolutePortPath() 
+QString DFGPathValueResolver::DFGPortPaths::getAbsolutePortPath(
+  bool addBindingID) 
 {
   QString absPath = execPath.isEmpty()
     ? getRelativePortPath()
     : execPath + "." + getRelativePortPath();
 
-  return !id.isEmpty()
+  return addBindingID && !id.isEmpty()
     ? id + "." + absPath
     : absPath;
 }
 
-QString DFGPathValueResolver::DFGPortPaths::getAbsoluteNodePath() 
+QString DFGPathValueResolver::DFGPortPaths::getFullItemPath(
+  bool addBindingID) 
+{
+  QString absPath = getAbsolutePortPath(addBindingID);
+  return isArrayElement()
+    ? absPath + "[" + QString::number(arrayIndex) + "]"
+    : absPath;
+}
+
+QString DFGPathValueResolver::DFGPortPaths::getAbsoluteNodePath(
+  bool addBindingID) 
 {
   if(!nodeName.isEmpty())
   {
@@ -555,7 +658,7 @@ QString DFGPathValueResolver::DFGPortPaths::getAbsoluteNodePath()
       ? nodeName
       : execPath + "." + nodeName;
 
-    return !id.isEmpty()
+    return addBindingID && !id.isEmpty()
       ? id + "." + absPath
       : absPath;
   }

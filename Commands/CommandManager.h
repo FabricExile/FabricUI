@@ -25,12 +25,12 @@ class CommandManager : public QObject
     the command registration system, C++ vs Phyton, cf, CommandManager for C++ implementation, 
     CommandManager_Python and Python/Canvas/CommandManager.py for Python. 
 
-    The manager is shared between C++ and Python, so commands defined in Python can be created
+    The manager can be shared between C++ and Python, so commands defined in Python can be created
     from C++, and vice versa. The manager can only create commands /C++/Python) registered in 
     the registry. When a command is added to the stack, the signal `commandDone` is emitted. 
     
-    The manager sets it-self as a singleton when it's constructed:
-    - Create the singleton: new CommandManager();
+    A manager can be set/get as a singleton:
+    - Set the singleton: CommandManager::setCommandManagerSingleton(new CommandManager());
     - Get the singleton: CommandManager *cmdManager = CommandManager::getCommandManager();
   */
   Q_OBJECT
@@ -47,12 +47,17 @@ class CommandManager : public QObject
     CommandManager();
 
     virtual ~CommandManager();
-  
+    
+    /// Sets the manager singleton.
+    static void setCommandManagerSingleton(
+      CommandManager* manager
+      );
+
     /// Gets the manager singleton.
-    /// Thows an error if the manager has not been created.
+    /// Thows an error if the manager has not been set.
     static CommandManager* getCommandManager();
     
-    /// Checks if the manager has been created.
+    /// Checks if the manager singleton has been set.
     static bool isInitalized();
 
     /// Creates and executes a command (if doCmd == true).

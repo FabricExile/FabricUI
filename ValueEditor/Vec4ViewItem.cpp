@@ -115,28 +115,29 @@ QWidget *Vec4ViewItem::getWidget()
 
 void Vec4ViewItem::onModelValueChanged( QVariant const &value )
 {
-  QVector4D newVec4dValue = getQVariantRTValValue<QVector4D>( value );
-  if ( newVec4dValue.x() != m_vec4dValue.x() )
+  QVector4D vec4d = m_vec4dValue;
+  m_vec4dValue = getQVariantRTValValue<QVector4D>( value );
+
+  if ( vec4d.x() != m_vec4dValue.x() )
   {
-    m_xSpinBox->setValue( newVec4dValue.x() );
-    routeModelValueChanged( 0, QVariant( newVec4dValue.x() ) );
+    m_xSpinBox->setValue( m_vec4dValue.x() );
+    routeModelValueChanged( 0, QVariant( m_vec4dValue.x() ) );
   }
-  if ( newVec4dValue.y() != m_vec4dValue.y() )
+  if ( vec4d.y() != m_vec4dValue.y() )
   {
-    m_ySpinBox->setValue( newVec4dValue.y() );
-    routeModelValueChanged( 1, QVariant( newVec4dValue.y() ) );
+    m_ySpinBox->setValue( m_vec4dValue.y() );
+    routeModelValueChanged( 1, QVariant( m_vec4dValue.y() ) );
   }
-  if ( newVec4dValue.z() != m_vec4dValue.z() )
+  if ( vec4d.z() != m_vec4dValue.z() )
   {
-    m_zSpinBox->setValue( newVec4dValue.z() );
-    routeModelValueChanged( 2, QVariant( newVec4dValue.z() ) );
+    m_zSpinBox->setValue( m_vec4dValue.z() );
+    routeModelValueChanged( 2, QVariant( m_vec4dValue.z() ) );
   }
-  if ( newVec4dValue.w() != m_vec4dValue.w() )
+  if ( vec4d.w() != m_vec4dValue.w() )
   {
-    m_tSpinBox->setValue( newVec4dValue.w() );
-    routeModelValueChanged( 3, QVariant( newVec4dValue.w() ) );
+    m_tSpinBox->setValue( m_vec4dValue.w() );
+    routeModelValueChanged( 3, QVariant( m_vec4dValue.w() ) );
   }
-  m_vec4dValue = newVec4dValue;
 }
 
 void Vec4ViewItem::onXSpinBoxValueChanged( double value )

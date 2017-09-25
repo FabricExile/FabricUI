@@ -27,15 +27,6 @@ CommandManager::CommandManager()
   , m_canMergeIDCounter(0)
   , m_debugMode( NoDebug )
 {
-  if(s_instanceFlag)
-    FabricException::Throw(
-      "CommandManager::CommandManager",
-      "CommandManager singleton has already been created");
-   
-  // Set the pointer of the CommandManager singleton
-  // equal to this instance of CommandManager.
-  s_cmdManager = this;
-  s_instanceFlag = true;
 }
 
 CommandManager::~CommandManager() 
@@ -46,6 +37,16 @@ CommandManager::~CommandManager()
     s_cmdManager = 0;
 }
 
+void CommandManager::setCommandManagerSingleton(
+  CommandManager* manager)
+{
+  if(manager != 0)
+  {
+    s_instanceFlag = true;
+    s_cmdManager = manager;
+  }
+}
+ 
 CommandManager* CommandManager::getCommandManager()
 {
   if(!s_instanceFlag)
