@@ -7,7 +7,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QFileDialog>
-#include <QProgressBar>
+#include <QProgressDialog>
 #include <QMessageBox>
 #include "QtToKLEvent.h"
 #include "TimeLineWidget.h"
@@ -411,15 +411,16 @@ void GLViewportWidget::startViewportCapture()
 
   FABRIC_CATCH_BEGIN();
 
-  // get the timeline widget.
+  // get the timeline widgets.
 
   QWidget *parent = parentWidget();
   if (parent == NULL)
     return;
-  QWidget *child = parent->findChild<QWidget *>("DFGTimelineWidget");
-  if (child == NULL)
+
+  QWidget *dfgTimelineWidget = parent->findChild<QWidget *>("DFGTimelineWidget");
+  if (dfgTimelineWidget == NULL)
     return;
-  TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)child;
+  TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)dfgTimelineWidget;
 
   // get the capture parameters.
 
@@ -443,17 +444,18 @@ void GLViewportWidget::startViewportCapture()
   int timelineFrameEnd        = timeline->getRangeEnd();
   int timelineMemCurrentFrame = timeline->getTime();
 
-  // create and init the progress bar widget.
-  QProgressBar progressBar(this);
-  progressBar.setMinimum(timelineFrameStart);
-  progressBar.setMaximum(timelineFrameEnd);
-  progressBar.setVisible(true);
+  // create and init the progress dialog.
+  QProgressDialog progressDialog("Capturing Viewport ...", "Abort Capture", timelineFrameStart, timelineFrameEnd, parent);
+  progressDialog.setWindowModality(Qt::ApplicationModal);
+  progressDialog.setMinimumWidth(qMax(250, this->width()));
+  progressDialog.setAutoClose(true);
 
   // activate capture.
   m_captureActive = true;
   m_captureFileSaved = true;
 
   // capture.
+  progressDialog.show();
   for (int frame=timelineFrameStart;frame<=timelineFrameEnd;frame++)
   {
     // create the output filepath for the image.
@@ -462,21 +464,26 @@ void GLViewportWidget::startViewportCapture()
     m_captureFilepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
 
     // update progress bar.
-    progressBar.setValue(frame);
-    
+    progressDialog.setValue(frame);
+
     // go to frame.
     timeline->updateTime(frame);
 
     // failed to save image?
     if (!m_captureFileSaved)
       break;
+
+    // user abort?
+    if (progressDialog.wasCanceled())
+      break;
   }
+
+  // finalize progress dialog.
+  if (!progressDialog.wasCanceled())
+    progressDialog.setValue(timelineFrameEnd);
 
   // deactivate capture.
   m_captureActive = false;
-
-  // hide progress bar.
-  progressBar.setVisible(false);
 
   // failed to save image?
   if (!m_captureFileSaved)
