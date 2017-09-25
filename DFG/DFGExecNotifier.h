@@ -12,7 +12,9 @@
 #include <FTL/ArrayRef.h>
 #include <FTL/StrRef.h>
 #include <QSharedPointer>
-#if defined(FTL_PLATFORM_WINDOWS) or defined(FABRICUI_OSX_CPP11)
+#if defined(FTL_PLATFORM_WINDOWS)
+# include <unordered_map>
+#elif defined(FABRICUI_OSX_CPP11)
 # include <unordered_map>
 #else
 # include <tr1/unordered_map>
@@ -517,7 +519,9 @@ private:
 
   FabricCore::DFGView m_view;
 
-#if defined(FTL_PLATFORM_WINDOWS) or defined(FABRICUI_OSX_CPP11)
+#if defined(FTL_PLATFORM_WINDOWS)
+  typedef std::unordered_map<
+#elif defined(FABRICUI_OSX_CPP11)
   typedef std::unordered_map<
 #else
   typedef std::tr1::unordered_map<
