@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QFileDialog>
+#include <QProgressBar>
 #include <QMessageBox>
 #include "QtToKLEvent.h"
 #include "TimeLineWidget.h"
@@ -27,7 +28,10 @@ GLViewportWidget::GLViewportWidget(
   QWidget *parent)
   : ViewportWidget(format, parent)
   , m_bgColor(bgColor)
-{	
+  , m_captureActive(false)
+  , m_captureFilepath("")
+  , m_captureFileSaved(false)
+{
   setAutoBufferSwap(false);
 
   m_gridVisible = true; // default value
@@ -216,6 +220,39 @@ void GLViewportWidget::paintGL()
   FABRIC_CATCH_END("GLViewportWidget::resizeGL");
 
   swapBuffers();
+
+  if (m_captureActive)
+  {
+    // grab the viewport.
+    QImage image = grabFrameBuffer(false /* withAlpha */);
+    if (!image.isNull())
+    {
+      // save image.
+      m_captureFileSaved = image.save(m_captureFilepath);
+      if (!m_captureFileSaved)
+      {
+        // saving the image failed. Instead of aborting here
+        // we wait for a second and try again as sometimes people
+        // are using a flipbbok to watch the images while they are
+        // being written.
+        const uint32_t ms = 1000;
+        #ifdef Q_OS_WIN
+          Sleep(ms);
+        #else
+          struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
+          nanosleep(&ts, NULL);
+        #endif
+
+        // try again.
+        m_captureFileSaved = image.save(m_captureFilepath);
+        if (!m_captureFileSaved)
+        {
+          m_captureActive = false;
+        }
+      }
+    }
+  }
+
   emit redrawn();
 }
 
@@ -406,47 +443,47 @@ void GLViewportWidget::startViewportCapture()
   int timelineFrameEnd        = timeline->getRangeEnd();
   int timelineMemCurrentFrame = timeline->getTime();
 
+  // create and init the progress bar widget.
+  QProgressBar progressBar(this);
+  progressBar.setMinimum(timelineFrameStart);
+  progressBar.setMaximum(timelineFrameEnd);
+  progressBar.setVisible(true);
+
+  // activate capture.
+  m_captureActive = true;
+  m_captureFileSaved = true;
+
   // capture.
   for (int frame=timelineFrameStart;frame<=timelineFrameEnd;frame++)
   {
+    // create the output filepath for the image.
+    char paddedFrame[64];
+    sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
+    m_captureFilepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
+
+    // update progress bar.
+    progressBar.setValue(frame);
+    
     // go to frame.
     timeline->updateTime(frame);
 
-    // grab the viewport.
-    QImage image = grabFrameBuffer(false /* withAlpha */);
-    if (image.isNull())
-    {
-      printf("error: grabFrameBuffer() failed\n");
+    // failed to save image?
+    if (!m_captureFileSaved)
       break;
-    }
+  }
 
-    // create full output filepath.
-    char paddedFrame[64];
-    sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
-    QString filepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
+  // deactivate capture.
+  m_captureActive = false;
 
-    // save image.
-    if (!image.save(filepath))
-    {
-      // saving the image failed. Instead of aborting here
-      // we wait for a second and try again as sometimes people
-      // are using a flipbbok to watch the images while they are
-      // being written.
-      const uint32_t ms = 1000;
-#ifdef Q_OS_WIN
-      Sleep(ms);
-#else
-      struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
-      nanosleep(&ts, NULL);
-#endif
+  // hide progress bar.
+  progressBar.setVisible(false);
 
-      // try again.
-      if (!image.save(filepath))
-      {
-        printf("error: failed to save image as \"%s\"\n", filepath.toUtf8().data());
-        return;
-      }
-    }
+  // failed to save image?
+  if (!m_captureFileSaved)
+  {
+    QString msg = "Failed to save image as\n\"" + m_captureFilepath + "\"";
+    QMessageBox::warning(this, "Canvas Viewport Capture", msg);
+    return;
   }
 
   // restore timeline position.

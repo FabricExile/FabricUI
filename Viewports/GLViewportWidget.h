@@ -95,6 +95,10 @@ protected:
     bool m_resizedOnce;
     bool m_gridVisible;
  
+    bool m_captureActive;
+    QString m_captureFilepath;
+    bool m_captureFileSaved;
+
     FabricCore::RTVal m_camera;
     FabricCore::RTVal m_drawing;
     FabricCore::RTVal m_viewport;
