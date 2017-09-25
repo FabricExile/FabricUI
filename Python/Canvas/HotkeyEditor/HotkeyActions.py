@@ -133,3 +133,21 @@ class RedoAction(BaseHotkeyEditorAction):
             self.setEnabled(not editing)
         else:
             self.setEnabled(False)
+
+class ResetAction(BaseHotkeyEditorAction):
+    """ Reset to default configuration (actions' shortcuts).
+    """
+
+    def __init__(self, hotkeyEditor):
+        super(ResetAction, self).__init__(
+            hotkeyEditor, 
+            "HotkeyEditor.ResetAction", 
+            "Reset", 
+            QtGui.QKeySequence())
+
+        self.setToolTip('Resets to default configuration.')
+        
+    def onTriggered(self):
+        self.hotkeyEditor.hotkeyTable.qUndoStack.clear()
+        self.hotkeyEditor.hotkeyTable.model.resetItemKeySequence()
+        self.hotkeyEditor.hotkeyTable.onEmitEditingItem(False)

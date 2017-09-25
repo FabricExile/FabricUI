@@ -79,6 +79,7 @@ class HotkeyEditorDialog(QtGui.QDialog):
         toolBar = QtGui.QToolBar()
         toolBar.addAction(OpenFileAction(self))
         toolBar.addAction(SaveFileAction(self))
+        toolBar.addAction(ResetAction(self))    
         toolBar.addSeparator()
         toolBar.addAction(UndoAction(self))
         toolBar.addAction(RedoAction(self))

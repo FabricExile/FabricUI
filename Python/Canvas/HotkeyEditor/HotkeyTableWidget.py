@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 #
-
+    
 import re
 from PySide import QtCore, QtGui
 from FabricEngine.Canvas.Commands.CommandRegistry import *
