@@ -121,11 +121,11 @@ class HotkeyTableWidget(QtGui.QTableWidget):
     def mousePressEvent(self, event):
         """ Implementation of QtGui.QTableWidget.
         """
-        super(HotkeyTableWidget, self).mousePressEvent(event)
         # Reset the selection.
+        self.setCurrentItem(None, QtGui.QItemSelectionModel.Clear)
+        super(HotkeyTableWidget, self).mousePressEvent(event)
         if not self.__getCurrentShortcutItem():
-            self.setCurrentItem(None)
-        self.onEmitEditingItem(False)
+            self.onEmitEditingItem(False)
       
     def keyboardSearch(self, search):
         """ Implementation of QtGui.QAbstractItemView.
@@ -235,9 +235,11 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         curKeySeq = QtGui.QKeySequence(item.text())
 
         if item and keySeq != curKeySeq:
-            self.qUndoStack.push(SetKeySequenceCommand(self.model, actName, curKeySeq, keySeq))
-            self.onEmitEditingItem(True)
-
+            cmd = SetKeySequenceCommand(self.model, actName, curKeySeq, keySeq)
+            if cmd.succefullyDone is True:
+                self.qUndoStack.push(cmd)
+                self.onEmitEditingItem(True)
+ 
     def filterItems(self, query, edit = 0, show = 0):
         """ \internal.
             Filters the items according the actions' names or shorcuts.
