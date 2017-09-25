@@ -79,13 +79,15 @@ void ViewportWidget::clear()
 void ViewportWidget::enterEvent(
   QEvent * event) 
 {
-  setFocus();
+  // FE-8859
+  // Grab the key event even if we don't have focus.
+  grabKeyboard();
 }
 
 void ViewportWidget::leaveEvent(
   QEvent * event) 
 {
-  clearFocus();
+  releaseKeyboard();
 }
 
 bool ViewportWidget::onEvent(

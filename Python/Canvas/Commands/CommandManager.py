@@ -59,9 +59,7 @@ class KLCommandManager(CppCommands.KLCommandManager):
         # There is no "new" in python, we need to own the commands created
         # in Python. They are referenced in the C++ KLCommandManager stacks. 
         self.__flatCommandsStack = []
-        # Connect our-self.
-        GetCommandRegistry().registrationDone.connect(self._onCommandRegistered)
-    
+        
     def createCommand(self, cmdName, args={}, doCmd=True, canMergeID=-1):
         """ Creates and executes a command (if doCmd == true).
             If executed, the command is added to the manager stack.
@@ -132,6 +130,11 @@ def GetCommandManager():
     if s_klCmdManagerSingleton is None:
         # Be sure the command registry is created.
         s_klCmdManagerSingleton = KLCommandManager()
+        # Sets the C++ singleton
+        CppCommands.CommandManager.setCommandManagerSingleton(s_klCmdManagerSingleton)
+        # Connect our-self.
+        GetCommandRegistry().registrationDone.connect(s_klCmdManagerSingleton._onCommandRegistered)
+    
         for cmdName in GetCommandRegistry().getCommandNames():
             cmdType, implType = GetCommandRegistry().getCommandSpecs(cmdName)
             s_klCmdManagerSingleton._onCommandRegistered(cmdName, cmdType, implType)
