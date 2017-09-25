@@ -101,7 +101,8 @@ class OpenFileCommand(BaseHotkeyCommand):
 class SaveFileCommand(BaseHotkeyCommand):
     def __init__(self):
         super(SaveFileCommand, self).__init__()
- 
+    
+    def saveFile(self):
         ext = ".json"
         fname = str(GetAppStates().getSettings().value("hotkeyEditor/lastFolder"))
         fname, _ = QtGui.QFileDialog.getSaveFileName(None, "Save Hotkey file", fname, str("*" + ext))
@@ -125,4 +126,5 @@ class SaveFileCommand(BaseHotkeyCommand):
          
         with open(fname, 'w') as outfile:  
             json.dump(jsonData, outfile, ensure_ascii=False, indent=4)
- 
+
+        return True
