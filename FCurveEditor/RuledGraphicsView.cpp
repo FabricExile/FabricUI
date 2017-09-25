@@ -51,6 +51,25 @@ public:
     hBar->setValue( hBar->value() + ( isRightToLeft() ? delta.x() : -delta.x() ) );
     vBar->setValue( vBar->value() - delta.y() );
   }
+  void scaleUnderLimit( const qreal xRel, const qreal yRel )
+  {
+    const qreal curX = this->matrix().m11();
+    const qreal curY = this->matrix().m22();
+    qreal newX = curX * xRel;
+    qreal newY = curY * yRel;
+
+    // These 2 values were found empirically (but they are probably
+    // related to the int precision, and the size of the widget)
+    const qreal maxScale = 1E+7;
+    const qreal minScale = 1E-5;
+
+    if(
+      std::abs(newX) < maxScale &&
+      std::abs(newY) < maxScale &&
+      std::abs(newX) > minScale &&
+      std::abs(newY) > minScale
+    ) { this->scale( xRel, yRel ); }
+  }
   void drawBackgroundNoCache( QPainter* );
 protected:
   // HACK ? (move the parent's handler here instead ?)
@@ -237,7 +256,7 @@ void RuledGraphicsView::centeredScale( qreal x, qreal y )
     QPoint viewCenter = m_view->rect().center();
     QPoint scalingCenterPxOffset = m_view->mapFromScene( m_scalingCenter ) - viewCenter;
     m_view->centerOn( m_scalingCenter );
-    m_view->scale( x, y );
+    m_view->scaleUnderLimit( x, y );
     QPoint newScalingCenterPxOffset = m_view->mapFromScene( m_scalingCenter ) - viewCenter;
     m_view->centerOn( m_view->mapToScene( viewCenter + ( newScalingCenterPxOffset - scalingCenterPxOffset ) ) );
 
@@ -248,7 +267,7 @@ void RuledGraphicsView::centeredScale( qreal x, qreal y )
     assert( before == m_view->mapFromScene( m_scalingCenter ) );
   }
   else
-    m_view->scale( x, y );
+    m_view->scaleUnderLimit( x, y );
 
   updateRulersRange();
 }
