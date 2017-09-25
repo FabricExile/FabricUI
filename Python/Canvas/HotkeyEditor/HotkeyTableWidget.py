@@ -110,25 +110,24 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         if items:
             return self.item(items[0].row(), 0)
  
-    def mousePressEvent(self, event):
+    def mouseDoubleClickEvent(self, event):
         """ Implementation of QtGui.QTableWidget.
             Directly edit the item to simulate a double-click.
         """
-        self.setCurrentItem(None)
-        super(HotkeyTableWidget, self).mousePressEvent(event)
+        super(HotkeyTableWidget, self).mouseDoubleClickEvent(event)
         item = self.__getCurrentShortcutItem()
         if item:
             self.onEmitEditingItem(True)
-            self.editItem(item)
-        else:
-            self.onEmitEditingItem(False)
-
-    def mouseDoubleClickEvent(self, event):
+       
+    def mousePressEvent(self, event):
         """ Implementation of QtGui.QTableWidget.
             Do nothing.
         """
-        pass
-
+        super(HotkeyTableWidget, self).mousePressEvent(event)
+        if not self.__getCurrentShortcutItem():
+            self.setCurrentItem(None)
+        self.onEmitEditingItem(False)
+      
     def keyboardSearch(self, search):
         """ Implementation of QtGui.QAbstractItemView.
             Do nothing.
