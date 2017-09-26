@@ -334,7 +334,6 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
 
         cursor.setPosition(selStart);
         cursor.movePosition(QTextCursor::StartOfLine);
-        int start = cursor.position();
 
         cursor.beginEditBlock();
         while(cursor.position() < end)
@@ -416,7 +415,6 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
 
         cursor.setPosition(selStart);
         cursor.movePosition(QTextCursor::StartOfLine);
-        int start = cursor.position();
 
         cursor.setPosition(end + 1, QTextCursor::KeepAnchor);
         cursor.insertText("");
@@ -509,7 +507,6 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
 
       cursor.setPosition(selStart);
       cursor.movePosition(QTextCursor::StartOfLine);
-      int start = cursor.position();
 
       cursor.beginEditBlock();
       while(cursor.position() < end)
