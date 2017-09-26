@@ -440,6 +440,7 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
     }
 
     if(m_lastSearch != NULL)
+    {
       if(event->modifiers().testFlag(Qt::ShiftModifier))
       {
         bool found = find(m_lastSearch, QTextDocument::FindBackward);
@@ -460,7 +461,7 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
           find(m_lastSearch);
         }
       }
-
+    }
     return;
   }
   if(event->key() == Qt::Key_L)
