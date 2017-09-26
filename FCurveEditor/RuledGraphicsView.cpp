@@ -17,7 +17,7 @@
 
 // If enabled, will not recompute the background when the scene changes (the
 // background will only be updated when the view transform changes)
-#define RULED_GRAPHICS_VIEW_CACHE_BACKGROUND 1;
+#define RULED_GRAPHICS_VIEW_CACHE_BACKGROUND 1
 
 using namespace FabricUI::FCurveEditor;
 
