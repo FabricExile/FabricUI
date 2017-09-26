@@ -40,7 +40,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
             - canvasWindow: A reference the canvasWindow.
         """
         super(HotkeyTableWidget, self).__init__(parent)
-        self.canEditItem = False # To edit item on double clik only
+        self.canEditItem = False # To edit item on double click only
 
         self.qUndoStack = QtGui.QUndoStack()
 
@@ -139,7 +139,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
 
     def keyPressEvent(self, event):
         """ Implementation of QtGui.QAbstractItemView.
-            Edit item on double clik only.
+            Edit item on double click only.
         """
         super(HotkeyTableWidget, self).mouseDoubleClickEvent(event)
         item = self.__getCurrentShortcutItem()
