@@ -26,12 +26,15 @@ Import(
   'uiLibPrefix',
   )
 
-if buildOS == 'Windows' and buildType == 'Debug':
-  Import('servicesFlags_mtd')
-  servicesFlags = servicesFlags_mtd
+if buildOS == 'Windows':
+  msvc_suffix = parentEnv['MSVC_VERSION'][0:2]
+  msvc_suffix += '_mt'
+  if buildType == 'Debug':
+    msvc_suffix += 'd'
+  Import('servicesFlags_' + msvc_suffix)
+  servicesFlags = locals()['servicesFlags_' + msvc_suffix]
 else:
-  Import('servicesFlags_mt')
-  servicesFlags = servicesFlags_mt
+  Import('servicesFlags')
 
 qtIncludeDir = os.path.join(qtDir, 'include')
 qtLibDir = os.path.join(qtDir, 'lib')
