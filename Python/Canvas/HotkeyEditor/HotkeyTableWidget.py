@@ -40,6 +40,8 @@ class HotkeyTableWidget(QtGui.QTableWidget):
             - canvasWindow: A reference the canvasWindow.
         """
         super(HotkeyTableWidget, self).__init__(parent)
+        self.canEditItem = False
+
         self.qUndoStack = QtGui.QUndoStack()
 
         # Used to attached the Command actions
@@ -117,7 +119,8 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         item = self.__getCurrentShortcutItem()
         if item:
             self.onEmitEditingItem(True)
-       
+        self.canEditItem = True
+
     def mousePressEvent(self, event):
         """ Implementation of QtGui.QTableWidget.
         """
@@ -126,12 +129,25 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         super(HotkeyTableWidget, self).mousePressEvent(event)
         if not self.__getCurrentShortcutItem():
             self.onEmitEditingItem(False)
-      
+        self.canEditItem = False
+
     def keyboardSearch(self, search):
         """ Implementation of QtGui.QAbstractItemView.
             Do nothing.
         """
         pass
+
+    def keyPressEvent(self, event):
+        """ Implementation of QtGui.QAbstractItemView.
+            Do nothing.
+        """
+        super(HotkeyTableWidget, self).mouseDoubleClickEvent(event)
+        item = self.__getCurrentShortcutItem()
+
+        if item and self.canEditItem is False:
+            return
+
+        super(HotkeyTableWidget, self).keyPressEvent(event)
 
     def __createNewRow(self, actName, action):
         """ \internal.
