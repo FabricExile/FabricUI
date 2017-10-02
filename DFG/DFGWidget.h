@@ -2297,7 +2297,7 @@ namespace DFG {
           dfgWidget
           , parent
           , "DFGWidget::EditInstBlockAction" 
-          , QString("Edit Block '" + m_instBlock->name_QS() + "'") 
+          , QString("Edit Block '" + instBlock->name_QS() + "'") 
           , QKeySequence() 
           , Qt::WidgetWithChildrenShortcut
           , enable)
