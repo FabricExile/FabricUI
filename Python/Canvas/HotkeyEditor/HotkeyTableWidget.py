@@ -141,7 +141,6 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         """ Implementation of QtGui.QAbstractItemView.
             Edit item on double click only.
         """
-        super(HotkeyTableWidget, self).mouseDoubleClickEvent(event)
         item = self.__getCurrentShortcutItem()
 
         if item and self.canEditItem is False:
