@@ -57,7 +57,10 @@ class HotkeyTableWidget(QtGui.QTableWidget):
 
         # Notify when an command is registered.
         GetCommandRegistry().registrationDone.connect(self.__onCommandRegistered)
-        
+
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.__onCustomContextMenuRequested)
+
         # Construct the item-delegate
         itemDelegate = HotkeyStyledItemDelegate(self)
         itemDelegate.keyPressed.connect(self.__onSetItemKeySequence)
@@ -257,7 +260,10 @@ class HotkeyTableWidget(QtGui.QTableWidget):
             if cmd.succefullyDone is True:
                 self.qUndoStack.push(cmd)
                 self.onEmitEditingItem(True)
- 
+    
+    def __onCustomContextMenuRequested(self, pos):
+        print "Hwllo"
+
     def filterItems(self, query, edit = 0, show = 0):
         """ \internal.
             Filters the items according the actions' names or shorcuts.
