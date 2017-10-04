@@ -165,7 +165,7 @@ class ResetSingleAction(CppActions.BaseAction):
 
         self.init(
             "HotkeyEditor.ResetSingleAction", 
-            "Reset a single shorcut", 
+            "Reset To Default", 
             QtGui.QKeySequence(), 
             QtCore.Qt.WidgetWithChildrenShortcut,
             True, False)  
