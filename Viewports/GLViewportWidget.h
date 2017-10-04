@@ -75,6 +75,13 @@ protected:
     virtual void paintGL();
 
   private:
+    enum CaptureModes
+    {
+      CAPTURE_OFF,
+      CAPTURE_ON,
+      CAPTURE_ERROR,
+    };
+
     /// Sets the background color.
     void setBackgroundColor(
       QColor color
@@ -95,9 +102,8 @@ protected:
     bool m_resizedOnce;
     bool m_gridVisible;
  
-    bool m_captureActive;
-    QString m_captureFilepath;
-    bool m_captureFileSaved;
+    CaptureModes m_captureMode;
+    QString m_captureErrorDescription;
 
     FabricCore::RTVal m_camera;
     FabricCore::RTVal m_drawing;

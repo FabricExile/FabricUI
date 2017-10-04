@@ -28,9 +28,8 @@ GLViewportWidget::GLViewportWidget(
   QWidget *parent)
   : ViewportWidget(format, parent)
   , m_bgColor(bgColor)
-  , m_captureActive(false)
-  , m_captureFilepath("")
-  , m_captureFileSaved(false)
+  , m_captureMode(CAPTURE_OFF)
+  , m_captureErrorDescription("")
 {
   setAutoBufferSwap(false);
 
@@ -221,36 +220,82 @@ void GLViewportWidget::paintGL()
 
   swapBuffers();
 
-  if (m_captureActive)
+  // capture viewport.
+  while (m_captureMode == CAPTURE_ON)
   {
+    // get the timeline widget.
+    QWidget *parent = parentWidget();
+    if (parent == NULL)
+    {
+      m_captureMode = CAPTURE_ERROR;
+      m_captureErrorDescription = "the viewport has no parent widget";
+      break;
+    }
+    QWidget *dfgTimelineWidget = parent->findChild<QWidget *>("DFGTimelineWidget");
+    if (dfgTimelineWidget == NULL)
+    {
+      m_captureMode = CAPTURE_ERROR;
+      m_captureErrorDescription = "unable to find timeline widget";
+      break;
+    }
+    TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)dfgTimelineWidget;
+
+    // get the capture parameters.
+    Context context = FabricApplicationStates::GetAppStates()->getContext();
+    RTVal    rtvalCapturePath         = m_viewport.maybeGetMember("capturePath");
+    RTVal    rtvalCaptureFilename     = m_viewport.maybeGetMember("captureFilename");
+    RTVal    rtvalCaptureExtension    = m_viewport.maybeGetMember("captureExtension");
+    RTVal    rtvalCaptureFramePadding = m_viewport.maybeGetMember("captureFramePadding");
+    QString  capturePath              = rtvalCapturePath        .getStringCString();
+    QString  captureFilename          = rtvalCaptureFilename    .getStringCString();
+    QString  captureExtension         = rtvalCaptureExtension   .getStringCString();
+    uint32_t captureFramePadding      = rtvalCaptureFramePadding.getUInt32();
+    if (!captureExtension.startsWith("."))
+      captureExtension.push_front(".");
+
+    // get the timeline's current frame.
+    int currentFrame = timeline->getTime();
+
+    // create the output filepath for the image.
+    char paddedFrame[64];
+    sprintf(paddedFrame, "%0*d", captureFramePadding, currentFrame);
+    QString filepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
+    printf("saving viewport as \"%s\"\n", filepath.toUtf8().data());
+
     // grab the viewport.
     QImage image = grabFrameBuffer(false /* withAlpha */);
-    if (!image.isNull())
+    if (image.isNull() || image.width() == 0 || image.height() == 0)
     {
-      // save image.
-      m_captureFileSaved = image.save(m_captureFilepath);
-      if (!m_captureFileSaved)
+      m_captureMode = CAPTURE_ERROR;
+      m_captureErrorDescription = "grabFrameBuffer() failed";
+      break;
+    }
+   
+    // save image.
+    if (!image.save(filepath))
+    {
+      // [Mootz]
+      // saving the image failed, but instead of aborting here
+      // we wait for half a second and try again as sometimes
+      // people are using a flipbbok to watch the images while
+      // they are being written (e.g. I like doing that).
+      const uint32_t ms = 500;
+      #ifdef Q_OS_WIN
+        Sleep(ms);
+      #else
+        struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
+        nanosleep(&ts, NULL);
+      #endif
+      if (!image.save(filepath))
       {
-        // saving the image failed. Instead of aborting here
-        // we wait for a second and try again as sometimes people
-        // are using a flipbbok to watch the images while they are
-        // being written.
-        const uint32_t ms = 1000;
-        #ifdef Q_OS_WIN
-          Sleep(ms);
-        #else
-          struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
-          nanosleep(&ts, NULL);
-        #endif
-
-        // try again.
-        m_captureFileSaved = image.save(m_captureFilepath);
-        if (!m_captureFileSaved)
-        {
-          m_captureActive = false;
-        }
+        m_captureMode = CAPTURE_ERROR;
+        m_captureErrorDescription = "error writing \"" + filepath + "\"";
+        break;
       }
     }
+
+    // done.
+    break;
   }
 
   emit redrawn();
@@ -412,89 +457,91 @@ void GLViewportWidget::startViewportCapture()
   FABRIC_CATCH_BEGIN();
 
   // get the timeline widgets.
-
   QWidget *parent = parentWidget();
   if (parent == NULL)
     return;
-
   QWidget *dfgTimelineWidget = parent->findChild<QWidget *>("DFGTimelineWidget");
   if (dfgTimelineWidget == NULL)
     return;
   TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)dfgTimelineWidget;
 
+  // stop playback.
+  if (timeline->isPlaying())
+    timeline->pause();
+
   // get the capture parameters.
-
   Context context = FabricApplicationStates::GetAppStates()->getContext();
-
-  RTVal rtvalCapturePath         = m_viewport.maybeGetMember("capturePath");
-  RTVal rtvalCaptureFilename     = m_viewport.maybeGetMember("captureFilename");
-  RTVal rtvalCaptureExtension    = m_viewport.maybeGetMember("captureExtension");
-  RTVal rtvalCaptureFramePadding = m_viewport.maybeGetMember("captureFramePadding");
-
-  QString  capturePath         = rtvalCapturePath        .getStringCString();
-  QString  captureFilename     = rtvalCaptureFilename    .getStringCString();
-  QString  captureExtension    = rtvalCaptureExtension   .getStringCString();
-  uint32_t captureFramePadding = rtvalCaptureFramePadding.getUInt32();
-
+  RTVal    rtvalCapturePath         = m_viewport.maybeGetMember("capturePath");
+  RTVal    rtvalCaptureFilename     = m_viewport.maybeGetMember("captureFilename");
+  RTVal    rtvalCaptureExtension    = m_viewport.maybeGetMember("captureExtension");
+  RTVal    rtvalCaptureFramePadding = m_viewport.maybeGetMember("captureFramePadding");
+  QString  capturePath              = rtvalCapturePath        .getStringCString();
+  QString  captureFilename          = rtvalCaptureFilename    .getStringCString();
+  QString  captureExtension         = rtvalCaptureExtension   .getStringCString();
+  uint32_t captureFramePadding      = rtvalCaptureFramePadding.getUInt32();
   if (!captureExtension.startsWith("."))
     captureExtension.push_front(".");
 
-  // get the frame range and memorize the timeline's current frame.
-  int timelineFrameStart      = timeline->getRangeStart();
-  int timelineFrameEnd        = timeline->getRangeEnd();
-  int timelineMemCurrentFrame = timeline->getTime();
+  // get the timeline's current state.
+  int   timelineFrameStart   = timeline->getRangeStart();
+  int   timelineFrameEnd     = timeline->getRangeEnd();
+  int   timelineCurrentFrame = timeline->getTime();
+  float timelineFramerate    = timeline->framerate();
+  int   timelineLoopMode     = timeline->loopMode();
+
+  // wip.
+  int frameStart = timelineFrameStart;
+  int frameEnd   = timelineFrameEnd;
 
   // create and init the progress dialog.
-  QProgressDialog progressDialog("Capturing Viewport ...", "Abort Capture", timelineFrameStart, timelineFrameEnd, parent);
+  QProgressDialog progressDialog("Capturing Viewport ...", "Abort Capture", frameStart, frameEnd, parent);
   progressDialog.setWindowModality(Qt::ApplicationModal);
   progressDialog.setMinimumWidth(qMax(250, this->width()));
-  progressDialog.setAutoClose(true);
-
-  // activate capture.
-  m_captureActive = true;
-  m_captureFileSaved = true;
+  progressDialog.setAutoClose(false);
 
   // capture.
+  timeline->setTimeRange(frameStart, frameEnd);
+  timeline->setLoopMode(LOOP_MODE_PLAY_ONCE);
+  timeline->setFrameRate(1000);
+  timeline->goToEndFrame();
+  m_captureMode = CAPTURE_ON;
+  m_captureErrorDescription = "";
   progressDialog.show();
   for (int frame=timelineFrameStart;frame<=timelineFrameEnd;frame++)
   {
-    // create the output filepath for the image.
-    char paddedFrame[64];
-    sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
-    m_captureFilepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
-
     // update progress bar.
     progressDialog.setValue(frame);
 
     // go to frame.
     timeline->updateTime(frame);
 
-    // failed to save image?
-    if (!m_captureFileSaved)
-      break;
+    // ensure all events get processed.
+    QApplication::processEvents();
 
     // user abort?
     if (progressDialog.wasCanceled())
       break;
   }
 
-  // finalize progress dialog.
-  if (!progressDialog.wasCanceled())
-    progressDialog.setValue(timelineFrameEnd);
-
   // deactivate capture.
-  m_captureActive = false;
+  m_captureMode = CAPTURE_OFF;
+  m_captureErrorDescription = "";
 
-  // failed to save image?
-  if (!m_captureFileSaved)
+  // close the progress dialog.
+  progressDialog.close();
+
+  // restore timeline.
+  timeline->setTimeRange(timelineFrameStart, timelineFrameEnd);
+  timeline->setLoopMode(timelineLoopMode);
+  timeline->setFrameRate(timelineFramerate);
+  timeline->updateTime(timelineCurrentFrame);
+
+  // any errors?
+  if (m_captureMode == CAPTURE_ERROR)
   {
-    QString msg = "Failed to save image as\n\"" + m_captureFilepath + "\"";
+    QString msg = "The following error occurred while capturing:\n\n" + (m_captureErrorDescription.isEmpty() ? "unknown error" : m_captureErrorDescription);
     QMessageBox::warning(this, "Canvas Viewport Capture", msg);
-    return;
   }
-
-  // restore timeline position.
-  timeline->updateTime(timelineMemCurrentFrame);
 
   FABRIC_CATCH_END("GLViewportWidget::startViewportCapture");
 }
