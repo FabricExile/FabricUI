@@ -12,16 +12,18 @@ class ActionRegistry::ActionsSet {
   
   public:
     QSet<QAction*> actions;
+    // The default shortcuts are the shotcuts set
+    // when the QActions are created the first time.
     QKeySequence defaultShortcut;
     QList<QKeySequence> defaultShortcuts;
 
     ActionsSet() {}
 
-    ActionsSet(QAction* action)
+    ActionsSet(QAction* defaultAction)
     {
-      actions.insert(action);
-      defaultShortcut = action->shortcut();
-      defaultShortcuts = action->shortcuts();
+      actions.insert(defaultAction);
+      defaultShortcut = defaultAction->shortcut();
+      defaultShortcuts = defaultAction->shortcuts();
     }
 
     void resetDefaultShortcuts() 
