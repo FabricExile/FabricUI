@@ -252,7 +252,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
             item when the user press a key.
         """
         item = self.__getCurrentShortcutItem()
-        actName = self.item(item.row(), 0).text()
+        actName = item.actName
         curKeySeq = QtGui.QKeySequence(item.text())
 
         if item and keySeq != curKeySeq:
@@ -265,7 +265,8 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         menu = QtGui.QMenu(self)
         item = self.itemAt(point)
         if item and issubclass(type(item), ShorcutTableWidgetItem):
-            menu.addAction(ResetSingleAction(self, item.actName))
+            curKeySeq = QtGui.QKeySequence(item.text())
+            menu.addAction(ResetSingleAction(self, item.actName, curKeySeq))
             menu.exec_(self.mapToGlobal(point))
 
     def filterItems(self, query, edit = 0, show = 0):

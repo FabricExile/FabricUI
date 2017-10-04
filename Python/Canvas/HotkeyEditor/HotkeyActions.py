@@ -156,19 +156,26 @@ class ResetAction(BaseHotkeyEditorAction):
 
 class ResetSingleAction(CppActions.BaseAction):
  
-    def __init__(self, hotkeyTable, actName):
+    def __init__(self, hotkeyTable, actName, curKeySeq):
 
         super(ResetSingleAction, self).__init__(hotkeyTable)
         self.hotkeyTable = hotkeyTable
         self.actName = actName
+        self.curKeySeq = curKeySeq
 
         self.init(
             "HotkeyEditor.ResetSingleAction", 
-            "ResetSingle", 
+            "Reset a single shorcut", 
             QtGui.QKeySequence(), 
             QtCore.Qt.WidgetWithChildrenShortcut,
             True, False)  
  
     def onTriggered(self):
-        self.hotkeyTable.model.resetSingleItemKeySequence(self.actName)
-        self.hotkeyTable.onEmitEditingItem(False)
+
+        actRegistry = CppActions.ActionRegistry.GetActionRegistry()
+        keySeq = actRegistry.getDefaultShortcut(self.actName)
+
+        cmd = SetKeySequenceCommand(self.hotkeyTable.model, self.actName, self.curKeySeq, keySeq)
+        if cmd.succefullyDone is True:
+            self.hotkeyTable.qUndoStack.push(cmd)
+            self.hotkeyTable.onEmitEditingItem(False)
