@@ -36,9 +36,14 @@ inline RTVal pathToPathValue(
     1, 
     &toolPathVal);
 
-  if(resolve)
+     
+  // FE-8918. Check that the type of the port RTVal is valid.
+  // The port RTVal can be invalid if its type is undefined 
+  // or the extension it belongs to is not loaded.
+  QString type = PathValueResolverRegistry::getRegistry()->getType(pathValue);
+  if(resolve && !type.isEmpty())
     PathValueResolverRegistry::getRegistry()->getValue(pathValue);
-   
+  
   FABRIC_CATCH_END("ToolManager::pathToPathValue");
 
   return pathValue;
