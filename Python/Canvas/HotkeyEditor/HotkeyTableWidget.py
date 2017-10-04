@@ -106,7 +106,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
 
     def __getActionItem(self, actName):
         """ \internal.
-            Gets the shortcut item from the command name.
+            Gets the action item from the command name.
         """
         items = self.findItems(actName, QtCore.Qt.MatchExactly)
         if items:
