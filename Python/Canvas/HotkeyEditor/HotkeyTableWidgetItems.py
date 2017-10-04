@@ -18,6 +18,7 @@ class BaseTableWidgetItem(QtGui.QTableWidgetItem):
         super(BaseTableWidgetItem, self).__init__(text)
         self.widgetItemColor = TableWidgetItemColor
         self.actName = actName
+        self.isEditable = isEditable
         if not isEditable:
             font = self.font()
             self.setFont(font)

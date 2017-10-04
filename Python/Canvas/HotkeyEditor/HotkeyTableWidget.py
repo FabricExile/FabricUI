@@ -264,7 +264,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
     def __onCustomContextMenuRequested(self, point):
         menu = QtGui.QMenu(self)
         item = self.itemAt(point)
-        if item and issubclass(type(item), ShorcutTableWidgetItem):
+        if item and issubclass(type(item), ShorcutTableWidgetItem) and item.isEditable:
             curKeySeq = QtGui.QKeySequence(item.text())
             menu.addAction(ResetSingleAction(self, item.actName, curKeySeq))
             menu.exec_(self.mapToGlobal(point))
