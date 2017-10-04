@@ -175,7 +175,8 @@ class ResetSingleAction(CppActions.BaseAction):
         actRegistry = CppActions.ActionRegistry.GetActionRegistry()
         keySeq = actRegistry.getDefaultShortcut(self.actName)
 
-        cmd = SetKeySequenceCommand(self.hotkeyTable.model, self.actName, self.curKeySeq, keySeq)
-        if cmd.succefullyDone is True:
-            self.hotkeyTable.qUndoStack.push(cmd)
-            self.hotkeyTable.onEmitEditingItem(False)
+        if keySeq != self.curKeySeq:
+            cmd = SetKeySequenceCommand(self.hotkeyTable.model, self.actName, self.curKeySeq, keySeq)
+            if cmd.succefullyDone is True:
+                self.hotkeyTable.qUndoStack.push(cmd)
+                self.hotkeyTable.onEmitEditingItem(False)
