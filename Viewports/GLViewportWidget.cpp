@@ -29,13 +29,132 @@ GLViewportCaptureSequenceDialog::GLViewportCaptureSequenceDialog(QWidget *parent
 
   this->setWindowTitle(title);
 
-  this->adjustSize();
-  this->window()->layout()->setSizeConstraint(QLayout::SetFixedSize);
+  m_lineEditCaptureResX = new QLineEdit();
+  m_lineEditCaptureResX->setMinimumWidth(50);
+  m_lineEditCaptureResX->setReadOnly(true);
+  m_lineEditCaptureResX->setValidator(new QIntValidator(0, 32000, this));
+  addInput(m_lineEditCaptureResX, "Viewport Width");
+
+  m_lineEditCaptureResY = new QLineEdit();
+  m_lineEditCaptureResY->setMinimumWidth(50);
+  m_lineEditCaptureResY->setReadOnly(true);
+  m_lineEditCaptureResY->setValidator(new QIntValidator(0, 32000, this));
+  addInput(m_lineEditCaptureResY, "Viewport Height");
+
+  m_lineEditCapturePath = new QLineEdit();
+  m_lineEditCapturePath->setMinimumWidth(250);
+  addInput(m_lineEditCapturePath, "Path");
+
+  m_lineEditCaptureFilename = new QLineEdit();
+  m_lineEditCaptureFilename->setMinimumWidth(150);
+  addInput(m_lineEditCaptureFilename, "Filename");
+
+  m_lineEditCaptureExtension = new QLineEdit();
+  m_lineEditCaptureExtension->setMinimumWidth(50);
+  addInput(m_lineEditCaptureExtension, "Extension");
+
+  m_lineEditCaptureFramePadding = new QLineEdit();
+  m_lineEditCaptureFramePadding->setMinimumWidth(50);
+  m_lineEditCaptureFramePadding->setValidator(new QIntValidator(0, 32000, this));
+  addInput(m_lineEditCaptureFramePadding, "Frame Padding");
+
+  m_lineEditCaptureFrameStart = new QLineEdit();
+  m_lineEditCaptureFrameStart->setMinimumWidth(50);
+  m_lineEditCaptureFrameStart->setValidator(new QIntValidator(-32000, 32000, this));
+  addInput(m_lineEditCaptureFrameStart, "Frame Start");
+
+  m_lineEditCaptureFrameEnd = new QLineEdit();
+  m_lineEditCaptureFrameEnd->setMinimumWidth(50);
+  m_lineEditCaptureFrameEnd->setValidator(new QIntValidator(-32000, 32000, this));
+  addInput(m_lineEditCaptureFrameEnd, "Frame End");
+
+  //this->adjustSize();
+  //this->window()->layout()->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 GLViewportCaptureSequenceDialog::~GLViewportCaptureSequenceDialog()
 {
-};
+}
+
+int GLViewportCaptureSequenceDialog::captureResX()
+{
+  return m_lineEditCaptureResX->text().toInt();
+}
+
+int GLViewportCaptureSequenceDialog::captureResY()
+{
+  return m_lineEditCaptureResY->text().toInt();
+}
+
+QString GLViewportCaptureSequenceDialog::capturePath()
+{
+  return m_lineEditCapturePath->text();
+}
+
+QString GLViewportCaptureSequenceDialog::captureFilename()
+{
+  return m_lineEditCaptureFilename->text();
+}
+
+QString GLViewportCaptureSequenceDialog::captureExtension()
+{
+  return m_lineEditCaptureExtension->text();
+}
+
+int GLViewportCaptureSequenceDialog::captureFramePadding()
+{
+  return m_lineEditCaptureFramePadding->text().toInt();
+}
+
+int GLViewportCaptureSequenceDialog::captureFrameStart()
+{
+  return m_lineEditCaptureFrameStart->text().toInt();
+}
+
+int GLViewportCaptureSequenceDialog::captureFrameEnd()
+{
+  return m_lineEditCaptureFrameEnd->text().toInt();
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureResX(int resX)
+{
+  m_lineEditCaptureResX->setText(QString::number(resX));
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureResY(int resY)
+{
+  m_lineEditCaptureResY->setText(QString::number(resY));
+}
+
+void GLViewportCaptureSequenceDialog::setCapturePath(QString path)
+{
+  m_lineEditCapturePath->setText(path);
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureFilename(QString filename)
+{
+  m_lineEditCaptureFilename->setText(filename);
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureExtension(QString extension)
+{
+  m_lineEditCaptureExtension->setText(extension);
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureFramePadding(int framePadding)
+{
+  m_lineEditCaptureFramePadding->setText(QString::number(framePadding));
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureFrameStart(int frameStart)
+{
+  m_lineEditCaptureFrameStart->setText(QString::number(frameStart));
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureFrameEnd(int frameEnd)
+{
+  m_lineEditCaptureFrameEnd->setText(QString::number(frameEnd));
+}
 
 GLViewportWidget::GLViewportWidget(
   QColor bgColor, 
@@ -480,44 +599,60 @@ void GLViewportWidget::startViewportCapture()
   if (timeline->isPlaying())
     timeline->pause();
 
+  // memorize the timeline's current state.
+  int   timelineMemFrameStart   = timeline->getRangeStart();
+  int   timelineMemFrameEnd     = timeline->getRangeEnd();
+  int   timelineMemCurrentFrame = timeline->getTime();
+  float timelineMemFramerate    = timeline->framerate();
+  int   timelineMemLoopMode     = timeline->loopMode();
+
   // get the capture parameters.
   Context context = FabricApplicationStates::GetAppStates()->getContext();
+  int      captureResX         = this->width();
+  int      captureResY         = this->height();
   QString  capturePath         = m_viewport.maybeGetMember("capturePath")        .getStringCString();
   QString  captureFilename     = m_viewport.maybeGetMember("captureFilename")    .getStringCString();
   QString  captureExtension    = m_viewport.maybeGetMember("captureExtension")   .getStringCString();
   uint32_t captureFramePadding = m_viewport.maybeGetMember("captureFramePadding").getUInt32();
-
-  // get the timeline's current state.
-  int   timelineFrameStart   = timeline->getRangeStart();
-  int   timelineFrameEnd     = timeline->getRangeEnd();
-  int   timelineCurrentFrame = timeline->getTime();
-  float timelineFramerate    = timeline->framerate();
-  int   timelineLoopMode     = timeline->loopMode();
+  int      captureFrameStart   = timelineMemFrameStart;
+  int      captureFrameEnd     = timelineMemFrameEnd;
 
   // capture sequence dialog.
   GLViewportCaptureSequenceDialog dialog(this, "Canvas Viewport Capture");
+  dialog.setCaptureResX        (captureResX);
+  dialog.setCaptureResY        (captureResY);
+  dialog.setCapturePath        (capturePath);
+  dialog.setCaptureFilename    (captureFilename);
+  dialog.setCaptureExtension   (captureExtension);
+  dialog.setCaptureFramePadding(captureFramePadding);
+  dialog.setCaptureFrameStart  (captureFrameStart);
+  dialog.setCaptureFrameEnd    (captureFrameEnd);
   if (dialog.exec() != QDialog::Accepted)
     return;
-
-  // wip.
-  int frameStart = timelineFrameStart;
-  int frameEnd   = timelineFrameEnd;
+  captureResX         = dialog.captureResX();
+  captureResY         = dialog.captureResY();
+  capturePath         = dialog.capturePath();
+  captureFilename     = dialog.captureFilename();
+  captureExtension    = dialog.captureExtension();
+  captureFramePadding = dialog.captureFramePadding();
+  captureFrameStart   = dialog.captureFrameStart();
+  captureFrameEnd     = dialog.captureFrameEnd();
 
   // create and init the progress dialog.
-  QProgressDialog progressDialog("Capturing Viewport ...", "Abort Capture", frameStart, frameEnd, parent);
+  QProgressDialog progressDialog("Capturing Viewport ...", "Abort Capture", captureFrameStart, captureFrameEnd, parent);
   progressDialog.setWindowModality(Qt::ApplicationModal);
   progressDialog.setMinimumWidth(qMax(250, this->width()));
   progressDialog.setAutoClose(false);
 
   // capture.
-  timeline->setTimeRange(frameStart, frameEnd);
+  timeline->setTimeRange(captureFrameStart, captureFrameEnd);
   timeline->setLoopMode(LOOP_MODE_PLAY_ONCE);
   timeline->setFrameRate(1000);
   timeline->goToEndFrame();
   m_captureMode = CAPTURE_ON;
   m_captureErrorDescription = "";
   progressDialog.show();
-  for (int frame=timelineFrameStart;frame<=timelineFrameEnd;frame++)
+  for (int frame= captureFrameStart;frame<=captureFrameEnd;frame++)
   {
     progressDialog.setValue(frame);
     timeline->updateTime(frame);
@@ -534,10 +669,10 @@ void GLViewportWidget::startViewportCapture()
   progressDialog.close();
 
   // restore timeline.
-  timeline->setTimeRange(timelineFrameStart, timelineFrameEnd);
-  timeline->setLoopMode(timelineLoopMode);
-  timeline->setFrameRate(timelineFramerate);
-  timeline->updateTime(timelineCurrentFrame);
+  timeline->setTimeRange(timelineMemFrameStart, timelineMemFrameEnd);
+  timeline->setLoopMode (timelineMemLoopMode);
+  timeline->setFrameRate(timelineMemFramerate);
+  timeline->updateTime  (timelineMemCurrentFrame);
 
   // any errors?
   if (m_captureMode == CAPTURE_ERROR)
