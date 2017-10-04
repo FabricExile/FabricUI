@@ -40,6 +40,8 @@ class HotkeyTableWidget(QtGui.QTableWidget):
             - canvasWindow: A reference the canvasWindow.
         """
         super(HotkeyTableWidget, self).__init__(parent)
+        self.canEditItem = False # To edit item on double click only
+
         self.qUndoStack = QtGui.QUndoStack()
 
         # Used to attached the Command actions
@@ -110,30 +112,41 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         if items:
             return self.item(items[0].row(), 0)
  
-    def mousePressEvent(self, event):
+    def mouseDoubleClickEvent(self, event):
         """ Implementation of QtGui.QTableWidget.
-            Directly edit the item to simulate a double-click.
         """
-        self.setCurrentItem(None)
-        super(HotkeyTableWidget, self).mousePressEvent(event)
+        super(HotkeyTableWidget, self).mouseDoubleClickEvent(event)
         item = self.__getCurrentShortcutItem()
         if item:
             self.onEmitEditingItem(True)
-            self.editItem(item)
-        else:
-            self.onEmitEditingItem(False)
+        self.canEditItem = True
 
-    def mouseDoubleClickEvent(self, event):
+    def mousePressEvent(self, event):
         """ Implementation of QtGui.QTableWidget.
-            Do nothing.
         """
-        pass
+        # Reset the selection.
+        self.setCurrentItem(None, QtGui.QItemSelectionModel.Clear)
+        super(HotkeyTableWidget, self).mousePressEvent(event)
+        if not self.__getCurrentShortcutItem():
+            self.onEmitEditingItem(False)
+        self.canEditItem = False
 
     def keyboardSearch(self, search):
         """ Implementation of QtGui.QAbstractItemView.
             Do nothing.
         """
         pass
+
+    def keyPressEvent(self, event):
+        """ Implementation of QtGui.QAbstractItemView.
+            Edit item on double click only.
+        """
+        item = self.__getCurrentShortcutItem()
+
+        if item and self.canEditItem is False:
+            return
+
+        super(HotkeyTableWidget, self).keyPressEvent(event)
 
     def __createNewRow(self, actName, action):
         """ \internal.
@@ -205,8 +218,11 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         """
         actRegistry = CppActions.ActionRegistry.GetActionRegistry()
 
-        # Check it's the first time the action is registered.
-        if actRegistry.getRegistrationCount(actName) == 1:    
+        # To determine if the item should be created, it should be sufficient to only 
+        # check if the number of actions registered under `actName` is equal to one 
+        # However, because of C++/Python thread issues, it may happens that this condition 
+        # is not enough, so we need to check on the UI side too. 
+        if actRegistry.getRegistrationCount(actName) == 1 and self.__getActionItem(actName) is None:    
             self.__createNewRow(actName, action)
         
         # To update the item tool tip.
@@ -223,7 +239,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         # Check there is no more action registered under `actName`.
         if actRegistry.getRegistrationCount(actName) == 0:
             # if so, remove the item.
-            item = self.__getShorcutItem(actName)
+            item = self.__getActionItem(actName)
             if item:
                 self.removeRow(item.row())
 
@@ -237,9 +253,11 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         curKeySeq = QtGui.QKeySequence(item.text())
 
         if item and keySeq != curKeySeq:
-            self.qUndoStack.push(SetKeySequenceCommand(self.model, actName, curKeySeq, keySeq))
-            self.onEmitEditingItem(True)
-
+            cmd = SetKeySequenceCommand(self.model, actName, curKeySeq, keySeq)
+            if cmd.succefullyDone is True:
+                self.qUndoStack.push(cmd)
+                self.onEmitEditingItem(True)
+ 
     def filterItems(self, query, edit = 0, show = 0):
         """ \internal.
             Filters the items according the actions' names or shorcuts.
