@@ -177,7 +177,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         shortcut = keySequence.toString(QtGui.QKeySequence.NativeText)
         actRegistry = CppActions.ActionRegistry.GetActionRegistry()
         isActGlobal = actRegistry.isActionContextGlobal(actName) 
-        item = ShorcutTableWidgetItem(shortcut, isEditable, isActGlobal)
+        item = ShorcutTableWidgetItem(actName, shortcut, isEditable, isActGlobal)
         
         self.setItem(rowCount, 1, item)
         self.resizeColumnToContents(0)
@@ -261,8 +261,12 @@ class HotkeyTableWidget(QtGui.QTableWidget):
                 self.qUndoStack.push(cmd)
                 self.onEmitEditingItem(True)
     
-    def __onCustomContextMenuRequested(self, pos):
-        print "Hwllo"
+    def __onCustomContextMenuRequested(self, point):
+        menu = QtGui.QMenu(self)
+        item = self.itemAt(point)
+        if item and issubclass(type(item), ShorcutTableWidgetItem):
+            menu.addAction(ResetSingleAction(self, item.actName))
+            menu.exec_(self.mapToGlobal(point))
 
     def filterItems(self, query, edit = 0, show = 0):
         """ \internal.

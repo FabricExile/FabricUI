@@ -152,3 +152,23 @@ class ResetAction(BaseHotkeyEditorAction):
         self.hotkeyEditor.hotkeyTable.qUndoStack.clear()
         self.hotkeyEditor.hotkeyTable.model.resetItemKeySequence()
         self.hotkeyEditor.hotkeyTable.onEmitEditingItem(False)
+
+
+class ResetSingleAction(CppActions.BaseAction):
+ 
+    def __init__(self, hotkeyTable, actName):
+
+        super(ResetSingleAction, self).__init__(hotkeyTable)
+        self.hotkeyTable = hotkeyTable
+        self.actName = actName
+
+        self.init(
+            "HotkeyEditor.ResetSingleAction", 
+            "ResetSingle", 
+            QtGui.QKeySequence(), 
+            QtCore.Qt.WidgetWithChildrenShortcut,
+            True, False)  
+ 
+    def onTriggered(self):
+        self.hotkeyTable.model.resetSingleItemKeySequence(self.actName)
+        self.hotkeyTable.onEmitEditingItem(False)

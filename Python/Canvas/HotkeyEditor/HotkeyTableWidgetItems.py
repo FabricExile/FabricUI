@@ -14,9 +14,10 @@ class TableWidgetItemColor:
  
 class BaseTableWidgetItem(QtGui.QTableWidgetItem):
     
-    def __init__(self, text, isEditable):
+    def __init__(self, actName, text, isEditable):
         super(BaseTableWidgetItem, self).__init__(text)
         self.widgetItemColor = TableWidgetItemColor
+        self.actName = actName
         if not isEditable:
             font = self.font()
             self.setFont(font)
@@ -25,8 +26,7 @@ class BaseTableWidgetItem(QtGui.QTableWidgetItem):
 class ActionTableWidgetItem(BaseTableWidgetItem):
     
     def __init__(self, actName, tooltip, isEditable, cmdImplType = None):
-        super(ActionTableWidgetItem, self).__init__(actName, isEditable)
-        self.actName = actName
+        super(ActionTableWidgetItem, self).__init__(actName, actName, isEditable)
         self.setToolTip(tooltip)
         self.setFlags(QtCore.Qt.NoItemFlags)
         
@@ -69,9 +69,9 @@ class ActionTableWidgetItem(BaseTableWidgetItem):
 
 class ShorcutTableWidgetItem(BaseTableWidgetItem):
 
-    def __init__(self, shorcut, isEditable, isGlobal):
+    def __init__(self, actName, shorcut, isEditable, isGlobal):
 
-        super(ShorcutTableWidgetItem, self).__init__(shorcut, isEditable)
+        super(ShorcutTableWidgetItem, self).__init__(actName, shorcut, isEditable)
         if not isEditable:
             self.setFlags(QtCore.Qt.NoItemFlags)
 

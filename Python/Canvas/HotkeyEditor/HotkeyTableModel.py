@@ -35,6 +35,10 @@ class HotkeyTableModel(QtCore.QObject):
         for actName in registry.getActionNameList():
             self.__setItemKeySequenceAndShortcut(actName, registry.getDefaultShortcut(actName))
 
+    def resetSingleItemKeySequence(self, actName):
+        registry = CppActions.ActionRegistry.GetActionRegistry()
+        self.__setItemKeySequenceAndShortcut(actName, registry.getDefaultShortcut(actName))
+
     def __setItemKeySequenceAndShortcut(self, actName, keySeq = QtGui.QKeySequence()):
         """ \internal.
         """
