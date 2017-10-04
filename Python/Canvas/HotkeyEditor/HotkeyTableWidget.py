@@ -180,7 +180,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         item = ShorcutTableWidgetItem(shortcut, isEditable, isActGlobal)
         
         self.setItem(rowCount, 1, item)
-        self.resizeColumnsToContents()
+        self.resizeColumnToContents(0)
 
         self.model.initItemKeySequence(actName, keySequence) 
 

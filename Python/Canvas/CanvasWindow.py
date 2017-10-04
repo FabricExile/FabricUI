@@ -196,8 +196,6 @@ class ShowHotkeyEditorDialogAction(BaseCanvasWindowAction):
 
     def onTriggered(self):
         if not self.canvasWindow.hotkeyEditorDialog.isVisible():
-            pos = QtGui.QCursor.pos()
-            self.canvasWindow.hotkeyEditorDialog.move(pos.x(), pos.y())
             self.canvasWindow.hotkeyEditorDialog.exec_()
 
 class CanvasWindow(QtGui.QMainWindow):
