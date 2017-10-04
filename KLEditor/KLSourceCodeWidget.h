@@ -100,6 +100,7 @@ namespace FabricUI
       QString m_lastCode;
       CodeCompletionPopup * m_popup;
       FabricCore::DFGExec *m_dfgExec;
+      QString m_lastSearch;
     };
 
   };

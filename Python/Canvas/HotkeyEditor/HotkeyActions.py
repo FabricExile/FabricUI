@@ -69,8 +69,9 @@ class SaveFileAction(BaseHotkeyEditorAction):
         self.setToolTip('Save file')
         
     def onTriggered(self):
-        SaveFileCommand()
-        self.hotkeyEditor.hotkeyTable.onEmitEditingItem(False)
+        cmd = SaveFileCommand()
+        if cmd.saveFile():
+            self.hotkeyEditor.hotkeyTable.onEmitEditingItem(False)
 
 class ExitAction(BaseHotkeyEditorAction):
  

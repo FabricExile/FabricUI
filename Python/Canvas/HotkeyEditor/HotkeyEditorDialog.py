@@ -8,25 +8,6 @@ from FabricEngine.Canvas.HotkeyEditor.HotkeyActions import *
 from FabricEngine.Canvas.LoadFabricStyleSheet import LoadFabricStyleSheet
 from FabricEngine.Canvas.HotkeyEditor.HotkeyTableWidget import HotkeyTableWidget
     
-class HotkeyLineEdit(QtGui.QLineEdit):
-
-    updateFocus = QtCore.Signal(bool)
-
-    def __init__(self, parent):
-        super(HotkeyLineEdit, self).__init__(parent)
-
-    def focusInEvent(self, event):
-        """ Impl. of QtGui.QLineEdit.
-        """
-        super(HotkeyLineEdit, self).focusInEvent(event) 
-        self.updateFocus.emit(True)
-
-    def focusOutEvent(self, event):
-        """ Impl. of QtGui.QLineEdit.
-        """
-        super(HotkeyLineEdit, self).focusOutEvent(event) 
-        self.updateFocus.emit(False)
-
 class HotkeyEditorDialog(QtGui.QDialog):
 
     def __init__(self, canvasWindow):
@@ -63,8 +44,7 @@ class HotkeyEditorDialog(QtGui.QDialog):
         toolTip = ( 'Type the name of the action/command you want to find. \n'
                     'Use # to find an action/command from its shortcut' )
         lineEditLabel.setToolTip(toolTip)
-        self.__lineEdit = HotkeyLineEdit(self)
-        self.__lineEdit.updateFocus.connect(self.hotkeyTable.onEmitEditingItem)
+        self.__lineEdit = QtGui.QLineEdit(self)
         self.__lineEdit.textChanged.connect(self.__onFilterItems)
 
         ctrlLayout = QtGui.QHBoxLayout()

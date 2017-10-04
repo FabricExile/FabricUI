@@ -305,30 +305,248 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
   if(event->key() == Qt::Key_Tab)
   {
     if(!event->modifiers().testFlag(Qt::ShiftModifier))
-      insertPlainText("  ");
+    {
+      QTextCursor origCursor = textCursor();
+      QTextCursor cursor = textCursor();
+      int selStart = cursor.selectionStart();
+      int selEnd = cursor.selectionEnd();
+
+      cursor.setPosition(selStart);
+      int startBlockNumber = cursor.blockNumber();
+      cursor.setPosition(selEnd);
+      int endBlockNumber = cursor.blockNumber();
+
+      // setTextCursor(origCursor);
+
+      if(origCursor.hasSelection() && (startBlockNumber != endBlockNumber))
+      {
+        // Start / End may not be at start and end of lines
+        cursor.setPosition(selEnd);
+        cursor.movePosition(QTextCursor::StartOfLine);
+        int selEndLineStart = cursor.position();
+
+        // If selection ends at the beginning of a line, don't indent that line
+        if(selEnd == selEndLineStart)
+          cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+
+        cursor.movePosition(QTextCursor::EndOfLine);
+        int end = cursor.position();
+
+        cursor.setPosition(selStart);
+        cursor.movePosition(QTextCursor::StartOfLine);
+
+        cursor.beginEditBlock();
+        while(cursor.position() < end)
+        {
+          cursor.movePosition(QTextCursor::StartOfLine);
+          cursor.insertText("  ");
+          end += 2;
+          cursor.movePosition(QTextCursor::Down);
+        }
+        cursor.endEditBlock();
+      }
+      else
+      {
+        insertPlainText("  ");          
+      }
+    }
     return;
+  }
+  if(event->key() == Qt::Key_D)
+  {
+    if(event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
+    {
+      QTextCursor cursor = textCursor();
+
+      if(!cursor.hasSelection())
+      {
+        cursor.select(QTextCursor::WordUnderCursor);
+        setTextCursor(cursor);
+      }
+    }
+
+    if(event->modifiers().testFlag(Qt::ControlModifier) && event->modifiers().testFlag(Qt::ShiftModifier))
+    {
+      QTextCursor origCursor = textCursor();
+      QTextCursor cursor = textCursor();
+      if(cursor.hasSelection())
+      {
+        int selStart = cursor.selectionStart();
+        int selEnd = cursor.selectionEnd();
+
+        QString selText = cursor.selectedText();
+        cursor.setPosition(selEnd);
+        cursor.insertText(selText);
+
+        cursor.setPosition(selEnd);        
+        cursor.setPosition(selEnd + (selEnd - selStart), QTextCursor::KeepAnchor);
+        setTextCursor(cursor);
+      }
+      else
+      {
+        cursor.select(QTextCursor::LineUnderCursor);
+        QString lineText = cursor.selectedText();
+
+        cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
+        cursor.insertText(QString("\n") + lineText);
+      }
+    }
+  }
+  if(event->key() == Qt::Key_K)
+  {
+    if(event->modifiers().testFlag(Qt::ControlModifier) && event->modifiers().testFlag(Qt::ShiftModifier))
+    {
+      QTextCursor origCursor = textCursor();
+      QTextCursor cursor = textCursor();
+      int selStart = cursor.selectionStart();
+      int selEnd = cursor.selectionEnd();
+
+      cursor.setPosition(selStart);
+      int startBlockNumber = cursor.blockNumber();
+      cursor.setPosition(selEnd);
+      int endBlockNumber = cursor.blockNumber();
+
+      if(origCursor.hasSelection() && (startBlockNumber != endBlockNumber))
+      {
+        // Start / End may not be at start and end of lines
+        cursor.setPosition(selEnd);
+        cursor.movePosition(QTextCursor::EndOfLine);
+        int end = cursor.position();
+
+        cursor.setPosition(selStart);
+        cursor.movePosition(QTextCursor::StartOfLine);
+
+        cursor.setPosition(end + 1, QTextCursor::KeepAnchor);
+        cursor.insertText("");
+        setTextCursor(cursor);
+      }
+      else
+      {
+        cursor.movePosition(QTextCursor::StartOfLine);
+        cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+        cursor.insertText("");
+      }
+      return;
+    }
+  }
+  if(event->key() == Qt::Key_F3)
+  {
+    QTextCursor cursor = textCursor();
+
+    if(cursor.hasSelection())
+    {
+      m_lastSearch = cursor.selectedText();
+    }
+
+    if(m_lastSearch != NULL)
+    {
+      if(event->modifiers().testFlag(Qt::ShiftModifier))
+      {
+        bool found = find(m_lastSearch, QTextDocument::FindBackward);
+        if(!found)
+        {
+          cursor.movePosition(QTextCursor::End);
+          setTextCursor(cursor);
+          find(m_lastSearch, QTextDocument::FindBackward);
+        }
+      }
+      else
+      {
+        bool found = find(m_lastSearch);
+        if(!found)
+        {
+          cursor.movePosition(QTextCursor::Start);
+          setTextCursor(cursor);
+          find(m_lastSearch);
+        }
+      }
+    }
+    return;
+  }
+  if(event->key() == Qt::Key_L)
+  {
+    if(event->modifiers().testFlag(Qt::ControlModifier))
+    {
+      QTextCursor cursor = textCursor();
+
+      if(!cursor.hasSelection())
+      {
+        cursor.select(QTextCursor::LineUnderCursor);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+        setTextCursor(cursor);
+      }
+      return;
+    }
   }
   if(event->key() == Qt::Key_Backtab)
   {
-    std::string klCode = QStringToStl(code());
-    if(klCode.length() > 3)
-    {
-      int pos = textCursor().position();
-      std::string posStr;
+    QTextCursor origCursor = textCursor();
+    QTextCursor cursor = textCursor();
+    int selStart = cursor.selectionStart();
+    int selEnd = cursor.selectionEnd();
 
-      // remove all previous lines
-      size_t find = klCode.rfind('\n', pos);
-      if(find != std::string::npos && find < klCode.length()-3)
+    cursor.setPosition(selStart);
+    int startBlockNumber = cursor.blockNumber();
+    cursor.setPosition(selEnd);
+    int endBlockNumber = cursor.blockNumber();
+
+    if(origCursor.hasSelection() && (startBlockNumber != endBlockNumber))
+    {
+      // Start / End may not be at start and end of lines
+      cursor.setPosition(selEnd);
+
+      cursor.movePosition(QTextCursor::StartOfLine);
+      int selEndLineStart = cursor.position();
+
+      // If selection ends at the beginning of a line, don't indent that line
+      if(selEnd == selEndLineStart)
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+      
+      cursor.movePosition(QTextCursor::EndOfLine);
+      int end = cursor.position();
+
+      cursor.setPosition(selStart);
+      cursor.movePosition(QTextCursor::StartOfLine);
+
+      cursor.beginEditBlock();
+      while(cursor.position() < end)
       {
-        if(klCode[find+1] == ' ' && klCode[find+2] == ' ')
+        cursor.movePosition(QTextCursor::StartOfLine);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 2);
+        if(cursor.selectedText() == QString("  "))
+          cursor.insertText("");
+        end -= 2;
+        cursor.movePosition(QTextCursor::Down);
+      }
+      cursor.endEditBlock();
+    }
+    else
+    {
+      cursor.setPosition(selStart);
+      cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+      std::string selText = cursor.selectedText().toUtf8().constData();
+      if(!(selText.find_first_not_of(' ') != std::string::npos))
+      {
+        cursor.movePosition(QTextCursor::StartOfLine);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 2);
+        if(cursor.selectedText() == QString("  "))
         {
-          klCode = klCode.substr(0, find+1) + klCode.substr(find+3, klCode.length());
-          setPlainText(klCode.c_str());
-          QTextCursor cursor = textCursor();
-          cursor.setPosition(pos-2);
-          setTextCursor(cursor);
+          cursor.insertText("");
+        }
+        else
+        {
+          cursor.movePosition(QTextCursor::StartOfLine);
+          cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+          if(cursor.selectedText() == QString(" "))
+          {
+            cursor.insertText("");
+          } 
         }
       }
+
+      setTextCursor(origCursor);
+
     }
     return;
   }
