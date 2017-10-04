@@ -15,7 +15,8 @@ class HotkeyEditorDialog(QtGui.QDialog):
             Arguments:
             - canvasWindow: A reference to the canvasWindow widget.
         """
-        super(HotkeyEditorDialog, self).__init__(canvasWindow) 
+        super(HotkeyEditorDialog, self).__init__(canvasWindow)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint) 
         
         # qss
         self.setWindowTitle('Hotkey Editor')
@@ -24,36 +25,6 @@ class HotkeyEditorDialog(QtGui.QDialog):
 
         # HotkeyTableWidget
         self.hotkeyTable = HotkeyTableWidget(self, canvasWindow)
-
-        # Controls
-        comboBoxLabel = QtGui.QLabel('Set')
-        self.__itemComboBox = QtGui.QComboBox(self)
-        self.__itemComboBox.addItem('All')
-        self.__itemComboBox.addItem('Actions')
-        self.__itemComboBox.addItem('Commands')
-        self.__itemComboBox.currentIndexChanged.connect(self.__onFilterItems)
-
-        checkBoxLabel = QtGui.QLabel('Editable')
-        self.__editComboBox = QtGui.QComboBox(self)
-        self.__editComboBox.addItem('All')
-        self.__editComboBox.addItem('Yes')
-        self.__editComboBox.addItem('No')
-        self.__editComboBox.currentIndexChanged.connect(self.__onFilterItems)
-
-        lineEditLabel = QtGui.QLabel('Search')
-        toolTip = ( 'Type the name of the action/command you want to find. \n'
-                    'Use # to find an action/command from its shortcut' )
-        lineEditLabel.setToolTip(toolTip)
-        self.__lineEdit = QtGui.QLineEdit(self)
-        self.__lineEdit.textChanged.connect(self.__onFilterItems)
-
-        ctrlLayout = QtGui.QHBoxLayout()
-        ctrlLayout.addWidget(lineEditLabel)
-        ctrlLayout.addWidget(self.__lineEdit)
-        ctrlLayout.addWidget(comboBoxLabel)
-        ctrlLayout.addWidget(self.__itemComboBox)
-        ctrlLayout.addWidget(checkBoxLabel)
-        ctrlLayout.addWidget(self.__editComboBox)
   
         # Toolbar
         toolBar = QtGui.QToolBar()
@@ -62,19 +33,71 @@ class HotkeyEditorDialog(QtGui.QDialog):
         toolBar.addSeparator()
         toolBar.addAction(UndoAction(self))
         toolBar.addAction(RedoAction(self))
-        toolBar.addSeparator()
-        toolBar.addAction(ExitAction(self))
+        
+        toolBarLayout = QtGui.QHBoxLayout()
+        toolBarLayout.setContentsMargins(0, 4, 0, 0)
+        toolBarLayout.setSpacing(0)
+        toolBarLayout.addWidget(toolBar)
+
+        # Controls
+        comboBoxLabel = QtGui.QLabel('Set:')
+        self.__itemComboBox = QtGui.QComboBox()
+        self.__itemComboBox.addItem('All')
+        self.__itemComboBox.addItem('Actions')
+        self.__itemComboBox.addItem('Commands')
+        self.__itemComboBox.currentIndexChanged.connect(self.__onFilterItems)
+
+        checkBoxLabel = QtGui.QLabel('Editable:')
+        self.__editComboBox = QtGui.QComboBox()
+        self.__editComboBox.addItem('All')
+        self.__editComboBox.addItem('Yes')
+        self.__editComboBox.addItem('No')
+        self.__editComboBox.currentIndexChanged.connect(self.__onFilterItems)
+
+        lineEditLabel = QtGui.QLabel('Search:')
+        toolTip = ( 'Type the name of the action/command you want to find. \n'
+                    'Use # to find an action/command from its shortcut' )
+        lineEditLabel.setToolTip(toolTip)
+        self.__lineEdit = QtGui.QLineEdit(self)
+        self.__lineEdit.textChanged.connect(self.__onFilterItems)
+
+        ctrlWidget = QtGui.QWidget()
+
+        ctrlLayout = QtGui.QHBoxLayout()
+        ctrlLayout.setContentsMargins(8, 8, 8, 8)
+        ctrlLayout.setSpacing(2)
+        ctrlLayout.addWidget(lineEditLabel)
+        ctrlLayout.addWidget(self.__lineEdit)
+        ctrlLayout.addWidget(comboBoxLabel)
+        ctrlLayout.addWidget(self.__itemComboBox)
+        ctrlLayout.addWidget(checkBoxLabel)
+        ctrlLayout.addWidget(self.__editComboBox)
+
+        ctrlWidget.setLayout(ctrlLayout)
+
+        # Buttons
+        okButton = QtGui.QToolButton()
+        okButton.setDefaultAction(ExitAction(self))
+        okButton.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
+                               QtGui.QSizePolicy.MinimumExpanding)
+        okButton.setMaximumHeight(40)
+
+        buttonLayout = QtGui.QHBoxLayout()
+        buttonLayout.setContentsMargins(0, 0, 0, 0)
+        buttonLayout.setSpacing(0)
+        buttonLayout.addWidget(okButton)
     
         # All
         layout = QtGui.QVBoxLayout()
-        layout.setContentsMargins(0,0,0,0)
-        layout.addWidget(toolBar)
-        layout.addLayout(ctrlLayout)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addLayout(toolBarLayout)
+        layout.addWidget(ctrlWidget)
         layout.addWidget(self.hotkeyTable)
+        layout.addLayout(buttonLayout)
         self.setLayout(layout)
 
-        # !!!! To change
-        self.setMinimumHeight(350)
+        self.setMinimumHeight(650)
         self.setMinimumWidth(550)
         self.adjustSize()
         

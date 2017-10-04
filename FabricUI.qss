@@ -2228,13 +2228,28 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
  * HotkeyEditorDialog
  ***************************************************************************/
 
+#HotkeyEditorDialog 
+{
+  margin: 0;
+  padding: 0;
+}
+
 #HotkeyEditorDialog QToolBar {
   border: 0;
 }
 
+#HotkeyEditorDialog QToolBar::separator
+{
+  border: 1px solid #666;
+  border-style: none;
+  width: 1px;
+  background-color: #666;
+}
+
 #HotkeyEditorDialog QLabel
 {
-  padding-left: 4px;
+  margin: 0 4px 0 0;
+  padding: 0;
   color: #FFFFFF;
 }
 
@@ -2297,6 +2312,20 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 {
   padding: 0;
   background-color: #596D7A;
+}
+
+#HotkeyEditorDialog QTableWidget QHeaderView::section
+{
+  background-color: #242424;
+  color: white;
+  padding: 4px;
+  border: none;
+  border-right: 1px solid #333333;
+}
+
+#HotkeyEditorDialog QTableWidget QHeaderView::section:hover
+{
+  background-color: #383838;
 }
 
 /****************************************************************************
