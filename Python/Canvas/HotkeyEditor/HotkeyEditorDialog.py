@@ -33,7 +33,10 @@ class HotkeyEditorDialog(QtGui.QDialog):
         toolBar.addSeparator()
         toolBar.addAction(UndoAction(self))
         toolBar.addAction(RedoAction(self))
-        
+        toolBar.addSeparator()
+        toolBar.addAction(ResetAction(self))
+
+
         toolBarLayout = QtGui.QHBoxLayout()
         toolBarLayout.setContentsMargins(0, 4, 0, 0)
         toolBarLayout.setSpacing(0)
