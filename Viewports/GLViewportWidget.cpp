@@ -22,6 +22,21 @@ using namespace Viewports;
 using namespace FabricCore;
 using namespace Application;
 
+GLViewportCaptureSequenceDialog::GLViewportCaptureSequenceDialog(QWidget *parent, QString title, const FabricUI::DFG::DFGConfig &dfgConfig)
+  : FabricUI::DFG::DFGBaseDialog(parent, true, dfgConfig)
+{
+  setObjectName("GLViewportCaptureSequenceDialog");
+
+  this->setWindowTitle(title);
+
+  this->adjustSize();
+  this->window()->layout()->setSizeConstraint(QLayout::SetFixedSize);
+}
+
+GLViewportCaptureSequenceDialog::~GLViewportCaptureSequenceDialog()
+{
+};
+
 GLViewportWidget::GLViewportWidget(
   QColor bgColor, 
   QGLFormat format, 
@@ -242,14 +257,10 @@ void GLViewportWidget::paintGL()
 
     // get the capture parameters.
     Context context = FabricApplicationStates::GetAppStates()->getContext();
-    RTVal    rtvalCapturePath         = m_viewport.maybeGetMember("capturePath");
-    RTVal    rtvalCaptureFilename     = m_viewport.maybeGetMember("captureFilename");
-    RTVal    rtvalCaptureExtension    = m_viewport.maybeGetMember("captureExtension");
-    RTVal    rtvalCaptureFramePadding = m_viewport.maybeGetMember("captureFramePadding");
-    QString  capturePath              = rtvalCapturePath        .getStringCString();
-    QString  captureFilename          = rtvalCaptureFilename    .getStringCString();
-    QString  captureExtension         = rtvalCaptureExtension   .getStringCString();
-    uint32_t captureFramePadding      = rtvalCaptureFramePadding.getUInt32();
+    QString  capturePath         = m_viewport.maybeGetMember("capturePath")        .getStringCString();
+    QString  captureFilename     = m_viewport.maybeGetMember("captureFilename")    .getStringCString();
+    QString  captureExtension    = m_viewport.maybeGetMember("captureExtension")   .getStringCString();
+    uint32_t captureFramePadding = m_viewport.maybeGetMember("captureFramePadding").getUInt32();
     if (!captureExtension.startsWith("."))
       captureExtension.push_front(".");
 
@@ -471,16 +482,10 @@ void GLViewportWidget::startViewportCapture()
 
   // get the capture parameters.
   Context context = FabricApplicationStates::GetAppStates()->getContext();
-  RTVal    rtvalCapturePath         = m_viewport.maybeGetMember("capturePath");
-  RTVal    rtvalCaptureFilename     = m_viewport.maybeGetMember("captureFilename");
-  RTVal    rtvalCaptureExtension    = m_viewport.maybeGetMember("captureExtension");
-  RTVal    rtvalCaptureFramePadding = m_viewport.maybeGetMember("captureFramePadding");
-  QString  capturePath              = rtvalCapturePath        .getStringCString();
-  QString  captureFilename          = rtvalCaptureFilename    .getStringCString();
-  QString  captureExtension         = rtvalCaptureExtension   .getStringCString();
-  uint32_t captureFramePadding      = rtvalCaptureFramePadding.getUInt32();
-  if (!captureExtension.startsWith("."))
-    captureExtension.push_front(".");
+  QString  capturePath         = m_viewport.maybeGetMember("capturePath")        .getStringCString();
+  QString  captureFilename     = m_viewport.maybeGetMember("captureFilename")    .getStringCString();
+  QString  captureExtension    = m_viewport.maybeGetMember("captureExtension")   .getStringCString();
+  uint32_t captureFramePadding = m_viewport.maybeGetMember("captureFramePadding").getUInt32();
 
   // get the timeline's current state.
   int   timelineFrameStart   = timeline->getRangeStart();
@@ -488,6 +493,11 @@ void GLViewportWidget::startViewportCapture()
   int   timelineCurrentFrame = timeline->getTime();
   float timelineFramerate    = timeline->framerate();
   int   timelineLoopMode     = timeline->loopMode();
+
+  // capture sequence dialog.
+  GLViewportCaptureSequenceDialog dialog(this, "Canvas Viewport Capture");
+  if (dialog.exec() != QDialog::Accepted)
+    return;
 
   // wip.
   int frameStart = timelineFrameStart;
@@ -509,16 +519,9 @@ void GLViewportWidget::startViewportCapture()
   progressDialog.show();
   for (int frame=timelineFrameStart;frame<=timelineFrameEnd;frame++)
   {
-    // update progress bar.
     progressDialog.setValue(frame);
-
-    // go to frame.
     timeline->updateTime(frame);
-
-    // ensure all events get processed.
     QApplication::processEvents();
-
-    // user abort?
     if (progressDialog.wasCanceled())
       break;
   }

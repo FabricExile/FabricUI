@@ -7,11 +7,27 @@
 
 #include <FabricCore.h>
 #include "ViewportWidget.h"
+#include "FabricUI/DFG/DFGConfig.h"
+#include "FabricUI/DFG/Dialogs/DFGBaseDialog.h"
 
 class QImage;
 
 namespace FabricUI {
 namespace Viewports {
+
+class GLViewportCaptureSequenceDialog : public FabricUI::DFG::DFGBaseDialog
+{
+  Q_OBJECT
+
+public:
+
+  GLViewportCaptureSequenceDialog(QWidget *parent, QString title, const FabricUI::DFG::DFGConfig &dfgConfig = FabricUI::DFG::DFGConfig());
+
+  ~GLViewportCaptureSequenceDialog();
+
+private:
+
+};
 
 class GLViewportWidget : public ViewportWidget
 {
