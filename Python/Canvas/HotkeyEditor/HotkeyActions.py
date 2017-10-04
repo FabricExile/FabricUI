@@ -79,7 +79,7 @@ class ExitAction(BaseHotkeyEditorAction):
         super(ExitAction, self).__init__(
             hotkeyEditor, 
             "HotkeyEditor.ExitAction", 
-            "Ok", 
+            "OK", 
             QtGui.QKeySequence("Return"))
 
         self.setToolTip('Accept the changes and close the dialog')
