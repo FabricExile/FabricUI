@@ -702,7 +702,7 @@ void GLViewportWidget::saveViewportAs()
   }
 
   static QString filepath = "capture.png";
-  filepath = QFileDialog::getSaveFileName(this, "Save Capture As", filepath);
+  filepath = QFileDialog::getSaveFileName(this, "Save Capture As", filepath, "PNG Image (*.png)");
   if (!filepath.isEmpty())
   {
     filepath = QFileInfo(filepath).absoluteFilePath();
