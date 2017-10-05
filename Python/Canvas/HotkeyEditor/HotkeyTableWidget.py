@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010-2017 Fabric Software Inc. All rights reserved.
 #
-
+    
 import re
 from PySide import QtCore, QtGui
 from FabricEngine.Canvas.Commands.CommandRegistry import *
@@ -57,7 +57,10 @@ class HotkeyTableWidget(QtGui.QTableWidget):
 
         # Notify when an command is registered.
         GetCommandRegistry().registrationDone.connect(self.__onCommandRegistered)
-        
+
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.__onCustomContextMenuRequested)
+
         # Construct the item-delegate
         itemDelegate = HotkeyStyledItemDelegate(self)
         itemDelegate.keyPressed.connect(self.__onSetItemKeySequence)
@@ -98,7 +101,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
 
     def __getShorcutItem(self, actName):
         """ \internal.
-            Gets the shortcut item from the command name.
+            Gets the shortcut item from the action name.
         """
         items = self.findItems(actName, QtCore.Qt.MatchExactly)
         if items:
@@ -106,7 +109,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
 
     def __getActionItem(self, actName):
         """ \internal.
-            Gets the shortcut item from the command name.
+            Gets the action item from the action name.
         """
         items = self.findItems(actName, QtCore.Qt.MatchExactly)
         if items:
@@ -174,10 +177,10 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         shortcut = keySequence.toString(QtGui.QKeySequence.NativeText)
         actRegistry = CppActions.ActionRegistry.GetActionRegistry()
         isActGlobal = actRegistry.isActionContextGlobal(actName) 
-        item = ShorcutTableWidgetItem(shortcut, isEditable, isActGlobal)
+        item = ShorcutTableWidgetItem(actName, shortcut, isEditable, isActGlobal)
         
         self.setItem(rowCount, 1, item)
-        self.resizeColumnsToContents()
+        self.resizeColumnToContents(0)
 
         self.model.initItemKeySequence(actName, keySequence) 
 
@@ -249,7 +252,7 @@ class HotkeyTableWidget(QtGui.QTableWidget):
             item when the user press a key.
         """
         item = self.__getCurrentShortcutItem()
-        actName = self.item(item.row(), 0).text()
+        actName = item.actName
         curKeySeq = QtGui.QKeySequence(item.text())
 
         if item and keySeq != curKeySeq:
@@ -257,7 +260,15 @@ class HotkeyTableWidget(QtGui.QTableWidget):
             if cmd.succefullyDone is True:
                 self.qUndoStack.push(cmd)
                 self.onEmitEditingItem(True)
- 
+    
+    def __onCustomContextMenuRequested(self, point):
+        menu = QtGui.QMenu(self)
+        item = self.itemAt(point)
+        if item and issubclass(type(item), ShorcutTableWidgetItem) and item.isEditable:
+            curKeySeq = QtGui.QKeySequence(item.text())
+            menu.addAction(ResetSingleAction(self, item.actName, curKeySeq))
+            menu.exec_(self.mapToGlobal(point))
+
     def filterItems(self, query, edit = 0, show = 0):
         """ \internal.
             Filters the items according the actions' names or shorcuts.

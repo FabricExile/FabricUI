@@ -8,6 +8,37 @@ using namespace Actions;
 bool ActionRegistry::s_instanceFlag = false;
 ActionRegistry* ActionRegistry::s_actionRegistry = 0;
 
+class ActionRegistry::ActionsSet {
+  
+  public:
+    QSet<QAction*> actions;
+    // The default shortcuts are the shotcuts set
+    // when the QActions are created the first time.
+    QKeySequence defaultShortcut;
+    QList<QKeySequence> defaultShortcuts;
+
+    ActionsSet() {}
+
+    ActionsSet(QAction* defaultAction)
+    {
+      actions.insert(defaultAction);
+      defaultShortcut = defaultAction->shortcut();
+      defaultShortcuts = defaultAction->shortcuts();
+    }
+
+    void resetDefaultShortcuts() 
+    {
+      QSetIterator<  QAction * > ite(actions);
+
+      while (ite.hasNext()) 
+      {
+        QAction *action = ite.next();
+        action->setShortcut(defaultShortcut);
+        action->setShortcuts(defaultShortcuts);
+      }     
+    }
+};
+
 ActionRegistry::ActionRegistry()
 {
 }
@@ -47,7 +78,7 @@ void ActionRegistry::registerAction(
     SLOT(onUnregisterAction(QObject *))
   );
 
-  m_registeredActions[actionName].insert(action);
+  m_registeredActions[actionName] = ActionsSet(action);
 
   emit actionRegistered(actionName, action);
 }
@@ -63,9 +94,9 @@ void ActionRegistry::onUnregisterAction(
   if(actionName.isEmpty())
     return;
 
-  m_registeredActions[actionName].remove(action);
+  m_registeredActions[actionName].actions.remove(action);
 
-  if(m_registeredActions[actionName].empty())
+  if(m_registeredActions[actionName].actions.empty())
     m_registeredActions.remove(actionName);
  
   emit actionUnregistered(actionName);
@@ -83,14 +114,7 @@ int ActionRegistry::getRegistrationCount(
   if(!isActionRegistered(actionName))
     return 0;
 
-  return m_registeredActions[actionName].count();
-}
-
-inline QAction *GetFirstAction(
-  QMapIterator<QString, QSet< QAction * > > &ite) 
-{
-  QSetIterator<  QAction * > i(ite.value());
-  return i.next();
+  return m_registeredActions[actionName].actions.count();
 }
 
 QList<QAction*> ActionRegistry::isShortcutUsed(
@@ -98,11 +122,11 @@ QList<QAction*> ActionRegistry::isShortcutUsed(
 {
   QList<QAction*> res;
 
-  QMapIterator<QString, QSet< QAction * > > ite(m_registeredActions);
+  QMapIterator<QString, ActionsSet > ite(m_registeredActions);
   while (ite.hasNext()) 
   {
     ite.next();
-    QSetIterator<  QAction * > i(ite.value());
+    QSetIterator<  QAction * > i(ite.value().actions);
 
     while (i.hasNext()) 
     {
@@ -120,11 +144,11 @@ QList<QAction*> ActionRegistry::isShortcutUsed(
 {
   QList<QAction*> res;
 
-  QMapIterator<QString, QSet< QAction * > > ite(m_registeredActions);
+  QMapIterator<QString, ActionsSet > ite(m_registeredActions);
   while (ite.hasNext()) 
   {
     ite.next();
-    QSetIterator<  QAction * > i(ite.value());
+    QSetIterator<  QAction * > i(ite.value().actions);
 
     while (i.hasNext()) 
     {
@@ -144,7 +168,7 @@ void ActionRegistry::setShortcut(
   if(!isActionRegistered(actionName))
     return;
 
-  foreach (QAction * action, m_registeredActions[actionName])
+  foreach (QAction * action, m_registeredActions[actionName].actions)
     action->setShortcut(shortcut);
 }
 
@@ -155,7 +179,7 @@ void ActionRegistry::setShortcuts(
   if(!isActionRegistered(actionName))
     return;
 
-  foreach (QAction * action, m_registeredActions[actionName])
+  foreach (QAction * action, m_registeredActions[actionName].actions)
     action->setShortcuts(shortcuts);
 }
  
@@ -176,13 +200,30 @@ QList<QKeySequence> ActionRegistry::getShortcuts(
     : dum;
 }
 
+QKeySequence ActionRegistry::getDefaultShortcut(
+  QString const&actionName) const
+{
+  return isActionRegistered(actionName)
+    ? m_registeredActions[actionName].defaultShortcut
+    : QKeySequence();
+}
+
+QList<QKeySequence> ActionRegistry::getDefaultShortcuts(
+  QString const&actionName) const
+{
+  QList<QKeySequence> dum;
+  return isActionRegistered(actionName)
+    ? m_registeredActions[actionName].defaultShortcuts
+    : dum;
+}
+
 QAction* ActionRegistry::getAction(
   QString const&actionName) const
 {
   if(!isActionRegistered(actionName))
     return 0;
     
-  QSetIterator<  QAction * > i(m_registeredActions[actionName]);
+  QSetIterator<  QAction * > i(m_registeredActions[actionName].actions);
   QAction *action = i.next();
   return action;
 }
@@ -190,11 +231,11 @@ QAction* ActionRegistry::getAction(
 QString ActionRegistry::getActionName(
   QAction *action) const
 {
-  QMapIterator<QString, QSet< QAction * > > ite(m_registeredActions);
+  QMapIterator<QString, ActionsSet > ite(m_registeredActions);
   while (ite.hasNext()) 
   {
     ite.next();
-    if(ite.value().contains(action))
+    if(ite.value().actions.contains(action))
       return ite.key();
   }
   return "";
@@ -203,7 +244,7 @@ QString ActionRegistry::getActionName(
 QList<QString> ActionRegistry::getActionNameList() const
 {
   QList<QString> actionNameList;
-  QMapIterator<QString, QSet< QAction * > > ite(m_registeredActions);
+  QMapIterator<QString, ActionsSet > ite(m_registeredActions);
   while (ite.hasNext()) 
   {
     ite.next();
@@ -215,11 +256,15 @@ QList<QString> ActionRegistry::getActionNameList() const
 QString ActionRegistry::getContent() const
 {
   QString res = "--> ActionRegistry:\n";
-  QMapIterator<QString, QSet< QAction * > > ite(m_registeredActions);
+  QMapIterator<QString, ActionsSet > ite(m_registeredActions);
   while (ite.hasNext()) 
   {
     ite.next();
-    QAction *action = GetFirstAction(ite);
+
+    // Get the first action only.
+    QSetIterator<  QAction * > i(ite.value().actions);
+    QAction *action = i.next();
+
     QList<QKeySequence> shortcutsList = action->shortcuts();
 
     res += ite.key();
@@ -247,3 +292,13 @@ bool ActionRegistry::isActionContextGlobal(
   return false;
 }
 
+void ActionRegistry::resetDefaultShortcuts() 
+{
+  QMapIterator<QString, ActionsSet > ite(m_registeredActions);
+  while (ite.hasNext()) 
+  {
+    ite.next();
+    ActionsSet set = ite.value();
+    set.resetDefaultShortcuts();
+  }
+}

@@ -79,7 +79,7 @@ class ExitAction(BaseHotkeyEditorAction):
         super(ExitAction, self).__init__(
             hotkeyEditor, 
             "HotkeyEditor.ExitAction", 
-            "Ok", 
+            "OK", 
             QtGui.QKeySequence("Return"))
 
         self.setToolTip('Accept the changes and close the dialog')
@@ -134,3 +134,49 @@ class RedoAction(BaseHotkeyEditorAction):
             self.setEnabled(not editing)
         else:
             self.setEnabled(False)
+
+class ResetAction(BaseHotkeyEditorAction):
+    """ Reset to default configuration (actions' shortcuts).
+    """
+
+    def __init__(self, hotkeyEditor):
+        super(ResetAction, self).__init__(
+            hotkeyEditor, 
+            "HotkeyEditor.ResetAction", 
+            "Reset", 
+            QtGui.QKeySequence())
+
+        self.setToolTip('Resets to default configuration.')
+        
+    def onTriggered(self):
+        self.hotkeyEditor.hotkeyTable.qUndoStack.clear()
+        self.hotkeyEditor.hotkeyTable.model.resetItemKeySequence()
+        self.hotkeyEditor.hotkeyTable.onEmitEditingItem(False)
+
+
+class ResetSingleAction(CppActions.BaseAction):
+ 
+    def __init__(self, hotkeyTable, actName, curKeySeq):
+
+        super(ResetSingleAction, self).__init__(hotkeyTable)
+        self.hotkeyTable = hotkeyTable
+        self.actName = actName
+        self.curKeySeq = curKeySeq
+
+        self.init(
+            "HotkeyEditor.ResetSingleAction", 
+            "Reset To Default", 
+            QtGui.QKeySequence(), 
+            QtCore.Qt.WidgetWithChildrenShortcut,
+            True, False)  
+ 
+    def onTriggered(self):
+
+        actRegistry = CppActions.ActionRegistry.GetActionRegistry()
+        keySeq = actRegistry.getDefaultShortcut(self.actName)
+
+        if keySeq != self.curKeySeq:
+            cmd = SetKeySequenceCommand(self.hotkeyTable.model, self.actName, self.curKeySeq, keySeq)
+            if cmd.succefullyDone is True:
+                self.hotkeyTable.qUndoStack.push(cmd)
+                self.hotkeyTable.onEmitEditingItem(False)

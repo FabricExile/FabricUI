@@ -108,17 +108,29 @@ class ActionRegistry : public QObject
       QList<QKeySequence> const&shortcuts
       ) const;
 
-    /// Gets the shortcut. Returns an
-    /// empty sequence if the action 
-    /// has not been registered
+    /// Gets the current shortcuts. Returns an empty  
+    /// list if the action has not been registered
     QKeySequence getShortcut(
       QString const&actionName
       ) const;
 
-    /// Gets the shortcuts. Returns 
-    /// an empty list if the action 
-    /// has not been registered
+    /// Gets the current shortcuts. Returns an empty  
+    /// list if the action has not been registered
     QList<QKeySequence> getShortcuts(
+      QString const&actionName
+      ) const;
+
+    /// Gets the default shortcuts, with which the 
+    /// action has been registered. Returns an empty  
+    /// list if the action has not been registered
+    QKeySequence getDefaultShortcut(
+      QString const&actionName
+      ) const;
+
+    /// Gets the default shortcut, with which the 
+    /// action has been registered. Returns an empty  
+    /// list if the action has not been registered
+    QList<QKeySequence> getDefaultShortcuts(
       QString const&actionName
       ) const;
 
@@ -148,31 +160,33 @@ class ActionRegistry : public QObject
     bool isActionContextGlobal(
       QString const&actionName
       ) const;
-    
+      
+    /// Resets the shortcuts of all the actions to their
+    /// default (with which they have been registered).
+    void resetDefaultShortcuts();
+
   signals:
-    /// Emitted when an action 
-    /// has been registered.
+    /// Emitted when an action has been registered.
     void actionRegistered(
       QString const&actionName,
       QAction *action
       );
 
-    /// Emitted when an action 
-    /// is unregistered.
+    /// Emitted when an action is unregistered.
     void actionUnregistered(
       QString const&actionName
       );
 
   private slots:
-    /// Called when an action 
-    /// is destroyed.
+    /// Called when an action is destroyed.
     void onUnregisterAction(
       QObject *obj
       );
 
   private:
+    class ActionsSet;
     /// Dictionaries of registered actions.
-    QMap< QString, QSet<QAction*> > m_registeredActions;
+    QMap< QString, ActionsSet > m_registeredActions;
     /// Registry singleton.
     static ActionRegistry * s_actionRegistry;
     /// Check if the singleton has been set.
