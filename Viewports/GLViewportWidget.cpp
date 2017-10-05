@@ -49,10 +49,6 @@ GLViewportCaptureSequenceDialog::GLViewportCaptureSequenceDialog(QWidget *parent
   m_lineEditCaptureFilename->setMinimumWidth(150);
   addInput(m_lineEditCaptureFilename, "Filename");
 
-  m_lineEditCaptureExtension = new QLineEdit();
-  m_lineEditCaptureExtension->setMinimumWidth(50);
-  addInput(m_lineEditCaptureExtension, "Extension");
-
   m_lineEditCaptureFramePadding = new QLineEdit();
   m_lineEditCaptureFramePadding->setMinimumWidth(50);
   m_lineEditCaptureFramePadding->setValidator(new QIntValidator(0, 32000, this));
@@ -96,11 +92,6 @@ QString GLViewportCaptureSequenceDialog::captureFilename()
   return m_lineEditCaptureFilename->text();
 }
 
-QString GLViewportCaptureSequenceDialog::captureExtension()
-{
-  return m_lineEditCaptureExtension->text();
-}
-
 int GLViewportCaptureSequenceDialog::captureFramePadding()
 {
   return m_lineEditCaptureFramePadding->text().toInt();
@@ -134,11 +125,6 @@ void GLViewportCaptureSequenceDialog::setCapturePath(QString path)
 void GLViewportCaptureSequenceDialog::setCaptureFilename(QString filename)
 {
   m_lineEditCaptureFilename->setText(filename);
-}
-
-void GLViewportCaptureSequenceDialog::setCaptureExtension(QString extension)
-{
-  m_lineEditCaptureExtension->setText(extension);
 }
 
 void GLViewportCaptureSequenceDialog::setCaptureFramePadding(int framePadding)
@@ -378,10 +364,7 @@ void GLViewportWidget::paintGL()
     Context context = FabricApplicationStates::GetAppStates()->getContext();
     QString  capturePath         = m_viewport.maybeGetMember("capturePath")        .getStringCString();
     QString  captureFilename     = m_viewport.maybeGetMember("captureFilename")    .getStringCString();
-    QString  captureExtension    = m_viewport.maybeGetMember("captureExtension")   .getStringCString();
     uint32_t captureFramePadding = m_viewport.maybeGetMember("captureFramePadding").getUInt32();
-    if (!captureExtension.startsWith("."))
-      captureExtension.push_front(".");
 
     // get the timeline's current frame.
     int currentFrame = timeline->getTime();
@@ -389,7 +372,7 @@ void GLViewportWidget::paintGL()
     // create the output filepath for the image.
     char paddedFrame[64];
     sprintf(paddedFrame, "%0*d", captureFramePadding, currentFrame);
-    QString filepath = capturePath + "/" + captureFilename + paddedFrame + captureExtension;
+    QString filepath = capturePath + "/" + captureFilename + paddedFrame + ".png";
     printf("saving viewport as \"%s\"\n", filepath.toUtf8().data());
 
     // grab the viewport.
@@ -612,7 +595,6 @@ void GLViewportWidget::startViewportCapture()
   int      captureResY         = this->height();
   QString  capturePath         = m_viewport.maybeGetMember("capturePath")        .getStringCString();
   QString  captureFilename     = m_viewport.maybeGetMember("captureFilename")    .getStringCString();
-  QString  captureExtension    = m_viewport.maybeGetMember("captureExtension")   .getStringCString();
   uint32_t captureFramePadding = m_viewport.maybeGetMember("captureFramePadding").getUInt32();
   int      captureFrameStart   = timelineMemFrameStart;
   int      captureFrameEnd     = timelineMemFrameEnd;
@@ -623,7 +605,6 @@ void GLViewportWidget::startViewportCapture()
   dialog.setCaptureResY        (captureResY);
   dialog.setCapturePath        (capturePath);
   dialog.setCaptureFilename    (captureFilename);
-  dialog.setCaptureExtension   (captureExtension);
   dialog.setCaptureFramePadding(captureFramePadding);
   dialog.setCaptureFrameStart  (captureFrameStart);
   dialog.setCaptureFrameEnd    (captureFrameEnd);
@@ -633,7 +614,6 @@ void GLViewportWidget::startViewportCapture()
   captureResY         = dialog.captureResY();
   capturePath         = dialog.capturePath();
   captureFilename     = dialog.captureFilename();
-  captureExtension    = dialog.captureExtension();
   captureFramePadding = dialog.captureFramePadding();
   captureFrameStart   = dialog.captureFrameStart();
   captureFrameEnd     = dialog.captureFrameEnd();

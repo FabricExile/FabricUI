@@ -29,7 +29,6 @@ public:
   int captureResY();
   QString capturePath();
   QString captureFilename();
-  QString captureExtension();
   int captureFramePadding();
   int captureFrameStart();
   int captureFrameEnd();
@@ -38,7 +37,6 @@ public:
   void setCaptureResY(int resY);
   void setCapturePath(QString path);
   void setCaptureFilename(QString filename);
-  void setCaptureExtension(QString extension);
   void setCaptureFramePadding(int framePadding);
   void setCaptureFrameStart(int frameStart);
   void setCaptureFrameEnd(int frameEnd);
@@ -49,7 +47,6 @@ private:
   QLineEdit *m_lineEditCaptureResY;
   QLineEdit *m_lineEditCapturePath;
   QLineEdit *m_lineEditCaptureFilename;
-  QLineEdit *m_lineEditCaptureExtension;
   QLineEdit *m_lineEditCaptureFramePadding;
   QLineEdit *m_lineEditCaptureFrameStart;
   QLineEdit *m_lineEditCaptureFrameEnd;
