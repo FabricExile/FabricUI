@@ -141,9 +141,6 @@ protected:
     bool m_resizedOnce;
     bool m_gridVisible;
  
-    CaptureModes m_captureMode;
-    QString m_captureErrorDescription;
-
     FabricCore::RTVal m_camera;
     FabricCore::RTVal m_drawing;
     FabricCore::RTVal m_viewport;

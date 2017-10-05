@@ -148,8 +148,6 @@ GLViewportWidget::GLViewportWidget(
   QWidget *parent)
   : ViewportWidget(format, parent)
   , m_bgColor(bgColor)
-  , m_captureMode(CAPTURE_OFF)
-  , m_captureErrorDescription("")
 {
   setAutoBufferSwap(false);
 
@@ -340,77 +338,6 @@ void GLViewportWidget::paintGL()
 
   swapBuffers();
 
-  // capture viewport.
-  while (m_captureMode == CAPTURE_ON)
-  {
-    // get the timeline widget.
-    QWidget *parent = parentWidget();
-    if (parent == NULL)
-    {
-      m_captureMode = CAPTURE_ERROR;
-      m_captureErrorDescription = "the viewport has no parent widget";
-      break;
-    }
-    QWidget *dfgTimelineWidget = parent->findChild<QWidget *>("DFGTimelineWidget");
-    if (dfgTimelineWidget == NULL)
-    {
-      m_captureMode = CAPTURE_ERROR;
-      m_captureErrorDescription = "unable to find timeline widget";
-      break;
-    }
-    TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)dfgTimelineWidget;
-
-    // get the capture parameters.
-    Context context = FabricApplicationStates::GetAppStates()->getContext();
-    QString  capturePath         = m_viewport.maybeGetMember("capturePath")        .getStringCString();
-    QString  captureFilename     = m_viewport.maybeGetMember("captureFilename")    .getStringCString();
-    uint32_t captureFramePadding = m_viewport.maybeGetMember("captureFramePadding").getUInt32();
-
-    // get the timeline's current frame.
-    int currentFrame = timeline->getTime();
-
-    // create the output filepath for the image.
-    char paddedFrame[64];
-    sprintf(paddedFrame, "%0*d", captureFramePadding, currentFrame);
-    QString filepath = capturePath + "/" + captureFilename + paddedFrame + ".png";
-    printf("saving viewport as \"%s\"\n", filepath.toUtf8().data());
-
-    // grab the viewport.
-    QImage image = grabFrameBuffer(false /* withAlpha */);
-    if (image.isNull() || image.width() == 0 || image.height() == 0)
-    {
-      m_captureMode = CAPTURE_ERROR;
-      m_captureErrorDescription = "grabFrameBuffer() failed";
-      break;
-    }
-   
-    // save image.
-    if (!image.save(filepath))
-    {
-      // [Mootz]
-      // saving the image failed, but instead of aborting here
-      // we wait for half a second and try again as sometimes
-      // people are using a flipbbok to watch the images while
-      // they are being written (e.g. I like doing that).
-      const uint32_t ms = 500;
-      #ifdef Q_OS_WIN
-        Sleep(ms);
-      #else
-        struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
-        nanosleep(&ts, NULL);
-      #endif
-      if (!image.save(filepath))
-      {
-        m_captureMode = CAPTURE_ERROR;
-        m_captureErrorDescription = "error writing \"" + filepath + "\"";
-        break;
-      }
-    }
-
-    // done.
-    break;
-  }
-
   emit redrawn();
 }
 
@@ -572,10 +499,16 @@ void GLViewportWidget::startViewportCapture()
   // get the timeline widgets.
   QWidget *parent = parentWidget();
   if (parent == NULL)
+  {
+    printf("Error: the viewport has no parent widget\n");
     return;
+  }
   QWidget *dfgTimelineWidget = parent->findChild<QWidget *>("DFGTimelineWidget");
   if (dfgTimelineWidget == NULL)
+  {
+    printf("Error: unable to find timeline widget\n");
     return;
+  }
   TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)dfgTimelineWidget;
 
   // stop playback.
@@ -629,37 +562,60 @@ void GLViewportWidget::startViewportCapture()
   timeline->setLoopMode(LOOP_MODE_PLAY_ONCE);
   timeline->setFrameRate(1000);
   timeline->goToEndFrame();
-  m_captureMode = CAPTURE_ON;
-  m_captureErrorDescription = "";
   progressDialog.show();
-  for (int frame= captureFrameStart;frame<=captureFrameEnd;frame++)
+  for (int frame=captureFrameStart;frame<=captureFrameEnd;frame++)
   {
+    // evalute frame.
     progressDialog.setValue(frame);
     timeline->updateTime(frame);
     QApplication::processEvents();
     if (progressDialog.wasCanceled())
       break;
+
+    // create the output filepath.
+    char paddedFrame[64];
+    sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
+    QString filepath = capturePath + "/" + captureFilename + paddedFrame + ".png";
+    printf("saving viewport as \"%s\"\n", filepath.toUtf8().data());
+
+    // grab the viewport.
+    QImage image = grabFrameBuffer(false /* withAlpha */);
+    if (image.isNull() || image.width() == 0 || image.height() == 0)
+    {
+      printf("Error: grabFrameBuffer() failed\n");
+      break;
+    }
+   
+    // save image.
+    if (!image.save(filepath))
+    {
+      // [Mootz]
+      // saving the image failed, but instead of aborting here
+      // we wait for half a second and try again as sometimes
+      // people are using a flipbbok to watch the images while
+      // they are being written (e.g. I like doing that).
+      const uint32_t ms = 500;
+      #ifdef Q_OS_WIN
+        Sleep(ms);
+      #else
+        struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
+        nanosleep(&ts, NULL);
+      #endif
+      if (!image.save(filepath))
+      {
+        printf("Error: failed to write \"%s\"\n", filepath);
+        break;
+      }
+    }
+
   }
 
-  // deactivate capture.
-  m_captureMode = CAPTURE_OFF;
-  m_captureErrorDescription = "";
-
-  // close the progress dialog.
+  // close the progress dialog and restore the timeline.
   progressDialog.close();
-
-  // restore timeline.
   timeline->setTimeRange(timelineMemFrameStart, timelineMemFrameEnd);
   timeline->setLoopMode (timelineMemLoopMode);
   timeline->setFrameRate(timelineMemFramerate);
   timeline->updateTime  (timelineMemCurrentFrame);
-
-  // any errors?
-  if (m_captureMode == CAPTURE_ERROR)
-  {
-    QString msg = "The following error occurred while capturing:\n\n" + (m_captureErrorDescription.isEmpty() ? "unknown error" : m_captureErrorDescription);
-    QMessageBox::warning(this, "Canvas Viewport Capture", msg);
-  }
 
   FABRIC_CATCH_END("GLViewportWidget::startViewportCapture");
 }
