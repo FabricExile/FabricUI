@@ -566,12 +566,6 @@ void GLViewportWidget::startViewportCapture()
   captureFrameStart   = dialog.captureFrameStart();
   captureFrameEnd     = dialog.captureFrameEnd();
 
-  // update values in render options.
-      /* TODO! */
-  //m_viewport.setMember("capturePath",         RTVal::ConstructString(context, capturePath.toUtf8().data()));
-  //m_viewport.setMember("captureFilename",     RTVal::ConstructString(context, captureFilename.toUtf8().data()));
-  //m_viewport.setMember("captureFramePadding", RTVal::ConstructUInt32(context, captureFramePadding));
-
   // expand the environment variables in capturePath.
   {
     RTVal rtValCapturePath      = RTVal::ConstructString(context, capturePath.toUtf8().data());
