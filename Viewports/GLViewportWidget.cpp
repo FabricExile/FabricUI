@@ -545,9 +545,7 @@ void GLViewportWidget::startViewportCapture()
 
   // if the capture path is empty we default it to the Fabric user dir.
   if (capturePath.isEmpty())
-  {
-    capturePath = QDir::homePath() + "/Fabric/Captures";
-  }
+    capturePath = QString(FabricCore::GetFabricUserDir()) + "/Captures";
 
   // capture sequence dialog.
   GLViewportCaptureSequenceDialog dialog(this, "Canvas Viewport Capture");
