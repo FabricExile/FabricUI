@@ -70,8 +70,32 @@ DFGLogWidget::~DFGLogWidget()
 
 void DFGLogWidget::log(const char * message)
 {
-  callback( NULL, FabricCore::ReportSource_System,
-            FabricCore::ReportLevel_Info, message, 0 );
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Info, message, 0);
+}
+
+void DFGLogWidget::logError(const char * message)
+{
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Error, message, 0);
+}
+
+void DFGLogWidget::logWarning(const char * message)
+{
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Warning, message, 0);
+}
+
+void DFGLogWidget::logInfo(const char * message)
+{
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Info, message, 0);
+}
+
+void DFGLogWidget::logDebug(const char * message)
+{
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Debug, message, 0);
 }
 
 void DFGLogWidget::callback(
@@ -107,6 +131,8 @@ void DFGLogWidget::callback(
 
     keywords.push_back(std::make_pair("teapots", QColor(255, 0, 255)));
     keywords.push_back(std::make_pair("teapot", QColor(255, 0, 255)));
+
+    keywords.push_back(std::make_pair("viewport capture]", QColor(235, 215, 255)));
 
     // create a QString from the data and set the global
     // flags indicating if the string contains the error

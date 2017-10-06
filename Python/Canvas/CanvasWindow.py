@@ -196,8 +196,6 @@ class ShowHotkeyEditorDialogAction(BaseCanvasWindowAction):
 
     def onTriggered(self):
         if not self.canvasWindow.hotkeyEditorDialog.isVisible():
-            pos = QtGui.QCursor.pos()
-            self.canvasWindow.hotkeyEditorDialog.move(pos.x(), pos.y())
             self.canvasWindow.hotkeyEditorDialog.exec_()
 
 class CanvasWindow(QtGui.QMainWindow):
@@ -320,6 +318,8 @@ class CanvasWindow(QtGui.QMainWindow):
         self.manipAction = None
         self.setGridVisibleAction = None
         self.resetCameraAction = None
+        self.startViewportCapture = None
+        self.saveViewportAs = None
         self.clearLogAction = None
         self.showHotkeyEditorDialogAction = None
 
@@ -1381,6 +1381,10 @@ class CanvasWindow(QtGui.QMainWindow):
             self.setGridVisibleAction.blockSignals(enabled)
         if self.resetCameraAction:
             self.resetCameraAction.blockSignals(enabled)
+        if self.startViewportCapture:
+            self.startViewportCapture.blockSignals(enabled)
+        if self.saveViewportAs:
+            self.saveViewportAs.blockSignals(enabled)
         if self.clearLogAction:
             self.clearLogAction.blockSignals(enabled)
         if self.showHotkeyEditorDialogAction:
@@ -1463,20 +1467,24 @@ class CanvasWindow(QtGui.QMainWindow):
 
         elif name == 'View':
             if prefix:
-
+                self.clearLogAction = QtGui.QAction('&Clear Log Messages', None)
+                self.clearLogAction.triggered.connect(self.logWidget.clear)
+                menu.addAction(self.clearLogAction)
+            else:
                 if self.isCanvas:
                     self.setGridVisibleAction = GridVisibilityAction(self.viewport, self.viewport)
                     self.resetCameraAction = ResetCameraAction(self.viewport, self.viewport)
-
-                self.clearLogAction = QtGui.QAction('&Clear Log Messages', None)
-                self.clearLogAction.triggered.connect(self.logWidget.clear)
-
-                if self.isCanvas:
-                    menu.addAction(self.setGridVisibleAction)
-                    menu.addSeparator()
-                    menu.addAction(self.resetCameraAction)
-                    menu.addSeparator()
-                menu.addAction(self.clearLogAction)
+                    viewportMenu = menu.addMenu("Viewport")
+                    viewportMenu.addAction(self.setGridVisibleAction)
+                    viewportMenu.addSeparator()
+                    viewportMenu.addAction(self.resetCameraAction)
+                    viewportMenu.addSeparator()
+                    self.startViewportCapture = QtGui.QAction('&Start Viewport Capture (Sequence)', None)
+                    self.startViewportCapture.triggered.connect(self.viewport.startViewportCapture)
+                    viewportMenu.addAction(self.startViewportCapture)
+                    self.saveViewportAs = QtGui.QAction('&Capture Current (Single Frame)', None)
+                    self.saveViewportAs.triggered.connect(self.viewport.saveViewportAs)
+                    viewportMenu.addAction(self.saveViewportAs)
 
     def onGraphSet(self, graph):
         """Callback when the graph is set.

@@ -4,8 +4,16 @@
 
 #include <QMouseEvent>
 #include <QApplication>
+#include <QDir>
+#include <QImage>
+#include <QPixmap>
+#include <QFileDialog>
+#include <QProgressDialog>
+#include <QMessageBox>
 #include "QtToKLEvent.h"
+#include "TimeLineWidget.h"
 #include "GLViewportWidget.h"
+#include <FabricUI/DFG/DFGLogWidget.h>
 #include <FabricUI/Commands/KLCommandManager.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Application/FabricApplicationStates.h>
@@ -16,13 +24,133 @@ using namespace Viewports;
 using namespace FabricCore;
 using namespace Application;
 
+GLViewportCaptureSequenceDialog::GLViewportCaptureSequenceDialog(QWidget *parent, QString title, const FabricUI::DFG::DFGConfig &dfgConfig)
+  : FabricUI::DFG::DFGBaseDialog(parent, true, dfgConfig)
+{
+  setObjectName("GLViewportCaptureSequenceDialog");
+
+  this->setWindowTitle(title);
+
+  m_lineEditCaptureResX = new QLineEdit();
+  m_lineEditCaptureResX->setMinimumWidth(50);
+  m_lineEditCaptureResX->setReadOnly(true);
+  m_lineEditCaptureResX->setValidator(new QIntValidator(0, 32000, this));
+  addInput(m_lineEditCaptureResX, "Viewport Width");
+
+  m_lineEditCaptureResY = new QLineEdit();
+  m_lineEditCaptureResY->setMinimumWidth(50);
+  m_lineEditCaptureResY->setReadOnly(true);
+  m_lineEditCaptureResY->setValidator(new QIntValidator(0, 32000, this));
+  addInput(m_lineEditCaptureResY, "Viewport Height");
+
+  m_lineEditCapturePath = new QLineEdit();
+  m_lineEditCapturePath->setMinimumWidth(250);
+  addInput(m_lineEditCapturePath, "Path");
+
+  m_lineEditCaptureFilename = new QLineEdit();
+  m_lineEditCaptureFilename->setMinimumWidth(150);
+  addInput(m_lineEditCaptureFilename, "Filename");
+
+  m_lineEditCaptureFramePadding = new QLineEdit();
+  m_lineEditCaptureFramePadding->setMinimumWidth(50);
+  m_lineEditCaptureFramePadding->setValidator(new QIntValidator(0, 32000, this));
+  addInput(m_lineEditCaptureFramePadding, "Frame Padding");
+
+  m_lineEditCaptureFrameStart = new QLineEdit();
+  m_lineEditCaptureFrameStart->setMinimumWidth(50);
+  m_lineEditCaptureFrameStart->setValidator(new QIntValidator(-32000, 32000, this));
+  addInput(m_lineEditCaptureFrameStart, "Frame Start");
+
+  m_lineEditCaptureFrameEnd = new QLineEdit();
+  m_lineEditCaptureFrameEnd->setMinimumWidth(50);
+  m_lineEditCaptureFrameEnd->setValidator(new QIntValidator(-32000, 32000, this));
+  addInput(m_lineEditCaptureFrameEnd, "Frame End");
+
+  //this->adjustSize();
+  //this->window()->layout()->setSizeConstraint(QLayout::SetFixedSize);
+}
+
+GLViewportCaptureSequenceDialog::~GLViewportCaptureSequenceDialog()
+{
+}
+
+int GLViewportCaptureSequenceDialog::captureResX()
+{
+  return m_lineEditCaptureResX->text().toInt();
+}
+
+int GLViewportCaptureSequenceDialog::captureResY()
+{
+  return m_lineEditCaptureResY->text().toInt();
+}
+
+QString GLViewportCaptureSequenceDialog::capturePath()
+{
+  return m_lineEditCapturePath->text();
+}
+
+QString GLViewportCaptureSequenceDialog::captureFilename()
+{
+  return m_lineEditCaptureFilename->text();
+}
+
+int GLViewportCaptureSequenceDialog::captureFramePadding()
+{
+  return m_lineEditCaptureFramePadding->text().toInt();
+}
+
+int GLViewportCaptureSequenceDialog::captureFrameStart()
+{
+  return m_lineEditCaptureFrameStart->text().toInt();
+}
+
+int GLViewportCaptureSequenceDialog::captureFrameEnd()
+{
+  return m_lineEditCaptureFrameEnd->text().toInt();
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureResX(int resX)
+{
+  m_lineEditCaptureResX->setText(QString::number(resX));
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureResY(int resY)
+{
+  m_lineEditCaptureResY->setText(QString::number(resY));
+}
+
+void GLViewportCaptureSequenceDialog::setCapturePath(QString path)
+{
+  m_lineEditCapturePath->setText(path);
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureFilename(QString filename)
+{
+  m_lineEditCaptureFilename->setText(filename);
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureFramePadding(int framePadding)
+{
+  m_lineEditCaptureFramePadding->setText(QString::number(framePadding));
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureFrameStart(int frameStart)
+{
+  m_lineEditCaptureFrameStart->setText(QString::number(frameStart));
+}
+
+void GLViewportCaptureSequenceDialog::setCaptureFrameEnd(int frameEnd)
+{
+  m_lineEditCaptureFrameEnd->setText(QString::number(frameEnd));
+}
+
 GLViewportWidget::GLViewportWidget(
   QColor bgColor, 
   QGLFormat format, 
   QWidget *parent)
   : ViewportWidget(format, parent)
   , m_bgColor(bgColor)
-{	
+{
   setAutoBufferSwap(false);
 
   m_gridVisible = true; // default value
@@ -211,6 +339,7 @@ void GLViewportWidget::paintGL()
   FABRIC_CATCH_END("GLViewportWidget::resizeGL");
 
   swapBuffers();
+
   emit redrawn();
 }
 
@@ -360,4 +489,194 @@ void GLViewportWidget::resetCamera()
   FABRIC_CATCH_END("GLViewportWidget::resetCamera");
 
   update();
+}
+
+void GLViewportWidget::startViewportCapture()
+{
+  if (!m_viewport.isValid())
+    return;
+
+  FABRIC_CATCH_BEGIN();
+
+  // get the parent widget.
+  QWidget *parent = parentWidget();
+  if (parent == NULL)
+  {
+    printf("[Viewport Capture] Error: the viewport has no parent widget\n");
+    return;
+  }
+
+  // get the log widget.
+  DFG::DFGLogWidget *log = (DFG::DFGLogWidget *)parent->findChild<QWidget *>("DFGLogWidget");
+  if (log == NULL)
+  {
+    printf("[Viewport Capture] Error: unable to find log widget\n");
+    return;
+  }
+
+  // get the timeline widget.
+  TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)parent->findChild<QWidget *>("DFGTimelineWidget");
+  if (timeline == NULL)
+  {
+    log->logError("[Viewport Capture] Error: unable to find timeline widget");
+    return;
+  }
+
+  // stop playback.
+  if (timeline->isPlaying())
+    timeline->pause();
+
+  // memorize the timeline's current state.
+  int   timelineMemFrameStart   = timeline->getRangeStart();
+  int   timelineMemFrameEnd     = timeline->getRangeEnd();
+  int   timelineMemCurrentFrame = timeline->getTime();
+  float timelineMemFramerate    = timeline->framerate();
+  int   timelineMemLoopMode     = timeline->loopMode();
+
+  // get the capture parameters.
+  Context context = FabricApplicationStates::GetAppStates()->getContext();
+  int      captureResX         = this->width();
+  int      captureResY         = this->height();
+  QString  capturePath         = m_viewport.maybeGetMember("capturePath")        .getStringCString();
+  QString  captureFilename     = m_viewport.maybeGetMember("captureFilename")    .getStringCString();
+  uint32_t captureFramePadding = m_viewport.maybeGetMember("captureFramePadding").getUInt32();
+  int      captureFrameStart   = timelineMemFrameStart;
+  int      captureFrameEnd     = timelineMemFrameEnd;
+
+  // if the capture path is empty we default it to the Fabric user dir.
+  if (capturePath.isEmpty())
+    capturePath = QString(FabricCore::GetFabricUserDir()) + "/Captures";
+
+  // capture sequence dialog.
+  GLViewportCaptureSequenceDialog dialog(this, "Canvas Viewport Capture");
+  dialog.setCaptureResX        (captureResX);
+  dialog.setCaptureResY        (captureResY);
+  dialog.setCapturePath        (capturePath);
+  dialog.setCaptureFilename    (captureFilename);
+  dialog.setCaptureFramePadding(captureFramePadding);
+  dialog.setCaptureFrameStart  (captureFrameStart);
+  dialog.setCaptureFrameEnd    (captureFrameEnd);
+  if (dialog.exec() != QDialog::Accepted)
+    return;
+  captureResX         = dialog.captureResX();
+  captureResY         = dialog.captureResY();
+  capturePath         = dialog.capturePath();
+  captureFilename     = dialog.captureFilename();
+  captureFramePadding = dialog.captureFramePadding();
+  captureFrameStart   = dialog.captureFrameStart();
+  captureFrameEnd     = dialog.captureFrameEnd();
+
+  // expand the environment variables in capturePath.
+  {
+    RTVal rtValCapturePath      = RTVal::ConstructString(context, capturePath.toUtf8().data());
+    RTVal rtValOriginalFilePath = RTVal::Construct(context, "FilePath", 1, &rtValCapturePath);
+    RTVal rtValExpandedFilePath = rtValOriginalFilePath.callMethod("FilePath", "expandEnvVars", 0, 0);
+    capturePath = rtValExpandedFilePath.callMethod("String", "string", 0, 0).getStringCString();
+  }
+
+  // ensure the path exists (i.e. create folders if necessary).
+  if (!QDir(capturePath).exists() && !QDir().mkpath(capturePath))
+    log->logWarning("[Viewport Capture] Warning: output folder might not exist");
+
+  // create and init the progress dialog.
+  QProgressDialog progressDialog("Capturing Viewport ...", "Abort Capture", captureFrameStart, captureFrameEnd, parent);
+  progressDialog.setWindowModality(Qt::ApplicationModal);
+  progressDialog.setMinimumWidth(qMax(250, this->width() / 2));
+  progressDialog.setAutoClose(false);
+
+  // capture.
+  timeline->setTimeRange(captureFrameStart, captureFrameEnd);
+  timeline->setLoopMode(LOOP_MODE_PLAY_ONCE);
+  timeline->setFrameRate(1000);
+  timeline->goToEndFrame();
+  progressDialog.show();
+  for (int frame=captureFrameStart;frame<=captureFrameEnd;frame++)
+  {
+    // evalute frame.
+    progressDialog.setValue(frame);
+    timeline->updateTime(frame);
+    QApplication::processEvents();
+    if (progressDialog.wasCanceled())
+      break;
+
+    // create the output filepath.
+    char paddedFrame[64];
+    sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
+    QString filepath = QDir(capturePath + "/" + captureFilename + paddedFrame + ".png").absolutePath();
+    log->logInfo(QString("[Viewport Capture] saving viewport as \"" + filepath + "\"").toUtf8().data());
+
+    // grab the viewport.
+    QImage image = grabFrameBuffer(false /* withAlpha */);
+    if (image.isNull() || image.width() == 0 || image.height() == 0)
+    {
+      log->logError("[Viewport Capture] Error: grabFrameBuffer() failed");
+      break;
+    }
+   
+    // save image.
+    if (!image.save(filepath))
+    {
+      log->logWarning("[Viewport Capture] Warning: write error ... trying again in 0.5 seconds");
+      // [Mootz]
+      // saving the image failed, but instead of aborting here
+      // we wait for half a second and try again as sometimes
+      // people are using a flipbbok to watch the images while
+      // they are being written (e.g. I like doing that).
+      const uint32_t ms = 500;
+      #ifdef Q_OS_WIN
+        Sleep(ms);
+      #else
+        struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
+        nanosleep(&ts, NULL);
+      #endif
+      if (!image.save(filepath))
+      {
+        log->logInfo(QString("[Viewport Capture] Error: failed to write \"" + filepath + "\"").toUtf8().data());
+        break;
+      }
+    }
+
+  }
+
+  // close the progress dialog and restore the timeline.
+  progressDialog.close();
+  timeline->setTimeRange(timelineMemFrameStart, timelineMemFrameEnd);
+  timeline->setLoopMode (timelineMemLoopMode);
+  timeline->setFrameRate(timelineMemFramerate);
+  timeline->updateTime  (timelineMemCurrentFrame);
+
+  FABRIC_CATCH_END("GLViewportWidget::startViewportCapture");
+}
+
+void GLViewportWidget::saveViewportAs()
+{
+  if (!m_viewport.isValid())
+  {
+    printf("Error: viewport not valid\n");
+    return;
+  }
+
+  FABRIC_CATCH_BEGIN();
+
+  QImage image = grabFrameBuffer(false /* withAlpha */);
+  if (image.isNull())
+  {
+    printf("Error: grabFrameBuffer() failed\n");
+    return;
+  }
+
+  static QString filepath = "capture.png";
+  filepath = QFileDialog::getSaveFileName(this, "Save Capture As", filepath, "PNG Image (*.png)");
+  if (!filepath.isEmpty())
+  {
+    filepath = QFileInfo(filepath).absoluteFilePath();
+    if (!image.save(filepath))
+    {
+      QString msg = "Failed to save image as\n\"" + filepath + "\"";
+      QMessageBox::warning(this, "Canvas Viewport Capture", msg);
+      return;
+    }
+  }
+
+  FABRIC_CATCH_END("GLViewportWidget::saveViewportAs");
 }
