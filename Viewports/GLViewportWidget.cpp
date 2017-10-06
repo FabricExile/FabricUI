@@ -576,9 +576,7 @@ void GLViewportWidget::startViewportCapture()
     // create the output filepath.
     char paddedFrame[64];
     sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
-    QString filepath = capturePath + "/" + captureFilename + paddedFrame + ".png";
-    filepath = QDir::toNativeSeparators(filepath);
-    filepath = QDir::cleanPath(filepath);
+    QString filepath = QDir(capturePath + "/" + captureFilename + paddedFrame + ".png").absolutePath();
     printf("saving viewport as \"%s\"\n", filepath.toUtf8().data());
 
     // grab the viewport.
