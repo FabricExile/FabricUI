@@ -537,9 +537,28 @@ void GLViewportWidget::startViewportCapture()
   Context context = FabricApplicationStates::GetAppStates()->getContext();
   int      captureResX         = this->width();
   int      captureResY         = this->height();
-  QString  capturePath         = m_viewport.maybeGetMember("capturePath")        .getStringCString();
-  QString  captureFilename     = m_viewport.maybeGetMember("captureFilename")    .getStringCString();
-  uint32_t captureFramePadding = m_viewport.maybeGetMember("captureFramePadding").getUInt32();
+
+  FabricCore::RTVal viewportParams = m_drawContext.invokeMethod( "getCurrentViewportParams", 0, NULL );
+  assert( viewportParams.hasType( "RTVal[String]" ) );
+  FabricCore::RTVal captureParams = viewportParams.getDictElement(
+    FabricCore::RTVal::ConstructString( m_drawContext.getContext(), "capture" ) ).getUnwrappedRTVal();
+  assert( captureParams.hasType( "RTVal[String]" ) );
+
+  FabricCore::RTVal capturePathRT = captureParams.getDictElement(
+    FabricCore::RTVal::ConstructString( m_drawContext.getContext(), "path" ) ).getUnwrappedRTVal();
+  assert( capturePathRT.hasType( "String" ) );
+  QString capturePath = capturePathRT.getStringCString();
+
+  FabricCore::RTVal captureFilenameRT = captureParams.getDictElement(
+    FabricCore::RTVal::ConstructString( m_drawContext.getContext(), "filename" ) ).getUnwrappedRTVal();
+  assert( captureFilenameRT.hasType( "String" ) );
+  QString captureFilename = captureFilenameRT.getStringCString();
+
+  FabricCore::RTVal captureFramePaddingRT = captureParams.getDictElement(
+    FabricCore::RTVal::ConstructString( m_drawContext.getContext(), "framePadding" ) ).getUnwrappedRTVal();
+  assert( captureFramePaddingRT.hasType( "UInt32" ) );
+  uint32_t captureFramePadding = captureFramePaddingRT.getUInt32();
+
   int      captureFrameStart   = timelineMemFrameStart;
   int      captureFrameEnd     = timelineMemFrameEnd;
 
