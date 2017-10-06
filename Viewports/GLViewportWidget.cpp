@@ -575,7 +575,7 @@ void GLViewportWidget::startViewportCapture()
   // create and init the progress dialog.
   QProgressDialog progressDialog("Capturing Viewport ...", "Abort Capture", captureFrameStart, captureFrameEnd, parent);
   progressDialog.setWindowModality(Qt::ApplicationModal);
-  progressDialog.setMinimumWidth(qMax(250, this->width()));
+  progressDialog.setMinimumWidth(qMax(250, this->width() / 2));
   progressDialog.setAutoClose(false);
 
   // capture.
