@@ -13,6 +13,7 @@
 #include "QtToKLEvent.h"
 #include "TimeLineWidget.h"
 #include "GLViewportWidget.h"
+#include <FabricUI/DFG/DFGLogWidget.h>
 #include <FabricUI/Commands/KLCommandManager.h>
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Application/FabricApplicationStates.h>
@@ -497,20 +498,29 @@ void GLViewportWidget::startViewportCapture()
 
   FABRIC_CATCH_BEGIN();
 
-  // get the timeline widgets.
+  // get the parent widget.
   QWidget *parent = parentWidget();
   if (parent == NULL)
   {
-    printf("Error: the viewport has no parent widget\n");
+    printf("[viewport capture] Error: the viewport has no parent widget\n");
     return;
   }
-  QWidget *dfgTimelineWidget = parent->findChild<QWidget *>("DFGTimelineWidget");
-  if (dfgTimelineWidget == NULL)
+
+  // get the log widget.
+  DFG::DFGLogWidget *log = (DFG::DFGLogWidget *)parent->findChild<QWidget *>("DFGLogWidget");
+  if (log == NULL)
   {
-    printf("Error: unable to find timeline widget\n");
+    printf("[viewport capture] Error: unable to find log widget\n");
     return;
   }
-  TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)dfgTimelineWidget;
+
+  // get the timeline widget.
+  TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)parent->findChild<QWidget *>("DFGTimelineWidget");
+  if (timeline == NULL)
+  {
+    log->logError("[viewport capture] Error: unable to find timeline widget");
+    return;
+  }
 
   // stop playback.
   if (timeline->isPlaying())
@@ -577,19 +587,20 @@ void GLViewportWidget::startViewportCapture()
     char paddedFrame[64];
     sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
     QString filepath = QDir(capturePath + "/" + captureFilename + paddedFrame + ".png").absolutePath();
-    printf("saving viewport as \"%s\"\n", filepath.toUtf8().data());
+    log->logInfo(QString("[viewport capture] saving viewport as \"" + filepath + "\"").toUtf8().data());
 
     // grab the viewport.
     QImage image = grabFrameBuffer(false /* withAlpha */);
     if (image.isNull() || image.width() == 0 || image.height() == 0)
     {
-      printf("Error: grabFrameBuffer() failed\n");
+      log->logError("[viewport capture] Error: grabFrameBuffer() failed");
       break;
     }
    
     // save image.
     if (!image.save(filepath))
     {
+      log->logWarning("[viewport capture] Warning: write error ... trying again in 0.5 seconds");
       // [Mootz]
       // saving the image failed, but instead of aborting here
       // we wait for half a second and try again as sometimes
@@ -604,7 +615,7 @@ void GLViewportWidget::startViewportCapture()
       #endif
       if (!image.save(filepath))
       {
-        printf("Error: failed to write \"%s\"\n", filepath);
+        log->logInfo(QString("[viewport capture] Error: failed to write \"" + filepath + "\"").toUtf8().data());
         break;
       }
     }
@@ -625,7 +636,7 @@ void GLViewportWidget::saveViewportAs()
 {
   if (!m_viewport.isValid())
   {
-    printf("error: viewport not valid\n");
+    printf("Error: viewport not valid\n");
     return;
   }
 
@@ -634,7 +645,7 @@ void GLViewportWidget::saveViewportAs()
   QImage image = grabFrameBuffer(false /* withAlpha */);
   if (image.isNull())
   {
-    printf("error: grabFrameBuffer() failed\n");
+    printf("Error: grabFrameBuffer() failed\n");
     return;
   }
 

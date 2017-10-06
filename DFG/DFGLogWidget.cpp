@@ -70,8 +70,32 @@ DFGLogWidget::~DFGLogWidget()
 
 void DFGLogWidget::log(const char * message)
 {
-  callback( NULL, FabricCore::ReportSource_System,
-            FabricCore::ReportLevel_Info, message, 0 );
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Info, message, 0);
+}
+
+void DFGLogWidget::logError(const char * message)
+{
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Error, message, 0);
+}
+
+void DFGLogWidget::logWarning(const char * message)
+{
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Warning, message, 0);
+}
+
+void DFGLogWidget::logInfo(const char * message)
+{
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Info, message, 0);
+}
+
+void DFGLogWidget::logDebug(const char * message)
+{
+  callback(NULL, FabricCore::ReportSource_System,
+    FabricCore::ReportLevel_Debug, message, 0);
 }
 
 void DFGLogWidget::callback(
