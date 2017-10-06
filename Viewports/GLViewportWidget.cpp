@@ -574,6 +574,14 @@ void GLViewportWidget::startViewportCapture()
   //m_viewport.setMember("captureFilename",     RTVal::ConstructString(context, captureFilename.toUtf8().data()));
   //m_viewport.setMember("captureFramePadding", RTVal::ConstructUInt32(context, captureFramePadding));
 
+  // expand the environment variables in capturePath.
+  {
+    RTVal rtValCapturePath      = RTVal::ConstructString(context, capturePath.toUtf8().data());
+    RTVal rtValOriginalFilePath = RTVal::Construct(context, "FilePath", 1, &rtValCapturePath);
+    RTVal rtValExpandedFilePath = rtValOriginalFilePath.callMethod("FilePath", "expandEnvVars", 0, 0);
+    capturePath = rtValExpandedFilePath.callMethod("String", "string", 0, 0).getStringCString();
+  }
+
   // ensure the path exists (i.e. create folders if necessary).
   if (!QDir(capturePath).exists() && !QDir().mkpath(capturePath))
     log->logWarning("[Viewport Capture] Warning: output folder might not exist");
