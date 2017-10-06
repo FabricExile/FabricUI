@@ -502,7 +502,7 @@ void GLViewportWidget::startViewportCapture()
   QWidget *parent = parentWidget();
   if (parent == NULL)
   {
-    printf("[viewport capture] Error: the viewport has no parent widget\n");
+    printf("[Viewport Capture] Error: the viewport has no parent widget\n");
     return;
   }
 
@@ -510,7 +510,7 @@ void GLViewportWidget::startViewportCapture()
   DFG::DFGLogWidget *log = (DFG::DFGLogWidget *)parent->findChild<QWidget *>("DFGLogWidget");
   if (log == NULL)
   {
-    printf("[viewport capture] Error: unable to find log widget\n");
+    printf("[Viewport Capture] Error: unable to find log widget\n");
     return;
   }
 
@@ -518,7 +518,7 @@ void GLViewportWidget::startViewportCapture()
   TimeLine::TimeLineWidget *timeline = (TimeLine::TimeLineWidget *)parent->findChild<QWidget *>("DFGTimelineWidget");
   if (timeline == NULL)
   {
-    log->logError("[viewport capture] Error: unable to find timeline widget");
+    log->logError("[Viewport Capture] Error: unable to find timeline widget");
     return;
   }
 
@@ -587,20 +587,20 @@ void GLViewportWidget::startViewportCapture()
     char paddedFrame[64];
     sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
     QString filepath = QDir(capturePath + "/" + captureFilename + paddedFrame + ".png").absolutePath();
-    log->logInfo(QString("[viewport capture] saving viewport as \"" + filepath + "\"").toUtf8().data());
+    log->logInfo(QString("[Viewport Capture] saving viewport as \"" + filepath + "\"").toUtf8().data());
 
     // grab the viewport.
     QImage image = grabFrameBuffer(false /* withAlpha */);
     if (image.isNull() || image.width() == 0 || image.height() == 0)
     {
-      log->logError("[viewport capture] Error: grabFrameBuffer() failed");
+      log->logError("[Viewport Capture] Error: grabFrameBuffer() failed");
       break;
     }
    
     // save image.
     if (!image.save(filepath))
     {
-      log->logWarning("[viewport capture] Warning: write error ... trying again in 0.5 seconds");
+      log->logWarning("[Viewport Capture] Warning: write error ... trying again in 0.5 seconds");
       // [Mootz]
       // saving the image failed, but instead of aborting here
       // we wait for half a second and try again as sometimes
@@ -615,7 +615,7 @@ void GLViewportWidget::startViewportCapture()
       #endif
       if (!image.save(filepath))
       {
-        log->logInfo(QString("[viewport capture] Error: failed to write \"" + filepath + "\"").toUtf8().data());
+        log->logInfo(QString("[Viewport Capture] Error: failed to write \"" + filepath + "\"").toUtf8().data());
         break;
       }
     }

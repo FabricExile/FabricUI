@@ -132,6 +132,8 @@ void DFGLogWidget::callback(
     keywords.push_back(std::make_pair("teapots", QColor(255, 0, 255)));
     keywords.push_back(std::make_pair("teapot", QColor(255, 0, 255)));
 
+    keywords.push_back(std::make_pair("viewport capture]", QColor(235, 215, 255)));
+
     // create a QString from the data and set the global
     // flags indicating if the string contains the error
     // and/or warning words.
