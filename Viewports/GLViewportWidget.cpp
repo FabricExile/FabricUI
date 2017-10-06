@@ -4,6 +4,7 @@
 
 #include <QMouseEvent>
 #include <QApplication>
+#include <QDir>
 #include <QImage>
 #include <QPixmap>
 #include <QFileDialog>
@@ -576,6 +577,8 @@ void GLViewportWidget::startViewportCapture()
     char paddedFrame[64];
     sprintf(paddedFrame, "%0*d", captureFramePadding, frame);
     QString filepath = capturePath + "/" + captureFilename + paddedFrame + ".png";
+    filepath = QDir::toNativeSeparators(filepath);
+    filepath = QDir::cleanPath(filepath);
     printf("saving viewport as \"%s\"\n", filepath.toUtf8().data());
 
     // grab the viewport.
