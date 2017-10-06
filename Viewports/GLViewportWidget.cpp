@@ -568,6 +568,12 @@ void GLViewportWidget::startViewportCapture()
   captureFrameStart   = dialog.captureFrameStart();
   captureFrameEnd     = dialog.captureFrameEnd();
 
+  // update values in render options.
+      /* TODO! */
+  //m_viewport.setMember("capturePath",         RTVal::ConstructString(context, capturePath.toUtf8().data()));
+  //m_viewport.setMember("captureFilename",     RTVal::ConstructString(context, captureFilename.toUtf8().data()));
+  //m_viewport.setMember("captureFramePadding", RTVal::ConstructUInt32(context, captureFramePadding));
+
   // ensure the path exists (i.e. create folders if necessary).
   if (!QDir(capturePath).exists() && !QDir().mkpath(capturePath))
     log->logWarning("[Viewport Capture] Warning: output folder might not exist");
