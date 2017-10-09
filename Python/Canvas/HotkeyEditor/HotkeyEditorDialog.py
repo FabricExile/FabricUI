@@ -79,16 +79,17 @@ class HotkeyEditorDialog(QtGui.QDialog):
         ctrlWidget.setLayout(ctrlLayout)
 
         # Buttons
-        okButton = QtGui.QToolButton()
-        okButton.setDefaultAction(ExitAction(self))
-        okButton.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
+        closeButton = QtGui.QToolButton()
+        closeButton.setDefaultAction(ExitAction(self))
+        closeButton.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
                                QtGui.QSizePolicy.MinimumExpanding)
-        okButton.setMaximumHeight(40)
+        closeButton.setMaximumHeight(40)
+        closeButton.setText("Close")
 
         buttonLayout = QtGui.QHBoxLayout()
         buttonLayout.setContentsMargins(0, 0, 0, 0)
         buttonLayout.setSpacing(0)
-        buttonLayout.addWidget(okButton)
+        buttonLayout.addWidget(closeButton)
     
         # All
         layout = QtGui.QVBoxLayout()
