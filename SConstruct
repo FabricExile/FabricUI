@@ -205,6 +205,7 @@ uiLib = SConscript('SConscript',
     'capiSharedLibFlags': {},
     'servicesFlags_mt': {},
     'corePythonModuleFiles': [],
+    'withShiboken': False #TODO
   },
   variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'),
   duplicate=0)

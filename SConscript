@@ -17,9 +17,10 @@ Import(
   'qtMOC',
   'stageDir',
   'uiLibPrefix',
+  'withShiboken'
   )
 
-if False : # TODO
+if withShiboken :
   Import(
    'allServicesLibFiles',
    'capiSharedFiles',
@@ -600,7 +601,7 @@ if uiLibPrefix == 'ui':
       
   pysideEnv.Alias('pysideGen', pysideGens)
   pysideEnv.Alias('pyside', installedPySideLibs)
-  if False : #TODO
+  if withShiboken :
     pysideEnv.Alias('canvas.py', [
       installedPySideLibs,
       capiSharedFiles,
