@@ -49,7 +49,6 @@ if buildOS == 'Windows':
   else:
     suffix = '4'
   qtFlags['LIBS'] = ['QtCore'+suffix, 'QtGui'+suffix, 'QtOpenGL'+suffix]
-  qtFlags['CPPDEFINES'] = ['NOMINMAX']
 if buildOS == 'Darwin':
   qtFlags['FRAMEWORKPATH'] = [os.path.join(qtDir, 'lib')]
   qtFlags['FRAMEWORKS'] = ['QtCore', 'QtGui', 'QtOpenGL']

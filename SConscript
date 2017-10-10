@@ -84,7 +84,7 @@ if buildOS == 'Linux' and not env.get('BUILDING_MAYA_2017'):
   env.Replace( CXX = '/opt/centos5/usr/bin/gcc' )
 
 if buildOS == 'Windows':
-  env.Append(CPPDEFINES = ['FABRIC_OS_WINDOWS'])
+  env.Append(CPPDEFINES = ['FABRIC_OS_WINDOWS','NOMINMAX'])
 elif buildOS == 'Linux':
   env.Append(CPPDEFINES = ['FABRIC_OS_LINUX'])
 elif buildOS == 'Darwin':
