@@ -255,6 +255,12 @@ class HotkeyTableWidget(QtGui.QTableWidget):
         actName = item.actName
         curKeySeq = QtGui.QKeySequence(item.text())
 
+        if keySeq in (QtGui.QKeySequence('Esc'),
+                      QtGui.QKeySequence('Enter'),
+                      QtGui.QKeySequence('Return')):
+        
+            self.setCurrentItem(None, QtGui.QItemSelectionModel.Clear)
+
         if item and keySeq != curKeySeq:
             cmd = SetKeySequenceCommand(self.model, actName, curKeySeq, keySeq)
             if cmd.succefullyDone is True:
