@@ -188,7 +188,7 @@ fabricFlags = {
 stageDir = env.Dir('stage')
 env['STAGE_DIR'] = stageDir
 
-uiLib = SConscript('SConscript',
+sconscriptReturned = SConscript('SConscript',
   exports= {
     'parentEnv': env,
     'stageDir': stageDir,
@@ -208,10 +208,32 @@ uiLib = SConscript('SConscript',
   },
   variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'),
   duplicate=0)
+uiLib = sconscriptReturned['uiFiles']
 
 if buildOS == 'Windows':
   pdbFile = env.Dir('#').File('vc'+env['MSVC_VERSION'].replace('.', '')+'.pdb')
   env.Depends(pdbFile, uiLib)
   uiLib += env.InstallAs(env.Dir(fabricDir).Dir('lib').File('FabricUI.pdb'), pdbFile)
+
+  # generating a Visual Studio solution (optional, for development purposes)
+
+  msvsEnv = sconscriptReturned['msvs']['env']
+
+  # Making the include paths absolute
+  msvsIncludes = msvsEnv["CPPPATH"]
+  def makeAbs( p ):
+    if( type(p) is str ) :
+      return p
+    else :
+      return p.srcnode().abspath
+  msvsIncludes = [ makeAbs( p ) for p in msvsIncludes ]
+
+  msvsEnv["CPPPATH"] = msvsIncludes
+  msvsProj = msvsEnv.MSVSProject(
+    target = 'MSVS/FabricUI' + msvsEnv['MSVSPROJECTSUFFIX'],
+    srcs = sconscriptReturned['msvs']['src'],
+    variant = 'Release'
+  )
+  msvsEnv.Alias( "FabricUIMSVS", msvsProj )
 
 env.Default(uiLib)

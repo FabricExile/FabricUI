@@ -194,35 +194,6 @@ for d in dirs:
 
 uiLib = env.StaticLibrary('FabricUI', sources)
 
-try:
-  # HACK : this script is called several times, but only
-  # once with this variable exported (hence the try/except here)
-  Import( "registerFabricUIMSVS" )
-except:
-  registerFabricUIMSVS = False
-  
-if buildOS == 'Windows' and registerFabricUIMSVS :
-
-  msvsEnv = env.Clone()
-
-  # Making the include paths absolute
-  msvsIncludes = msvsEnv["CPPPATH"]
-  def makeAbs( p ):
-    if( type(p) is str ) :
-      return p
-    else :
-      return p.srcnode().abspath
-  msvsIncludes = [ makeAbs( p ) for p in msvsIncludes ]
-
-  msvsEnv["CPPPATH"] = msvsIncludes
-  msvsProj = msvsEnv.MSVSProject(
-    target = 'MSVS/FabricUI' + msvsEnv['MSVSPROJECTSUFFIX'],
-    srcs = strsources + strheaders,
-    buildtarget = uiLib,
-    variant = 'Release'
-  )
-  msvsEnv.Alias( "FabricUIMSVS", msvsProj )
-
 import copy
 uiFiles = copy.copy(installedHeaders)
 if uiLibPrefix == 'ui':
@@ -615,4 +586,11 @@ if uiLibPrefix == 'ui':
   else :
     pysideEnv.Alias('canvas.py', installedPySideLib)
 
-Return('uiFiles')
+returned = {
+  'uiFiles' : uiFiles,
+  'msvs' : {
+    'env' : env.Clone(),
+    'src' : strsources + strheaders
+  }
+}
+Return('returned')
