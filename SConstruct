@@ -234,6 +234,6 @@ if buildOS == 'Windows':
     srcs = sconscriptReturned['msvs']['src'],
     variant = 'Release'
   )
-  msvsEnv.Alias( "FabricUIMSVS", msvsProj )
+  msvsEnv.Alias( "MSVS", msvsProj )
 
 env.Default(uiLib)
