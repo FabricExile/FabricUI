@@ -54,7 +54,7 @@ if buildOS == 'Darwin':
   qtFlags['FRAMEWORKPATH'] = [os.path.join(qtDir, 'lib')]
   qtFlags['FRAMEWORKS'] = ['QtCore', 'QtGui', 'QtOpenGL']
 if buildOS == 'Linux':
-  qtFlags['CPPDEFINES'] = ['__STDC_CONSTANT_MACROS']
+  qtFlags['CPPDEFINES'] = ['__STDC_CONSTANT_MACROS', '__STDC_LIMIT_MACROS']
   qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']
   env.Append(CXXFLAGS = ['-fPIC'])
   if buildType == 'Debug':
