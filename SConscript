@@ -104,7 +104,7 @@ def GlobQObjectHeaders(env, filter):
   qobjectHeaders = []
   for header in headers:
     content = open(header.srcnode().abspath, 'rb').read()
-    if content.find('Q_OBJECT') > -1:
+    if content.decode().find('Q_OBJECT') > -1:
       qobjectHeaders.append(header)
   return qobjectHeaders
 Export('GlobQObjectHeaders')
