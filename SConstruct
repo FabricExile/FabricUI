@@ -30,15 +30,22 @@ if str(GetOption('buildType')).lower() == 'debug':
 env = Environment(MSVC_VERSION = "12.0")
 env.Append(CPPPATH = [env.Dir('#').srcnode().abspath])
 
+# Qt (4 or 5)
+
 qtDir = os.environ['QT_DIR']
+
+qtModules = [
+  'QtCore',
+  'QtGui',
+  'QtOpenGL'
+]
+qt5not4 = os.path.exists( os.path.join(qtDir, 'include', 'QtWidgets') )
+if qt5not4 :
+  qtModules += [ 'QtWidgets' ]
+
 qtMOC = os.path.join(qtDir, 'bin', 'moc')
 qtFlags = {
-  'CPPPATH': [
-    os.path.join(qtDir, 'include'),
-    os.path.join(qtDir, 'include', 'QtCore'),
-    os.path.join(qtDir, 'include', 'QtGui'),
-    os.path.join(qtDir, 'include', 'QtOpenGL')
-  ],
+  'CPPPATH': [ os.path.join( qtDir, 'include', module ) for module in [ '' ] + qtModules ],
   'LIBPATH': [os.path.join(qtDir, 'lib')],
   }
 
@@ -48,13 +55,13 @@ if buildOS == 'Windows':
     suffix = 'd4'
   else:
     suffix = '4'
-  qtFlags['LIBS'] = ['QtCore'+suffix, 'QtGui'+suffix, 'QtOpenGL'+suffix]
+  qtFlags['LIBS'] = [ module+suffix for module in qtModules ]
 if buildOS == 'Darwin':
   qtFlags['FRAMEWORKPATH'] = [os.path.join(qtDir, 'lib')]
-  qtFlags['FRAMEWORKS'] = ['QtCore', 'QtGui', 'QtOpenGL']
+  qtFlags['FRAMEWORKS'] = qtModules
 if buildOS == 'Linux':
   qtFlags['CPPDEFINES'] = ['__STDC_CONSTANT_MACROS', '__STDC_LIMIT_MACROS']
-  qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']
+  qtFlags['LIBS'] = qtModules
   env.Append(CXXFLAGS = ['-fPIC'])
   if buildType == 'Debug':
     env.Append(CXXFLAGS = ['-g'])
