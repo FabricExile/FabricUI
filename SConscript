@@ -584,7 +584,7 @@ if uiLibPrefix == 'ui':
       feLogoPNG,
       ])
   else :
-    pysideEnv.Alias('canvas.py', installedPySideLib)
+    pysideEnv.Alias('canvas.py', installedPySideLibs)
 
 returned = {
   'uiFiles' : uiFiles,
