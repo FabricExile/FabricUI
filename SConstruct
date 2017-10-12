@@ -56,6 +56,11 @@ if buildOS == 'Windows':
   else:
     suffix = '4'
   qtFlags['LIBS'] = [ module+suffix for module in qtModules ]
+
+  # appending the current PATH to the build PATH (because it might contain
+  # tools such as the 'patch' command)
+  env['ENV']['PATH'] += ';' + os.environ['PATH']
+
 if buildOS == 'Darwin':
   qtFlags['FRAMEWORKPATH'] = [os.path.join(qtDir, 'lib')]
   qtFlags['FRAMEWORKS'] = qtModules
