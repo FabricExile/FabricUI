@@ -181,6 +181,31 @@ if buildOS == 'Windows':
   env.Append(CCFLAGS = ['/FS'])
 
 fabricDir = os.environ['FABRIC_DIR']
+
+def GetRequiredEnvVar( key ) :
+  if key not in os.environ :
+    raise Exception( "Please define the environment variable " + key )
+  return os.environ[ key ]
+
+def GetFabricVersionMaj():
+  return GetRequiredEnvVar( 'FABRIC_VERSION_MAJ' )
+def GetFabricVersionMin():
+  return GetRequiredEnvVar( 'FABRIC_VERSION_MIN' )
+
+# See Core/Clients/CAPI/Shared.SConscript
+def GetFabricCoreLibName():
+  libName = 'FabricCore'
+  if buildOS == 'Windows':
+    libName += '-' + GetFabricVersionMaj() + '.' + GetFabricVersionMin()
+  return libName
+
+# See FabricServices/SConscript.ServicesLib
+def GetFabricServicesLibName():
+  libName = 'FabricServices'
+  if buildOS == 'Windows':
+    libName += '-MSVC-' + env['MSVC_VERSION'] + '-mt'
+  return libName
+
 fabricFlags = {
   'CPPDEFINES': ['FEC_SHARED'],
   'CPPPATH': [
@@ -194,7 +219,7 @@ fabricFlags = {
     os.path.join(fabricDir, 'lib'),
     os.path.join(fabricDir, 'Python', pythonVersion, 'FabricEngine'),
   ],
-  'LIBS': ['FabricCore', 'FabricServices'],
+  'LIBS': [ GetFabricCoreLibName(), GetFabricServicesLibName() ],
 }
 
 stageDir = env.Dir('stage')
