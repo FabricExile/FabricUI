@@ -59,7 +59,7 @@ if buildOS == 'Windows':
 
   # appending the current PATH to the build PATH (because it might contain
   # tools such as the 'patch' command)
-  env['ENV']['PATH'] += ';' + os.environ['PATH']
+  env['ENV']['PATH'] += os.pathsep + os.environ['PATH']
 
 if buildOS == 'Darwin':
   qtFlags['FRAMEWORKPATH'] = [os.path.join(qtDir, 'lib')]
