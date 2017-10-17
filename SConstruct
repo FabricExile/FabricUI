@@ -12,7 +12,7 @@ AddOption('--buildType',
                   action='store',
                   help='Type of build to perform (Release or Debug)')
 
-if not os.environ.has_key('FABRIC_DIR'):
+if not 'FABRIC_DIR' in os.environ:
   raise Exception("No FABRIC_DIR environment variable specified.")
 
 buildOS = 'Darwin'
