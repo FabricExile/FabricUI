@@ -86,8 +86,15 @@ print sysconfig.get_config_var('%s')
 pythonVersion = '2.7'
 pysideVersion = '1.2.4'
 
+import sys
+
 if buildOS == 'Windows':
-  import _winreg
+
+  if sys.version_info[0] >= 3 :
+    import winreg as _winreg
+  else:
+    import _winreg
+
   for root in [_winreg.HKEY_LOCAL_MACHINE, _winreg.HKEY_CURRENT_USER]:
     try:
       pythonInstallPath = _winreg.QueryValue(
@@ -118,7 +125,7 @@ if not spawn.find_executable(python):
 includeDir = GetPythonSysConfigVar(python, 'INCLUDEPY')
 
 if buildOS == 'Windows':
-  lib = 'python' + GetPythonSysConfigVar(python, 'VERSION')
+  lib = 'python' + str(GetPythonSysConfigVar(python, 'VERSION'))
   libDir = os.path.join(pythonInstallPath, 'libs')
 else:
   lib = 'python%s' % pythonVersion

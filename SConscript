@@ -209,7 +209,7 @@ if uiLibPrefix == 'ui':
       ]
     )
   env.Depends(uiLib, icons)
-  fonts = map(
+  fonts = list(map(
     lambda name: 
       env.Install(
         stageDir.srcnode().Dir('Resources').Dir('Fonts').Dir(name),
@@ -218,7 +218,7 @@ if uiLibPrefix == 'ui':
           ]
         ),
     ['Roboto', 'Roboto_Condensed', 'Roboto_Mono', 'Roboto_Slab', 'FontAwesome']
-    )
+    ))
   env.Depends(uiLib, fonts)
   qss = env.Install(
     stageDir.srcnode().Dir('Resources').Dir('QSS'),
@@ -251,7 +251,7 @@ if uiLibPrefix == 'ui':
   pysideGens = []
   installedPySideLibs = []
 
-  for pythonVersion, pythonConfig in pythonConfigs.iteritems():
+  for pythonVersion, pythonConfig in pythonConfigs.items():
 
     if not pythonConfig['havePySide']:
       continue
@@ -423,7 +423,7 @@ if uiLibPrefix == 'ui':
         pysideEnv.Append(LIBS = "MSVCRTD")
       else:
         pysideEnv.Append(LIBS = "MSVCRT")
-    installedPySideLibName = 'FabricUI'+pythonConfig['moduleSuffix']
+    installedPySideLibName = 'FabricUI' + str(pythonConfig['moduleSuffix'])
     pythonDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine')
 
     # [andrew 20160411] building FabricUI from open repo needs to resolve circular deps
