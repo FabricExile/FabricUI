@@ -92,7 +92,10 @@ class HotkeyTableModel(QtCore.QObject):
         """
         if  (   keySeq != QtGui.QKeySequence() and 
                 keySeq != QtGui.QKeySequence('Del') and 
-                keySeq != QtGui.QKeySequence('Backspace') ):
+                keySeq != QtGui.QKeySequence('Backspace') and 
+                keySeq != QtGui.QKeySequence('Return') and 
+                keySeq != QtGui.QKeySequence('Enter') and 
+                keySeq != QtGui.QKeySequence('Esc') ):
 
             actName_ = self.__shortcutIsUsedBy(actName, keySeq)
                 
@@ -107,6 +110,7 @@ class HotkeyTableModel(QtCore.QObject):
                 self.__setItemKeySequenceAndShortcut(actName, keySeq)
         
         else:
-            self.__setItemKeySequenceAndShortcut(actName)
+            # self.__setItemKeySequenceAndShortcut(actName)
+            return True
 
         return True
