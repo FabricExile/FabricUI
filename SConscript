@@ -351,7 +351,8 @@ if uiLibPrefix == 'ui':
       ]
       )
     pysideEnv.Depends(pysideGen, installedHeaders)
-    pysideEnv.Depends(pysideGen, qtInstalledLibs)
+    if withShiboken :
+      pysideEnv.Depends(pysideGen, qtInstalledLibs)
     pysideEnv.Requires(pysideGen, uiLib) # HACK [FE-8436] : this line shouldn't be needed
       # ... instead, we should just add QtCore to the RPath on OSX for the shiboken executable
     pysideEnv.Depends(pysideGen, corePythonModuleFiles)
