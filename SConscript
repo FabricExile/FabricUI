@@ -4,26 +4,31 @@
 
 import os, subprocess
 Import(
-  'allServicesLibFiles',
   'buildArch',
   'buildOS',
   'buildType',
-  'capiSharedFiles',
   'capiSharedLibFlags',
   'corePythonModuleFiles',
-  'dfgSamples',
-  'extraDFGPresets',
   'fabricFlags',
-  'feLogoPNG',
   'parentEnv',
   'pythonConfigs',
   'qtDir',
   'qtFlags',
-  'qtInstalledLibs',
   'qtMOC',
-  'splitSearchFiles',
   'stageDir',
   'uiLibPrefix',
+  'withShiboken'
+  )
+
+if withShiboken :
+  Import(
+   'allServicesLibFiles',
+   'capiSharedFiles',
+   'dfgSamples',
+   'extraDFGPresets',
+   'feLogoPNG',
+   'qtInstalledLibs',
+   'splitSearchFiles',
   )
 
 if buildOS == 'Windows' and buildType == 'Debug':
@@ -79,7 +84,7 @@ if buildOS == 'Linux' and not env.get('BUILDING_MAYA_2017'):
   env.Replace( CXX = '/opt/centos5/usr/bin/gcc' )
 
 if buildOS == 'Windows':
-  env.Append(CPPDEFINES = ['FABRIC_OS_WINDOWS'])
+  env.Append(CPPDEFINES = ['FABRIC_OS_WINDOWS','NOMINMAX'])
 elif buildOS == 'Linux':
   env.Append(CPPDEFINES = ['FABRIC_OS_LINUX'])
 elif buildOS == 'Darwin':
@@ -99,7 +104,7 @@ def GlobQObjectHeaders(env, filter):
   qobjectHeaders = []
   for header in headers:
     content = open(header.srcnode().abspath, 'rb').read()
-    if content.find('Q_OBJECT') > -1:
+    if content.decode().find('Q_OBJECT') > -1:
       qobjectHeaders.append(header)
   return qobjectHeaders
 Export('GlobQObjectHeaders')
@@ -189,35 +194,6 @@ for d in dirs:
 
 uiLib = env.StaticLibrary('FabricUI', sources)
 
-try:
-  # HACK : this script is called several times, but only
-  # once with this variable exported (hence the try/except here)
-  Import( "registerFabricUIMSVS" )
-except:
-  registerFabricUIMSVS = False
-  
-if buildOS == 'Windows' and registerFabricUIMSVS :
-
-  msvsEnv = env.Clone()
-
-  # Making the include paths absolute
-  msvsIncludes = msvsEnv["CPPPATH"]
-  def makeAbs( p ):
-    if( type(p) is str ) :
-      return p
-    else :
-      return p.srcnode().abspath
-  msvsIncludes = [ makeAbs( p ) for p in msvsIncludes ]
-
-  msvsEnv["CPPPATH"] = msvsIncludes
-  msvsProj = msvsEnv.MSVSProject(
-    target = 'MSVS/FabricUI' + msvsEnv['MSVSPROJECTSUFFIX'],
-    srcs = strsources + strheaders,
-    buildtarget = uiLib,
-    variant = 'Release'
-  )
-  msvsEnv.Alias( "FabricUIMSVS", msvsProj )
-
 import copy
 uiFiles = copy.copy(installedHeaders)
 if uiLibPrefix == 'ui':
@@ -233,7 +209,7 @@ if uiLibPrefix == 'ui':
       ]
     )
   env.Depends(uiLib, icons)
-  fonts = map(
+  fonts = list(map(
     lambda name: 
       env.Install(
         stageDir.srcnode().Dir('Resources').Dir('Fonts').Dir(name),
@@ -242,7 +218,7 @@ if uiLibPrefix == 'ui':
           ]
         ),
     ['Roboto', 'Roboto_Condensed', 'Roboto_Mono', 'Roboto_Slab', 'FontAwesome']
-    )
+    ))
   env.Depends(uiLib, fonts)
   qss = env.Install(
     stageDir.srcnode().Dir('Resources').Dir('QSS'),
@@ -275,7 +251,7 @@ if uiLibPrefix == 'ui':
   pysideGens = []
   installedPySideLibs = []
 
-  for pythonVersion, pythonConfig in pythonConfigs.iteritems():
+  for pythonVersion, pythonConfig in pythonConfigs.items():
 
     if not pythonConfig['havePySide']:
       continue
@@ -304,7 +280,8 @@ if uiLibPrefix == 'ui':
     shibokenDir = pysideEnv.Dir('shiboken')
 
     if buildOS == 'Windows':
-      pysideEnv['CCFLAGS'].remove('/W2')
+      if '/W2' in pysideEnv['CCFLAGS'] :
+        pysideEnv['CCFLAGS'].remove('/W2')
       if buildType == 'Debug':
         pysideEnv.Append(LINKFLAGS = ['/NODEFAULTLIB:LIBCMTD'])
       else:
@@ -447,7 +424,7 @@ if uiLibPrefix == 'ui':
         pysideEnv.Append(LIBS = "MSVCRTD")
       else:
         pysideEnv.Append(LIBS = "MSVCRT")
-    installedPySideLibName = 'FabricUI'+pythonConfig['moduleSuffix']
+    installedPySideLibName = 'FabricUI' + str(pythonConfig['moduleSuffix'])
     pythonDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine')
 
     # [andrew 20160411] building FabricUI from open repo needs to resolve circular deps
@@ -596,15 +573,25 @@ if uiLibPrefix == 'ui':
       
   pysideEnv.Alias('pysideGen', pysideGens)
   pysideEnv.Alias('pyside', installedPySideLibs)
-  pysideEnv.Alias('canvas.py', [
-    installedPySideLibs,
-    capiSharedFiles,
-    extraDFGPresets,
-    splitSearchFiles,
-    dfgSamples,
-    qtInstalledLibs,
-    allServicesLibFiles,
-    feLogoPNG,
-    ])
+  if withShiboken :
+    pysideEnv.Alias('canvas.py', [
+      installedPySideLibs,
+      capiSharedFiles,
+      extraDFGPresets,
+      splitSearchFiles,
+      dfgSamples,
+      qtInstalledLibs,
+      allServicesLibFiles,
+      feLogoPNG,
+      ])
+  else :
+    pysideEnv.Alias('canvas.py', installedPySideLibs)
 
-Return('uiFiles')
+returned = {
+  'uiFiles' : uiFiles,
+  'msvs' : {
+    'env' : env.Clone(),
+    'src' : strsources + strheaders
+  }
+}
+Return('returned')
