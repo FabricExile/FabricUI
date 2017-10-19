@@ -19,7 +19,7 @@ class RTValAnimXFCurveDFGController : public RTValAnimXFCurveVersionedConstModel
 {
   Q_OBJECT
 
-  QString m_bindingId, m_dfgPortPath;
+  QString m_dfgPath;
   size_t m_interactionId;
   bool m_isInteracting;
 
@@ -31,7 +31,8 @@ public:
   RTValAnimXFCurveDFGController() : m_isInteracting( false ) {}
 
   // DFG Path
-  void setPath( const char* bindingId, const char* dfgPortPath );
+  //void setPath( const char* bindingId, const char* dfgPortPath );
+  void setPath( const char* dfgPath );
 
   // AbstractFCurveModel
   void setKey( size_t i, Key h, bool autoTangent );

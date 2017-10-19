@@ -126,6 +126,11 @@ public:
   // the memory is released in the same Dll as it was allocated in
   virtual void deleteMe() {}
 
+  // We need to define a metadata syntax for 
+  // additional type-info.  For example, it should
+  // be possible using metadata to request a value
+  // be displayed in a certain way.
+  inline const ItemMetadata* getMetadata() const { return &m_metadata; };
 
 public slots:
 

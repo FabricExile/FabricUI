@@ -2390,6 +2390,11 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   }
 
   DFGGetTextDialog dialog(this, text);
+  if ( !text.isEmpty() || !dialog.text().isEmpty() )
+    dialog.setWindowTitle( "Edit Node Comment" );
+  else
+    dialog.setWindowTitle( "Set Node Comment" );
+
   if ( dialog.exec() == QDialog::Accepted )
   {
     if ( !text.isEmpty() || !dialog.text().isEmpty() )
@@ -2784,7 +2789,7 @@ void DFGWidget::onEditSelectedNodeProperties()
                 );
 
               // [Julien] FE-5246
-              // Add or remove the geader colo node metadata
+              // Add or remove the header color node metadata
               QColor headerColor;
               if ( dialog.getHeaderColor( headerColor ) )
                 DFGAddMetaDataPair_Color(
@@ -2835,7 +2840,7 @@ void DFGWidget::onEditSelectedNodeProperties()
                 );
 
               // [Julien] FE-5246
-              // Add or remove the geader colo node metadata
+              // Add or remove the header color node metadata
               QColor headerColor;  
               if ( dialog.getHeaderColor( headerColor ) )
                 DFGAddMetaDataPair_Color(
@@ -2861,8 +2866,14 @@ void DFGWidget::onEditSelectedNodeProperties()
             );  // undoable.
 
           // [Julien] FE-5246
-          // Force update the header/nody node color
+          // Force update the header/body node color
           onExecChanged();
+
+          // [FE8896] the above call of onExecChanged() cleared
+          // the selection,so we need to "re-select" the node.
+          node = getUIGraph()->node(nodeName);
+          if (node)
+            node->setSelected(true);
         }
       }
     }
@@ -2962,11 +2973,7 @@ void DFGWidget::populateMenuBar(QMenuBar *menuBar, bool addFileMenu, bool addEdi
       viewMenu->addSeparator();
 
     // block graph compilations.
-    QAction * blockCompilationsAction = new BlockCompilationsAction(this, menuBar);
-    blockCompilationsAction->setCheckable(true);
-    blockCompilationsAction->setChecked(false);
-    blockCompilationsAction->setShortcutContext(Qt::WindowShortcut);
-    viewMenu->addAction(blockCompilationsAction);
+    m_uiHeader->createMenu(viewMenu);
     viewMenu->addSeparator();
 
     // view -> graph view submenu

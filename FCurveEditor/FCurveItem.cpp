@@ -168,8 +168,7 @@ public:
 
       painter->setPen( pen );
       const size_t n = widget->width() / 1;// 8;
-      qreal step = er.width() / n;
-      if( step == 0 )
+      if( er.width() == 0 )
         return;
 
       // drawing the FCurve as line segments
@@ -186,7 +185,7 @@ public:
         for( size_t i = 0; true; i++ )
         {
           qreal x1 = er.left() + ( i * er.width() ) / n;
-          if( x1 > firstKeyTime )
+          if( x1 > firstKeyTime || x1 >= er.right() )
             break;
           qreal x2 = std::min( er.left() + ( ( i + 1 ) * er.width() ) / n, firstKeyTime );
           painter->drawLine(
@@ -205,9 +204,12 @@ public:
           {
             qreal leftTime = m_parent->m_curve->getOrderedKey( i ).pos.x();
             qreal rightTime = m_parent->m_curve->getOrderedKey( i + 1 ).pos.x();
-            for( qreal x = leftTime; x < rightTime; x += step )
+            for( size_t j = 0; true; j++ )
             {
-              qreal x2 = std::min( rightTime, x + step );
+              const qreal x = leftTime + ( er.width() * j ) / n;
+              if( x >= rightTime || x >= er.right() )
+                break;
+              qreal x2 = std::min( rightTime, leftTime + ( er.width() * (j+1) ) / n );
               painter->drawLine(
                 QPointF( x, m_parent->m_curve->evaluate( x ) ),
                 QPointF( x2, m_parent->m_curve->evaluate( x2 ) )
@@ -217,9 +219,12 @@ public:
         }
 
         // from the last key to the right of the screen
-        for( qreal x = lastKeyTime; x < er.right(); x += step )
+        for( size_t j = 0; true; j++ )
         {
-          qreal x2 = std::min( er.right(), x + step );
+          const qreal x = std::max( lastKeyTime, er.left() ) + ( er.width() * j ) / n;
+          if( x >= er.right() )
+            break;
+          qreal x2 = std::min( er.right(), lastKeyTime + ( er.width() * (j+1) ) / n );
           painter->drawLine(
             QPointF( x, m_parent->m_curve->evaluate( x ) ),
             QPointF( x2, m_parent->m_curve->evaluate( x2 ) )

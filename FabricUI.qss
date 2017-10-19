@@ -778,14 +778,56 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 {
   margin: 0px;
   padding: 0px 4px;
-  icon-size: 16px 16px;
+  background-color: #3C4450;
+}
 
+#DFGExecHeaderWidget QPushButton:hover
+{
+  color: #EEEEEE;
+  background-color: #98A7B3;
+}
+
+#DFGExecHeaderWidget QPushButton:pressed
+{
+  background-color: #262B33;
 }
 
 #DFGExecHeaderWidget #DFGBackButton
 {
   icon-size: 16px 16px;
   padding: 0px 4px 0px 0px;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton
+{
+  border-radius: 3px;
+  border: none;
+  width: 18px;
+  height: 18px;
+  icon-size: 16px 16px;
+  background-color: #3C4450;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton:hover
+{
+  background-color: #98A7B3;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton:pressed
+{
+  padding-top: 1px;
+  padding-left: 1px;
+  background-color: #262B33;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton:checked
+{
+  background-color: #FF9C00;
+}
+
+#DFGExecHeaderWidget #DFGDisableGraphButton:checked:hover
+{
+  background-color: #FFBB4C;
 }
 
 #DFGExecHeaderWidget #DFGRequiredExtensionsLabel
@@ -874,17 +916,6 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
   qproperty-text: "This node or one of its parents is an instance of a preset and cannot be changed unless split from the preset";
   qproperty-wordWrap: true;
   background-color: #ccb455;
-}
-
-#DFGExecHeaderWidget QPushButton
-{
-  background-color: #3c4450;
-}
-
-#DFGExecHeaderWidget QPushButton:hover
-{
-  color: #eee;
-  background-color: #525a66;
 }
 
 /****************************************************************************
@@ -2197,13 +2228,28 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
  * HotkeyEditorDialog
  ***************************************************************************/
 
+#HotkeyEditorDialog 
+{
+  margin: 0;
+  padding: 0;
+}
+
 #HotkeyEditorDialog QToolBar {
   border: 0;
 }
 
+#HotkeyEditorDialog QToolBar::separator
+{
+  border: 1px solid #666;
+  border-style: none;
+  width: 1px;
+  background-color: #666;
+}
+
 #HotkeyEditorDialog QLabel
 {
-  padding-left: 4px;
+  margin: 0 4px 0 0;
+  padding: 0;
   color: #FFFFFF;
 }
 
@@ -2266,6 +2312,20 @@ QScrollBar::add-page:horizontal::pressed, QScrollBar::sub-page:horizontal::press
 {
   padding: 0;
   background-color: #596D7A;
+}
+
+#HotkeyEditorDialog QTableWidget QHeaderView::section
+{
+  background-color: #242424;
+  color: white;
+  padding: 4px;
+  border: none;
+  border-right: 1px solid #333333;
+}
+
+#HotkeyEditorDialog QTableWidget QHeaderView::section:hover
+{
+  background-color: #383838;
 }
 
 /****************************************************************************

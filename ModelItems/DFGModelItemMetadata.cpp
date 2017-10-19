@@ -5,6 +5,3 @@
 #include <FabricUI/ModelItems/DFGModelItemMetadata.h>
 
 using namespace FabricUI::ModelItems;
-
-FTL::CStrRef const DFGModelItemMetadata::VEDFGBindingIdKey = "DFGBinding";
-FTL::CStrRef const DFGModelItemMetadata::VEDFGPortPathKey = "DFGPortPath";

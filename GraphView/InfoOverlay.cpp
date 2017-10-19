@@ -12,6 +12,7 @@
 #include <QLinearGradient>
 #include <QGraphicsDropShadowEffect>
 #include <QDebug>
+#include <QColor>
 
 using namespace FabricUI::GraphView;
 
@@ -20,6 +21,7 @@ InfoOverlay::InfoOverlay(Graph * parent, QString text, const GraphConfig & confi
 , m_graph(parent)
 , m_config(config)
 {
+  this->setBackgroundColor( config.infoOverlayColor );
   m_metrics = new QFontMetrics(m_config.infoOverlayFont);
   setText(text);
   setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -61,7 +63,7 @@ void InfoOverlay::setText(QString t)
 void InfoOverlay::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
   painter->setPen(m_config.nodeDefaultPen);
-  painter->setBrush(m_config.infoOverlayColor);
+  painter->setBrush(this->backgroundColor());
 
   QRectF rect = windowFrameRect();
   painter->drawRoundedRect(rect, 5, 5);

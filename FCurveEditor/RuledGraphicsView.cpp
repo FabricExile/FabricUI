@@ -15,6 +15,10 @@
 #include <assert.h>
 #include <QTimer>
 
+// If enabled, will not recompute the background when the scene changes (the
+// background will only be updated when the view transform changes)
+#define RULED_GRAPHICS_VIEW_CACHE_BACKGROUND 1
+
 using namespace FabricUI::FCurveEditor;
 
 class RuledGraphicsView::GraphicsView : public QGraphicsView
@@ -24,6 +28,13 @@ class RuledGraphicsView::GraphicsView : public QGraphicsView
   enum State { PANNING, SELECTING, NOTHING } m_state;
   QRectF m_selectionRect; // in scene space
   QPoint m_lastMousePos; // in widget space
+
+#if RULED_GRAPHICS_VIEW_CACHE_BACKGROUND
+  QRect m_backgroundCacheSize;
+  QTransform m_backgroundCacheTransform;
+  QPixmap m_backgroundCache;
+#endif
+
 public:
   GraphicsView( RuledGraphicsView* parent )
     : m_parent( parent )
@@ -40,6 +51,26 @@ public:
     hBar->setValue( hBar->value() + ( isRightToLeft() ? delta.x() : -delta.x() ) );
     vBar->setValue( vBar->value() - delta.y() );
   }
+  void scaleUnderLimit( const qreal xRel, const qreal yRel )
+  {
+    const qreal curX = this->matrix().m11();
+    const qreal curY = this->matrix().m22();
+    qreal newX = curX * xRel;
+    qreal newY = curY * yRel;
+
+    // These 2 values were found empirically (but they are probably
+    // related to the int precision, and the size of the widget)
+    const qreal maxScale = 1E+7;
+    const qreal minScale = 1E-5;
+
+    if(
+      std::abs(newX) < maxScale &&
+      std::abs(newY) < maxScale &&
+      std::abs(newX) > minScale &&
+      std::abs(newY) > minScale
+    ) { this->scale( xRel, yRel ); }
+  }
+  void drawBackgroundNoCache( QPainter* );
 protected:
   // HACK ? (move the parent's handler here instead ?)
   void wheelEvent( QWheelEvent * e ) FTL_OVERRIDE { return e->ignore(); }
@@ -225,7 +256,7 @@ void RuledGraphicsView::centeredScale( qreal x, qreal y )
     QPoint viewCenter = m_view->rect().center();
     QPoint scalingCenterPxOffset = m_view->mapFromScene( m_scalingCenter ) - viewCenter;
     m_view->centerOn( m_scalingCenter );
-    m_view->scale( x, y );
+    m_view->scaleUnderLimit( x, y );
     QPoint newScalingCenterPxOffset = m_view->mapFromScene( m_scalingCenter ) - viewCenter;
     m_view->centerOn( m_view->mapToScene( viewCenter + ( newScalingCenterPxOffset - scalingCenterPxOffset ) ) );
 
@@ -236,7 +267,7 @@ void RuledGraphicsView::centeredScale( qreal x, qreal y )
     assert( before == m_view->mapFromScene( m_scalingCenter ) );
   }
   else
-    m_view->scale( x, y );
+    m_view->scaleUnderLimit( x, y );
 
   updateRulersRange();
 }
@@ -313,6 +344,37 @@ void RuledGraphicsView::tick()
 }
 
 void RuledGraphicsView::GraphicsView::drawBackground( QPainter * p, const QRectF & r )
+{
+#if RULED_GRAPHICS_VIEW_CACHE_BACKGROUND
+  const QRect wr = this->viewport()->geometry();
+  const bool cacheUpToDate =
+  (
+    ( p->transform() == m_backgroundCacheTransform ) &&
+    ( wr == m_backgroundCacheSize )
+  );
+  if( !cacheUpToDate )
+  {
+    // Updating the cache
+    m_backgroundCache = QPixmap( wr.size() );
+    m_backgroundCache.fill( Qt::transparent );
+    QPainter cacheP( &m_backgroundCache );
+    cacheP.setMatrix( p->matrix() );
+    this->drawBackgroundNoCache( &cacheP );
+
+    // Updating the indicators of cache validity
+    m_backgroundCacheTransform = p->transform();
+    m_backgroundCacheSize = wr;
+  }
+  
+  p->setMatrixEnabled( false );
+  p->drawPixmap( wr.topLeft(), m_backgroundCache );
+  p->setMatrixEnabled( true );
+#else
+  this->drawBackgroundNoCache( p );
+#endif
+}
+
+void RuledGraphicsView::GraphicsView::drawBackgroundNoCache( QPainter* p )
 {
   QRect wr = this->viewport()->geometry(); // widget viewRect
   QRectF sr = this->mapToScene( wr ).boundingRect(); // scene viewRect

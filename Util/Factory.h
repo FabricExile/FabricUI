@@ -117,8 +117,8 @@ class BaseFactoryRegistry : public QObject
 // From https://blog.molecular-matters.com/2015/12/11/getting-the-type-of-a-template-argument-as-string-without-rtti/
 #ifdef __GNUG__
 
-static const unsigned int FRONT = sizeof("FabricUI::Util::GetTypeHelper<") - 1u;
-static const unsigned int BACK = sizeof(">::GetType") - 1u;
+static const unsigned int FRONT = sizeof("static const char* FabricUI::Util::GetTypeHelper<T>::GetType() [with T = ") - 1u;
+static const unsigned int BACK = sizeof("]") - 1u;
  
 template <typename T>
 struct GetTypeHelper

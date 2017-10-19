@@ -9,6 +9,7 @@
 #include <FabricUI/Application/FabricException.h>
 #include <FabricUI/Commands/PathValueResolverRegistry.h>
 #include <FabricUI/Application/FabricApplicationStates.h>
+#include <iostream>
 
 using namespace FabricUI;
 using namespace DFG;
@@ -37,10 +38,12 @@ void DFGPVToolsNotifierRegistry::registerPathValueTool(
 
   if(resolver)
   {
+    DFGPathValueResolver::DFGType dfgType;
     DFGPVToolsNotifierPortPaths dfgPortPaths;
-    DFGExec exec = resolver->getDFGPortPaths(
+    DFGExec exec = resolver->getDFGPortPathsAndType(
       pathValue, 
-      dfgPortPaths
+      dfgPortPaths,
+      dfgType
       );
 
     dfgPortPaths.oldPortName = dfgPortPaths.portName;
@@ -55,7 +58,7 @@ void DFGPVToolsNotifierRegistry::registerPathValueTool(
  
     m_registeredNotifiers.append(notifier);
 
-    emit toolRegistered(dfgPortPaths.getAbsolutePortPath());
+    emit toolRegistered(dfgPortPaths.getFullItemPath());
 
     // Update the tool'value from its pathValue.
     setPathValueToolValue(notifier->getDFGPVToolsNotifierPortPaths());
@@ -89,7 +92,7 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
   {
     DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths notDFGPortPaths = notifier->getDFGPVToolsNotifierPortPaths();
     
-    bool deletePathValueTool = notDFGPortPaths.getAbsolutePortPath() == itemPath;     
+    bool deletePathValueTool = notDFGPortPaths.getFullItemPath() == itemPath;     
 
     if(deletePathValueTool)
     {
@@ -118,7 +121,7 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
  
   if(dfgPortPaths.isExecArg())
     ToolManager::deletePathValueTool(
-      dfgPortPaths.getAbsolutePortPath()
+      dfgPortPaths.getFullItemPath()
       );   
  
   else
@@ -129,19 +132,19 @@ void DFGPVToolsNotifierRegistry::unregisterPathValueTool(
       
       bool deletePathValueTool = fromNode
         ? notDFGPortPaths.getAbsoluteNodePath() == dfgPortPaths.getAbsoluteNodePath()
-        : notDFGPortPaths.getAbsolutePortPath() == dfgPortPaths.getAbsolutePortPath();
+        : notDFGPortPaths.getFullItemPath() == dfgPortPaths.getFullItemPath();
 
       if(deletePathValueTool)
       {
         ToolManager::deletePathValueTool(
-          notDFGPortPaths.getAbsolutePortPath()
+          notDFGPortPaths.getFullItemPath()
           );   
 
         m_registeredNotifiers.removeAll(notifier);
         delete notifier;
         notifier = 0;
 
-        emit toolUpdated(notDFGPortPaths.getAbsolutePortPath());
+        emit toolUpdated(notDFGPortPaths.getFullItemPath());
 
         if(!fromNode)
           break;
@@ -160,8 +163,8 @@ void DFGPVToolsNotifierRegistry::renamePathValueToolPath(
  
   if(dfgPortPaths.isExecArg())
     ToolManager::renamePathValueToolPath(
-      dfgPortPaths.getOldAbsolutePortPath(), 
-      dfgPortPaths.getAbsolutePortPath()
+      dfgPortPaths.getOldFullItemPath(), 
+      dfgPortPaths.getFullItemPath()
       );   
  
   else
@@ -172,12 +175,12 @@ void DFGPVToolsNotifierRegistry::renamePathValueToolPath(
       
       bool renameTool = fromNode
         ? notDFGPortPaths.getOldAbsoluteNodePath() == dfgPortPaths.getOldAbsoluteNodePath()
-        : notDFGPortPaths.getOldAbsolutePortPath() == dfgPortPaths.getOldAbsolutePortPath();
+        : notDFGPortPaths.getOldFullItemPath() == dfgPortPaths.getOldFullItemPath();
     
       if(renameTool)
         ToolManager::renamePathValueToolPath(
-          notDFGPortPaths.getOldAbsolutePortPath(), 
-          notDFGPortPaths.getAbsolutePortPath()
+          notDFGPortPaths.getOldFullItemPath(), 
+          notDFGPortPaths.getFullItemPath()
           );      
     }
   }
@@ -191,10 +194,10 @@ void DFGPVToolsNotifierRegistry::setPathValueToolValue(
   FABRIC_CATCH_BEGIN();
  
   ToolManager::setPathValueToolValue(
-    dfgPortPaths.getAbsolutePortPath()
+    dfgPortPaths.getFullItemPath()
     );
   
-  emit toolUpdated(dfgPortPaths.getAbsolutePortPath());
+  emit toolUpdated(dfgPortPaths.getFullItemPath());
 
   FABRIC_CATCH_END("DFGPVToolsNotifierRegistry::setPathValueToolValue");
 }
@@ -216,18 +219,29 @@ QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldRelativeP
     return "";
 }
 
-QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsolutePortPath() 
+QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsolutePortPath(
+  bool addBindingID) 
 {
   QString absPath = execPath.isEmpty()
     ? getOldRelativePortPath()
     : execPath + "." + getOldRelativePortPath();
 
-  return !id.isEmpty()
+  return addBindingID && !id.isEmpty()
     ? id + "." + absPath
     : absPath;
 }
 
-QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsoluteNodePath() 
+QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldFullItemPath(
+  bool addBindingID)
+{
+  QString absPath = getOldAbsolutePortPath(addBindingID);
+  return isArrayElement()
+    ? absPath + "[" + QString::number(arrayIndex) + "]"
+    : absPath;
+}
+
+QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsoluteNodePath(
+  bool addBindingID)
 {
   if(!oldNodeName.isEmpty())
   {
@@ -235,7 +249,7 @@ QString DFGPVToolsNotifierRegistry::DFGPVToolsNotifierPortPaths::getOldAbsoluteN
       ? oldNodeName
       : execPath + "." + oldNodeName;
 
-    return !id.isEmpty()
+    return addBindingID && !id.isEmpty()
       ? id + "." + absPath
       : absPath;
   }
@@ -403,7 +417,7 @@ void DFGBindingPVToolsNotifier::onBindingArgValueChanged(
   FTL::CStrRef name)
 {
   FABRIC_CATCH_BEGIN();
-
+ 
   m_dfgPortPaths.portName = name.data();
   m_registry->setPathValueToolValue(m_dfgPortPaths);
 
@@ -527,7 +541,7 @@ void DFGExecPVToolsNotifier::onInstBlockPortDefaultValuesChanged(
   FABRIC_CATCH_BEGIN();
   if(m_dfgPortPaths.nodeName == nodeName.data() && m_dfgPortPaths.blockName == blockName.data() && m_dfgPortPaths.portName == portName.data())
     m_registry->setPathValueToolValue(m_dfgPortPaths);
-  FABRIC_CATCH_END("DFGExecPVToolsNotifier::onExecNodePortDefaultValuesChanged");
+  FABRIC_CATCH_END("DFGExecPVToolsNotifier::onInstBlockPortDefaultValuesChanged");
 }
  
 void DFGExecPVToolsNotifier::onExecNodePortResolvedTypeChanged(

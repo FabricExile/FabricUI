@@ -7,9 +7,50 @@
 
 #include <FabricCore.h>
 #include "ViewportWidget.h"
+#include "FabricUI/DFG/DFGConfig.h"
+#include "FabricUI/DFG/Dialogs/DFGBaseDialog.h"
+
+class QImage;
 
 namespace FabricUI {
 namespace Viewports {
+
+class GLViewportCaptureSequenceDialog : public FabricUI::DFG::DFGBaseDialog
+{
+  Q_OBJECT
+
+public:
+
+  GLViewportCaptureSequenceDialog(QWidget *parent, QString title, const FabricUI::DFG::DFGConfig &dfgConfig = FabricUI::DFG::DFGConfig());
+
+  ~GLViewportCaptureSequenceDialog();
+
+  int captureResX();
+  int captureResY();
+  QString capturePath();
+  QString captureFilename();
+  int captureFramePadding();
+  int captureFrameStart();
+  int captureFrameEnd();
+
+  void setCaptureResX(int resX);
+  void setCaptureResY(int resY);
+  void setCapturePath(QString path);
+  void setCaptureFilename(QString filename);
+  void setCaptureFramePadding(int framePadding);
+  void setCaptureFrameStart(int frameStart);
+  void setCaptureFrameEnd(int frameEnd);
+
+private:
+
+  QLineEdit *m_lineEditCaptureResX;
+  QLineEdit *m_lineEditCaptureResY;
+  QLineEdit *m_lineEditCapturePath;
+  QLineEdit *m_lineEditCaptureFilename;
+  QLineEdit *m_lineEditCaptureFramePadding;
+  QLineEdit *m_lineEditCaptureFrameStart;
+  QLineEdit *m_lineEditCaptureFrameEnd;
+};
 
 class GLViewportWidget : public ViewportWidget
 {
@@ -26,7 +67,7 @@ class GLViewportWidget : public ViewportWidget
 
   	virtual ~GLViewportWidget();
   
-    /// Gets tge camera.
+    /// Gets the camera.
     FabricCore::RTVal getCamera();
 
     /// Checks if the grid is visible.
@@ -51,7 +92,15 @@ class GLViewportWidget : public ViewportWidget
     /// default parameters.
     void resetCamera();
 
-  protected:
+    /// Starts the viewport capture.
+    /// (sequence).
+    void startViewportCapture();
+
+    /// Saves the current viewport.
+    /// (single frame).
+    void saveViewportAs();
+
+protected:
     /// Implementation of QGLWidget
     virtual void initializeGL();
     
@@ -65,6 +114,13 @@ class GLViewportWidget : public ViewportWidget
     virtual void paintGL();
 
   private:
+    enum CaptureModes
+    {
+      CAPTURE_OFF,
+      CAPTURE_ON,
+      CAPTURE_ERROR,
+    };
+
     /// Sets the background color.
     void setBackgroundColor(
       QColor color

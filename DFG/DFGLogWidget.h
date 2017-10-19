@@ -86,6 +86,10 @@ namespace FabricUI
       virtual ~DFGLogWidget();
 
       static void log(const char * message);
+      static void logError(const char * message);
+      static void logWarning(const char * message);
+      static void logInfo(const char * message);
+      static void logDebug(const char * message);
 
       static void callback(
         void * userData, 

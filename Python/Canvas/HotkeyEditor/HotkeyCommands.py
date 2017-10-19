@@ -19,6 +19,7 @@ class BaseHotkeyCommand(QtGui.QUndoCommand):
 class SetKeySequenceCommand(BaseHotkeyCommand):
     def __init__(self, model, actName, prevKeySeq, keySeq):
         super(SetKeySequenceCommand, self).__init__()
+        self.succefullyDone = False
         self.prevKeySeq = prevKeySeq
         self.keySeq = keySeq
         self.actName = actName
@@ -28,11 +29,15 @@ class SetKeySequenceCommand(BaseHotkeyCommand):
         self.redo()
  
     def redo(self):
+        """ Implementation of QtGui.QUndoCommand
+        """
         if self.state == self.State.REDO_IT:
-            self.model.setItemKeySequence(self.actName, self.keySeq, False)
+            self.succefullyDone = self.model.setItemKeySequence(self.actName, self.keySeq, False)
             self.state = self.State.UNDO_IT
 
     def undo(self):
+        """ Implementation of QtGui.QUndoCommand
+        """
         if self.state == self.State.UNDO_IT:
             self.model.setItemKeySequence(self.actName, self.prevKeySeq)
             self.state = self.State.REDO_IT
@@ -47,6 +52,8 @@ class OpenFileCommand(BaseHotkeyCommand):
         self.hotkeyEditor = hotkeyEditor
          
     def doIt(self):
+        """ Implementation of QtGui.QUndoCommand
+        """
         lastDir = str(GetAppStates().getSettings().value("hotkeyEditor/lastFolder"))
         fname, _ = QtGui.QFileDialog.getOpenFileName(None, "Open Hotkey file", lastDir, "*.json")
  
@@ -78,11 +85,15 @@ class OpenFileCommand(BaseHotkeyCommand):
             self.hotkeyEditor.setWindowTitle(windowTitle)
 
     def redo(self):
+        """ Implementation of QtGui.QUndoCommand
+        """
         if self.state == self.State.REDO_IT:
             self.__setKeySequenceList(self.jsonData, self.windowtTitle)
             self.state = self.State.UNDO_IT
 
     def undo(self):
+        """ Implementation of QtGui.QUndoCommand
+        """
         if self.state == self.State.UNDO_IT:
             self.__setKeySequenceList(self.preShortcutList, self.prevWindowTitle)
             self.state = self.State.REDO_IT
@@ -90,7 +101,8 @@ class OpenFileCommand(BaseHotkeyCommand):
 class SaveFileCommand(BaseHotkeyCommand):
     def __init__(self):
         super(SaveFileCommand, self).__init__()
- 
+    
+    def saveFile(self):
         ext = ".json"
         fname = str(GetAppStates().getSettings().value("hotkeyEditor/lastFolder"))
         fname, _ = QtGui.QFileDialog.getSaveFileName(None, "Save Hotkey file", fname, str("*" + ext))
@@ -114,4 +126,5 @@ class SaveFileCommand(BaseHotkeyCommand):
          
         with open(fname, 'w') as outfile:  
             json.dump(jsonData, outfile, ensure_ascii=False, indent=4)
- 
+
+        return True

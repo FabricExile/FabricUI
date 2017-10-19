@@ -9,6 +9,12 @@
 #include "BaseRTValModelItem.h"
 
 namespace FabricUI {
+
+namespace ValueEditor
+{
+  class ViewItemMetadata;
+}
+
 namespace OptionsEditor {
 
 class RTValDictModelItem : public BaseRTValModelItem 
@@ -52,6 +58,8 @@ class RTValDictModelItem : public BaseRTValModelItem
     /// Implementation of ValueEditor::BaseModelItem
     virtual void resetToDefault();
 
+    FabricUI::ValueEditor::ItemMetadata* getMetadata() FTL_OVERRIDE;
+
     /// Implementation of BaseRTValModelItem.
     virtual FabricCore::RTVal getRTValOptions();
 
@@ -64,8 +72,12 @@ class RTValDictModelItem : public BaseRTValModelItem
   private:
     /// Lists of the keys.
     std::vector<std::string> m_keys;
+
+    FabricUI::ValueEditor::ViewItemMetadata* m_metaData;
+
     /// Dictionary [key, value]
     std::map<std::string, BaseRTValModelItem*> m_children;
+
     FabricCore::RTVal m_options;
 };
 

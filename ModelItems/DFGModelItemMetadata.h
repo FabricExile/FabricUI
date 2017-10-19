@@ -37,9 +37,6 @@ protected:
 
 public:
 
-  static FTL::CStrRef const VEDFGBindingIdKey;
-  static FTL::CStrRef const VEDFGPortPathKey;
-
   DFGModelItemMetadata() {}
 };
 

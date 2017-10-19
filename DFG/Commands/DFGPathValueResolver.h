@@ -57,6 +57,15 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
         QString nodeName;
         QString execPath;
         QString id;
+        int arrayIndex; // If array element
+
+        DFGPortPaths() {
+          arrayIndex = -1;
+        }
+
+        bool isArrayElement() {
+          return arrayIndex > -1;
+        }
 
         bool isExecBlockPort();
 
@@ -64,17 +73,29 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
 
         QString getRelativePortPath();
 
-        QString getAbsolutePortPath();
+        QString getAbsolutePortPath(
+          bool addBindingID = true
+          );
 
-        QString getAbsoluteNodePath();
+        QString getFullItemPath(
+          bool addBindingID = true
+          );
+
+        QString getAbsoluteNodePath(
+          bool addBindingID = true
+          );
     };
 
-    /// Gets the executable and DFGPortPaths
-    /// from the pathValue.
-    FabricCore::DFGExec getDFGPortPaths(
-      FabricCore::RTVal pathValue, 
-      DFGPortPaths &dfgPortPaths
-      );
+    /// Type of DFG item.
+    enum DFGType { DFGUnknow, DFGPort, DFGArg, DFGVar };
+      
+    /// Gets the DFG item type (DFGUnknow, DFGPort, DFGVar)
+    /// and the DFGPortPaths if the item is a port.
+    FabricCore::DFGExec getDFGPortPathsAndType(
+      FabricCore::RTVal pathValue,
+      DFGPortPaths &dfgPortPaths,
+      DFGType &dfgType
+      );  
 
     FabricCore::DFGBinding getDFGBinding() const;
 
@@ -87,19 +108,17 @@ class DFGPathValueResolver : public Commands::BasePathValueResolver
   private:
     /// Removes the bindingID or the solverID from the path if set.
     QString getPathWithoutBindingOrSolverID(
-      FabricCore::RTVal pathValue
+      FabricCore::RTVal pathValue,
+      int &arrayIndex,
+      bool removeArrayElement = true
       );
 
-    /// Type of DFG item.
-    enum DFGType { DFGUnknow, DFGPort, DFGArg, DFGVar };
-      
-    /// Gets the DFG item type (DFGUnknow, DFGPort, DFGVar)
-    /// and the DFGPortPaths if the item is a port.
-    FabricCore::DFGExec getDFGPortPathsAndType(
-      FabricCore::RTVal pathValue,
-      DFGPortPaths &dfgPortPaths,
-      DFGType &dfgType
-      );  
+    /// Gets the executable and DFGPortPaths
+    /// from the pathValue.
+    FabricCore::DFGExec getDFGPortPaths(
+      FabricCore::RTVal pathValue, 
+      DFGPortPaths &dfgPortPaths
+      );
 
     /// Casts the path the a humain readable format.
     /// Replaces the bindingID by the solverID if it exists.

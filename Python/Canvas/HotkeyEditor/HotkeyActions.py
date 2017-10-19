@@ -69,8 +69,9 @@ class SaveFileAction(BaseHotkeyEditorAction):
         self.setToolTip('Save file')
         
     def onTriggered(self):
-        SaveFileCommand()
-        self.hotkeyEditor.hotkeyTable.onEmitEditingItem(False)
+        cmd = SaveFileCommand()
+        if cmd.saveFile():
+            self.hotkeyEditor.hotkeyTable.onEmitEditingItem(False)
 
 class ExitAction(BaseHotkeyEditorAction):
  
@@ -78,7 +79,7 @@ class ExitAction(BaseHotkeyEditorAction):
         super(ExitAction, self).__init__(
             hotkeyEditor, 
             "HotkeyEditor.ExitAction", 
-            "Ok", 
+            "OK", 
             QtGui.QKeySequence("Return"))
 
         self.setToolTip('Accept the changes and close the dialog')
@@ -93,7 +94,7 @@ class UndoAction(BaseHotkeyEditorAction):
             hotkeyEditor, 
             "HotkeyEditor.UndoAction", 
             "Undo", 
-            QtGui.QKeySequence("Ctrl+Z"))
+            QtGui.QKeySequence(QtGui.QKeySequence.Undo))
 
         self.setToolTip('Undo the changes.')
         self.setEnabled(False)
@@ -117,7 +118,7 @@ class RedoAction(BaseHotkeyEditorAction):
             hotkeyEditor, 
             "HotkeyEditor.RedoAction", 
             "Redo", 
-            QtGui.QKeySequence("Ctrl+Shift+Z"))
+            QtGui.QKeySequence(QtGui.QKeySequence.Redo))
 
         self.setEnabled(False)
         self.setToolTip('Redo the changes.')
@@ -133,3 +134,49 @@ class RedoAction(BaseHotkeyEditorAction):
             self.setEnabled(not editing)
         else:
             self.setEnabled(False)
+
+class ResetAction(BaseHotkeyEditorAction):
+    """ Reset to default configuration (actions' shortcuts).
+    """
+
+    def __init__(self, hotkeyEditor):
+        super(ResetAction, self).__init__(
+            hotkeyEditor, 
+            "HotkeyEditor.ResetAction", 
+            "Reset", 
+            QtGui.QKeySequence())
+
+        self.setToolTip('Resets to default configuration.')
+        
+    def onTriggered(self):
+        self.hotkeyEditor.hotkeyTable.qUndoStack.clear()
+        self.hotkeyEditor.hotkeyTable.model.resetItemKeySequence()
+        self.hotkeyEditor.hotkeyTable.onEmitEditingItem(False)
+
+
+class ResetSingleAction(CppActions.BaseAction):
+ 
+    def __init__(self, hotkeyTable, actName, curKeySeq):
+
+        super(ResetSingleAction, self).__init__(hotkeyTable)
+        self.hotkeyTable = hotkeyTable
+        self.actName = actName
+        self.curKeySeq = curKeySeq
+
+        self.init(
+            "HotkeyEditor.ResetSingleAction", 
+            "Reset To Default", 
+            QtGui.QKeySequence(), 
+            QtCore.Qt.WidgetWithChildrenShortcut,
+            True, False)  
+ 
+    def onTriggered(self):
+
+        actRegistry = CppActions.ActionRegistry.GetActionRegistry()
+        keySeq = actRegistry.getDefaultShortcut(self.actName)
+
+        if keySeq != self.curKeySeq:
+            cmd = SetKeySequenceCommand(self.hotkeyTable.model, self.actName, self.curKeySeq, keySeq)
+            if cmd.succefullyDone is True:
+                self.hotkeyTable.qUndoStack.push(cmd)
+                self.hotkeyTable.onEmitEditingItem(False)
