@@ -60,3 +60,5 @@ The build scripts will ask for several environment variables :
 - `FABRIC_BUILD_OS` = { Windows; Linux; Darwin }, `FABRIC_BUILD_ARCH`= { x86; x86_64 }, `FABRIC_BUILD_TYPE` = { Debug; Release }
 
 After running `scons` or `scons canvas.py` successfully, the resulting distribution will be located in a new directory `FabricUI/stage/`.
+
+Note: in some cases, the target `canvas.py` has to be run twice (`scons canvas.py && scons canvas.py`) because of a bug in the build system.
